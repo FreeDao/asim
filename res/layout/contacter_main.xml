@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.view.asim">
+
+    <RelativeLayout
+        android:id="@+id/main_head"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/white6" >
+
+        <ImageView
+            android:id="@+id/title_img"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/ic_group_mainpage_chat_nor" />
+
+        <TextView
+            android:id="@+id/ivTitleName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/title_img"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="@string/app_name"
+            android:textColor="@color/darkgray"
+            android:textSize="18.0sp" />
+        
+         <ImageView
+            android:id="@+id/aukey_online_img"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_toRightOf="@+id/ivTitleName"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/icon_setting_security" 
+            android:visibility="gone"/>
+
+       <com.view.asim.view.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/my_avatar_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/default_avatar_male"
+            app:border_width="1px"
+            app:border_color="@color/white"
+            />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/head_body_divide_img"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/linegray" />
+    
+    <TextView
+        android:id="@+id/network_failed_txt"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/lightred"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/check_connection"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:background="@color/white" >
+
+        <LinearLayout
+            android:id="@+id/top"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:gravity="bottom"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:id="@+id/tab_message_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:onClick="onClick"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/tab_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:text="@string/navi_message"
+                    android:textColor="@color/darkgray"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/message_paopao_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/skin_tab_newmessage2"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tab_contacts_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:onClick="onClick"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/tab_contacts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:text="@string/navi_contacts"
+                    android:textColor="@color/darkgray"
+                    android:textSize="18sp" />
+
+                <ImageView
+                    android:id="@+id/contacts_paopao_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/new_message_notify"
+                    android:gravity="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tab_me_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:onClick="onClick"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/tab_me"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:text="@string/navi_me"
+                    android:textColor="@color/darkgray"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/secret_paopao_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                                        android:layout_gravity="center_vertical"
+                    
+                    android:background="@drawable/new_message_notify"
+                    android:gravity="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/top_bar_select"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/topbar_select" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/tab_body_divide_img"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/linegray" />
+
+    <com.view.asim.view.ScrollLayout
+        android:id="@+id/scrolllayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

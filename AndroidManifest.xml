@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.view.asim"
+      android:versionCode="1"
+      android:versionName="0.5.14">
+
+ 	<uses-sdk android:minSdkVersion="12" android:targetSdkVersion="19"/>
+ 	<!-- 访问Internet -->
+	<uses-permission android:name="android.permission.INTERNET" />
+	<!--- 访问网络状态 -->
+ 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+ 	<!-- 往SDCard写入数据权限 -->
+ 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+ 	<!-- 在SDCard中创建与删除文件权限 -->
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+    <!-- 往SDCard写入数据权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- 读取本机号码权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>    
+    <!-- 读取联系人权限 -->   
+	<uses-permission android:name="android.permission.READ_CONTACTS"/>  
+	<!-- USB Host 权限 -->
+	<uses-feature android:name="android.hardware.usb.host" />
+	<uses-permission android:name="android.permission.USB_PERMISSION" />
+	<!-- 录音权限 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- 修改系统声音模式权限 -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- 调用系统弹出窗口权限 -->
+	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>  
+    
+    <application android:name="com.view.asim.activity.AsimApplication" 
+        android:icon="@drawable/ic_group_mainpage_chat_nor" 
+        android:label="@string/app_name"
+        android:largeHeap="true">
+        <uses-library android:name="android.test.runner" />
+        <activity android:name="com.view.asim.activity.SplashActivity"  
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            
+            <!-- 
+ 		    <intent-filter>
+            	<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            	<action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
+        	</intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+               android:resource="@xml/device_filter" />
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"
+               android:resource="@xml/device_filter" />
+             -->
+        </activity> 
+        <!--  登录界面 -->
+		<activity android:name="com.view.asim.activity.LoginActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!--  注册界面 -->
+		<activity android:name="com.view.asim.activity.SignUpActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!--  添加密友界面 -->
+		<activity android:name="com.view.asim.activity.im.AddUserMainActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!-- 密友推荐界面 -->
+        <activity android:name="com.view.asim.activity.im.UserNoticeActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!-- 通讯录好友界面 -->
+        <activity android:name="com.view.asim.activity.im.AddUserContactsActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        
+        
+        <!-- 个人信息修改界面 -->
+        <activity android:name="com.view.asim.activity.im.UserInfoModActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!-- 头像查看界面 -->
+        <activity android:name="com.view.asim.activity.im.UserAvatarActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        
+        <!-- 设置界面 -->
+        <activity android:name="com.view.asim.activity.im.SettingsActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+
+        <!-- 选择联系人界面 -->
+        <activity android:name="com.view.asim.activity.im.GroupAddUserActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        
+        <!-- 用户信息 -->
+        <activity android:name="com.view.asim.activity.im.UserInfoActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!-- 聊天 -->
+        <activity android:name="com.view.asim.activity.im.ChatActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        <!-- 预览界面 -->
+        <activity android:name="com.view.asim.activity.im.ImagePreviewActivity" android:launchMode="standard" android:screenOrientation="unspecified"></activity>
+        
+        <!-- 阅后即焚预览界面 -->
+        <activity android:name="com.view.asim.activity.im.BurnMsgViewActivity" android:launchMode="standard" android:screenOrientation="unspecified" android:theme="@style/Translucent_NoTitle" >
+        </activity>
+        
+        <!-- 联系人列表 -->
+	    <activity android:name="com.view.asim.activity.MainActivity" android:launchMode="singleTask" android:screenOrientation="unspecified"></activity>
+		
+		<!-- 联系人服务 -->
+		<service android:name="com.view.asim.service.IMContactService"></service>
+		<!-- 聊天服务 -->
+		<service android:name="com.view.asim.service.IMChatService"></service>  
+		<!-- 系统消息服务 -->
+		<service android:name="com.view.asim.service.IMSystemMsgService"></service>
+		<!-- 重连接服务 -->
+ 		<service android:name="com.view.asim.service.ReConnectService"></service>
+		<!-- 安司盾服务 -->
+ 		<service android:name="com.view.asim.service.AUKeyService"></service>
+ 		
+ 	</application>
+    <!-- 启动测试器 -->
+   	<instrumentation
+        android:label="Tests for pysfclient"
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.view.asim" /> 
+</manifest>

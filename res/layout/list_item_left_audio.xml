@@ -1,0 +1,49 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.view.asim">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="20dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" >
+
+        <com.view.asim.view.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/iv_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/default_avatar_male" 
+            app:border_width="1px"
+            app:border_color="@color/white"/>
+
+        <Button
+            android:id="@+id/btn_left_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/message_left_white_bg"
+            android:gravity="right|center_vertical"
+            android:drawableLeft="@drawable/audio_play_anim_left"
+            android:paddingLeft="15dp"
+            android:paddingRight="10dp"
+            android:textSize="14dp" 
+            android:text="6''"
+            android:textColor="@color/puregreen"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="10dp" 
+        android:textSize="10sp"
+        android:textColor="@color/white"/>
+
+</LinearLayout>

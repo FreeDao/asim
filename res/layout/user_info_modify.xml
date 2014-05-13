@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white4"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/main_head"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/white6" >
+
+        <TextView
+            android:id="@+id/title_back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:drawableLeft="@drawable/common_back_btn_normal"
+            android:gravity="center_vertical"
+            android:textColor="@color/black"
+            android:textSize="18.0sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:id="@+id/mod_remark_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <EditText
+                android:id="@+id/remark_input"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/white_editbox_frame"
+                android:cursorVisible="true"
+                android:hint="@string/remark_hint"
+                android:paddingLeft="15dp"
+                android:singleLine="true"
+                android:textColor="@color/darkgray"
+                android:textColorHint="@color/lightgray"
+                android:textSize="18.0sp" />
+
+            <Button
+                android:id="@+id/remark_cfm_btn"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/green_button"
+                android:text="@string/cfm_btn"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mod_location_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <EditText
+                android:id="@+id/location_input"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/white_editbox_frame"
+                android:cursorVisible="true"
+                android:hint="@string/location_hint"
+                android:paddingLeft="15dp"
+                android:singleLine="true"
+                android:textColor="@color/darkgray"
+                android:textColorHint="@color/lightgray"
+                android:textSize="18.0sp" />
+
+            <Button
+                android:id="@+id/location_cfm_btn"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/green_button"
+                android:text="@string/cfm_btn"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/mod_nick_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+
+            <RadioGroup
+                android:id="@+id/gender_radio_grp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <RadioButton
+                    android:id="@+id/gender_radio_male"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/male_avatar_radio"
+                    android:button="@null"
+                    android:gravity="center" />
+
+                <RadioButton
+                    android:id="@+id/gender_radio_female"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/female_avatar_radio"
+                    android:button="@null"
+                    android:gravity="center" />
+            </RadioGroup>
+
+
+                <EditText
+                    android:id="@+id/nickname_input"
+                    android:layout_width="fill_parent"
+                    android:layout_height="40dp"
+                android:background="@drawable/white_editbox_frame"
+                    android:cursorVisible="true"
+                    android:hint="@string/nickname"
+                                        android:layout_marginTop="40dp"
+                    
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    
+                    android:paddingLeft="15dp"
+                    android:singleLine="true"
+                    android:textColor="@color/darkgray"
+                    android:textColorHint="@color/lightgray"
+                    android:textSize="18.0sp" />
+
+
+            <Button
+                android:id="@+id/nickname_cfm_btn"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/green_button"
+                android:text="@string/cfm_btn"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal" >
+            </LinearLayout>
+        </LinearLayout>
+        
+        
+        
+    </RelativeLayout>
+
+</LinearLayout>

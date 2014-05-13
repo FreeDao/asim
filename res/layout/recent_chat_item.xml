@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp" >
+
+        <com.view.asim.view.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/contact_avatar_img"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/default_avatar_male"
+            app:border_width="1dp"
+   			app:border_color="@color/white" />
+
+        <TextView
+            android:id="@+id/new_msg_num_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:layout_alignRight="@id/contact_avatar_img"  
+			android:layout_alignTop="@id/contact_avatar_img"            
+            android:background="@drawable/skin_list_newmessage2"
+            android:gravity="center_horizontal|center_vertical"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginLeft="10dip"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="34dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/contact_name_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:gravity="left"
+                android:layout_weight="1"
+                android:text="123"
+                android:textColor="@color/darkgray"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/last_msg_time_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:gravity="right"
+	            android:textColor="@color/lightgray"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/last_msg_txt"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:singleLine="true"
+            android:gravity="center_vertical"
+            android:text="123"
+            android:textColor="@color/lightgray"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

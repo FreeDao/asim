@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/main_head"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/white6" >
+
+        <ImageView
+            android:id="@+id/title_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/common_back_btn_normal" />
+
+        <TextView
+            android:id="@+id/to_chat_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/title_back"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@color/gray"
+            android:textSize="18.0sp" />
+        
+        <ImageView
+            android:id="@+id/aukey_online_img"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_toRightOf="@+id/to_chat_name"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/icon_setting_security" 
+            android:visibility="gone"/>
+
+        <ImageButton
+            android:id="@+id/user_info"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/user_account_icon" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/head_body_divide"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/linegray" />
+    
+   <TextView
+        android:id="@+id/network_failed_txt"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/lightred"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/check_connection"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <RelativeLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/chatgray"
+        android:layout_weight="1.0">
+	    <ListView
+	        android:id="@+id/chat_list"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:divider="@null"
+	        android:listSelector="@android:color/transparent" />
+	    
+	    
+	    <LinearLayout
+	        android:id="@+id/rcChat_popup"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:gravity="center"
+	        android:visibility="gone" >
+	
+	        <include
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            layout="@layout/voice_rcd_hint_window" />
+	    </LinearLayout>
+    </RelativeLayout>
+
+        <!-- 聊天输入框 -->
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/custom_facerelativelayout" />
+
+</LinearLayout>
