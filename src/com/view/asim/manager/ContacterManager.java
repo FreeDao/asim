@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
@@ -20,9 +19,8 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.ReportedData;
 import org.jivesoftware.smackx.ReportedData.Row;
-import org.jivesoftware.smackx.packet.VCard;
-import org.jivesoftware.smackx.search.UserSearch;
 import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jivesoftware.smackx.packet.VCard;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.model.GroupUser;
@@ -199,7 +197,12 @@ public class ContacterManager {
 	public static VCard saveUserVCard(XMPPConnection conn, User user) {
 		VCard card = new VCard();
 		try {
-			card.load(conn);
+			try {
+				card.load(conn);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
 			
 			Log.d(TAG, "load my vcard: " + card);
 			
@@ -281,8 +284,8 @@ public class ContacterManager {
         
         VCard vcard = new VCard();  
         try {  
-            vcard.load(conn, StringUtil.getJidByName(name, conn.getServiceName()));  
-        } catch (XMPPException e) {  
+			vcard.load(conn, StringUtil.getJidByName(name, conn.getServiceName()));
+		} catch (XMPPException e) {  
             e.printStackTrace();  
         }  
         return vcard;  
@@ -303,9 +306,9 @@ public class ContacterManager {
         VCard vcard = new VCard();  
         try {  
             vcard.load(conn);  
-        } catch (XMPPException e) {  
+		} catch (XMPPException e) {  
             e.printStackTrace();  
-        }  
+        }    
         return vcard;  
     }
 
@@ -416,6 +419,7 @@ public class ContacterManager {
 	public static User getUserByName(XMPPConnection conn, String name) {
 		User user = new User();
 		VCard vcard = getUserVCard(conn, name);
+		Log.d(TAG, "get vcard: " + vcard);
 
 		user.setName(name);
 		user.setJID(StringUtil.getJidByName(name, conn.getServiceName()));
@@ -434,11 +438,13 @@ public class ContacterManager {
 		}
 		
 		String pinyin = user.getNamepy();
-		String sortString = pinyin.substring(0, 1).toUpperCase();
-		if (sortString.matches("[A-Z]")) {
-			user.setSortLetters(sortString.toUpperCase());
-		} else {
-			user.setSortLetters("#");
+		user.setSortLetters("#");
+
+		if(pinyin != null) {
+			String sortString = pinyin.substring(0, 1).toUpperCase();
+			if (sortString.matches("[A-Z]")) {
+				user.setSortLetters(sortString.toUpperCase());
+			}
 		}
 		
 		Log.d(TAG, "getUserByName: " + user);

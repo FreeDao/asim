@@ -4,13 +4,16 @@ package com.view.asim.activity;
 import java.util.HashSet;
 import java.util.Random;
 
+import org.jivesoftware.smack.SmackAndroid;
+
 import com.view.asim.comm.Constant;
+import com.view.asim.dbg.CrashHandler;
+import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
+import com.view.asim.service.ConnectService;
 import com.view.asim.task.LoginTask;
-import com.view.asim.util.CrashHandler;
 import com.view.asim.util.FileUtil;
-import com.view.asim.util.LogcatHelper;
 
 import android.graphics.drawable.AnimationDrawable;
 
@@ -122,8 +125,6 @@ public class SplashActivity extends ActivitySupport {
 				finish();
 			}
 		});
-
-
 	}
 
 	@Override
@@ -145,6 +146,7 @@ public class SplashActivity extends ActivitySupport {
         return random.nextInt(6); 
     }
 	
+	/*
 	private boolean checkMemoryCard() {
 		final String sdcardPath = FileUtil.getSDCardRootDirectory();
 		if (sdcardPath == null) {
@@ -154,7 +156,7 @@ public class SplashActivity extends ActivitySupport {
 		else {
 			String oldPath = getDataRootPath();
 			
-			/* 如果是第一次运行 App，将可用的 SD 卡路径保存在配置中 */
+			// 如果是第一次运行 App，将可用的 SD 卡路径保存在配置中
 			if (oldPath == null) {
 				Log.d(TAG, "save sdcard path: " + sdcardPath);
 				mLoginCfg.setRootPath(sdcardPath);
@@ -169,9 +171,41 @@ public class SplashActivity extends ActivitySupport {
 				}
 				else {
 					Log.d(TAG, "sdcard path " + sdcardPath + " has changed, the saved path is " + oldPath);
-					/* 如果本次运行发现 SD 卡路径和之前记录的不同，判断之前的路径是否可用，如果不可用，退出 App */
+					// 如果本次运行发现 SD 卡路径和之前记录的不同，判断之前的路径是否可用，如果不可用，退出 App
 					if(!FileUtil.checkPathValid(oldPath)) {
 						showSDCardChangedView(sdcardPath);
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	*/
+	
+	private boolean checkMemoryCard() {
+		if (Constant.SDCARD_ROOT_PATH == null) {
+			showErrorSDCardView();
+			return false;
+		}
+		else {
+			String oldPath = getDataRootPath();
+			
+			/* 如果是第一次运行 App，将可用的 SD 卡路径保存在配置中 */
+			if (oldPath == null) {
+				Log.d(TAG, "save sdcard path: " + Constant.SDCARD_ROOT_PATH);
+				mLoginCfg.setRootPath(Constant.SDCARD_ROOT_PATH);
+				saveLoginConfig(mLoginCfg);
+			}
+			else {
+				if(oldPath.equals(Constant.SDCARD_ROOT_PATH)) {
+					Log.d(TAG, "sdcard path " + Constant.SDCARD_ROOT_PATH + " has been saved.");
+				}
+				else {
+					Log.d(TAG, "sdcard path " + Constant.SDCARD_ROOT_PATH + " has changed, the saved path is " + oldPath);
+					/* 如果本次运行发现 SD 卡路径和之前记录的不同，判断之前的路径是否可用，如果不可用，退出 App */
+					if(!FileUtil.checkPathValid(oldPath)) {
+						showSDCardChangedView(Constant.SDCARD_ROOT_PATH);
 						return false;
 					}
 				}
@@ -207,7 +241,6 @@ public class SplashActivity extends ActivitySupport {
 		leftBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				LogcatHelper.getInstance().stop();
 				eimApplication.exit();
 			}
 		});	
@@ -233,7 +266,6 @@ public class SplashActivity extends ActivitySupport {
 		leftBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				LogcatHelper.getInstance().stop();
 				eimApplication.exit();
 			}
 		});	
@@ -260,7 +292,6 @@ public class SplashActivity extends ActivitySupport {
 		leftBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				LogcatHelper.getInstance().stop();
 				eimApplication.exit();
 			}
 		});	
@@ -283,11 +314,12 @@ public class SplashActivity extends ActivitySupport {
 	
 	public void normalOperation() {
 		
+		LogcatHelper.getInstance(context).stop();
 		LogcatHelper.getInstance(context).start();
-        
-		// 初始化xmpp配置
-		XmppConnectionManager.getInstance().init(mLoginCfg);
 
+		stopService();
+		startService();
+		
 		bottomBackgroundImg.setVisibility(View.GONE);
 		errorOperLayout.setVisibility(View.GONE);
 		normalOperLayout.setVisibility(View.VISIBLE);

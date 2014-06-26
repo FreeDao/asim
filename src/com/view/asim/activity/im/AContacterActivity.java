@@ -125,9 +125,9 @@ public abstract class AContacterActivity extends ActivitySupport {
 			} 
 			
 			else if (Constant.ACTION_RECONNECT_STATE.equals(action)) {
-				boolean isSuccess = intent.getBooleanExtra(
-						Constant.RECONNECT_STATE, true);
-				handReConnect(isSuccess);
+				String status = intent.getStringExtra(
+						Constant.RECONNECT_STATE);
+				handReConnect(status);
 			}
 
 		}
@@ -284,7 +284,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 	 * 
 	 * @param isSuccess
 	 */
-	protected abstract void handReConnect(boolean isSuccess);
+	protected abstract void handReConnect(String status);
 
 	/**
 	 * 判断用户名是否存在

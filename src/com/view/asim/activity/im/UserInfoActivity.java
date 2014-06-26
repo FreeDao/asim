@@ -8,7 +8,7 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smackx.packet.VCard;
+import org.sipdroid.sipua.ui.Receiver;
 
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
@@ -35,6 +35,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -114,6 +115,13 @@ public class UserInfoActivity extends ActivitySupport {
 			@Override
 			public void onClick(View v) {
 				createChat(mUser.getJID());
+			}
+		});
+		
+		mVoiceBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				call_menu(mUser.getJID());
 			}
 		});
 
@@ -356,5 +364,10 @@ public class UserInfoActivity extends ActivitySupport {
 			mAddUserBtn.setVisibility(View.VISIBLE);
 		}
 		
+	}
+	
+	void call_menu(String name)
+	{
+		Receiver.engine(this).call(StringUtil.getCellphoneByName(name), true);
 	}
 }

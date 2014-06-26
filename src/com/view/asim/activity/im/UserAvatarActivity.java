@@ -3,8 +3,6 @@ package com.view.asim.activity.im;
 import java.io.InputStream;
 
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.packet.VCard;
-
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;

@@ -119,6 +119,9 @@ public interface IActivitySupport {
 	 * @author xuweinan
 	 */
 	public abstract Context getContext();
+	
+	public abstract String getVersion();
+
 
 	/**
 	 * 

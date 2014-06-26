@@ -13,7 +13,15 @@ import android.database.sqlite.SQLiteDatabase;
  * 
  */
 public class DBManager {
-	private int version = 1;
+	
+	/**
+	 * App 版本: 
+	 * V0.4.28，数据库版本：V1
+	 * V0.5.14，数据库版本：V2
+	 * V0.6.25，数据库版本：V3
+	 */
+	private int version = 3;
+	
 	private String databaseName;
 
 	// 本地Context对象

@@ -13,6 +13,7 @@ import android.os.Parcelable;
 
 public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	
+	public static final String PROP_ID = "message.prop.id";
 	public static final String PROP_TYPE = "message.prop.type";
 	public static final String PROP_TIME = "message.prop.time";
 	public static final String PROP_WITH = "message.prop.with";
@@ -24,6 +25,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	public static final String PROP_TYPE_CTRL = "message.prop.type.ctrl";
 	
 	// 消息状态常量
+	public static final String INPROGRESS = "inprogress";
 	public static final String SUCCESS = "success";
 	public static final String ERROR = "error";
 	
@@ -47,6 +49,8 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	public static final String GROUP = "group";
 
 	private String id;
+	
+	private String uniqueId;
 
 	// 消息状态（成功/失败）
 	private String status;
@@ -78,6 +82,16 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	// 销毁类型
 	private String destroy;
 	
+	public String getUniqueId() {
+		return uniqueId;
+	}
+
+
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+
+	
 	public String getChatType() {
 		return chatType;
 	}
@@ -105,7 +119,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	}
 
 	public IMMessage() {
-		this.status = SUCCESS;
+		this.status = INPROGRESS;
 	}
 
 	public String getId() {
@@ -199,6 +213,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 
 	protected IMMessage(Parcel in) {  
 		this.id = in.readString();
+		this.uniqueId = in.readString();
 		this.type = in.readString();
 		this.dir = in.readString();
 		this.status = in.readString();
@@ -219,6 +234,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(id);
+		dest.writeString(uniqueId);
 		dest.writeString(type);
 		dest.writeString(dir);
 		dest.writeString(status);

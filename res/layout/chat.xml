@@ -10,27 +10,19 @@
         android:layout_height="48dp"
         android:background="@color/white6" >
 
-        <ImageView
-            android:id="@+id/title_back"
+        <TextView
+            android:id="@+id/title_back_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/common_back_btn_normal" />
-
-        <TextView
-            android:id="@+id/to_chat_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@id/title_back"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:singleLine="true"
-            android:textColor="@color/gray"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:drawableLeft="@drawable/common_back_btn_normal"
+            android:background="@drawable/title_clickable_background"
+            android:gravity="center_vertical"
+            android:textColor="@color/black"
             android:textSize="18.0sp" />
         
         <ImageView
@@ -46,13 +38,13 @@
 
         <ImageButton
             android:id="@+id/user_info"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/user_account_icon" />
+            android:background="@drawable/title_clickable_background"
+            android:src="@drawable/user_account_icon" />
     </RelativeLayout>
 
     <ImageView
@@ -80,7 +72,7 @@
 	    <ListView
 	        android:id="@+id/chat_list"
 	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        android:layout_height="fill_parent"
 	        android:divider="@null"
 	        android:listSelector="@android:color/transparent" />
 	    

@@ -11,19 +11,21 @@
         android:layout_height="48dp"
         android:background="@color/white6" >
 
-        <TextView
+       <TextView
             android:id="@+id/title_back_btn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:drawableLeft="@drawable/common_back_btn_normal"
+            android:background="@drawable/title_clickable_background"
             android:gravity="center_vertical"
             android:text="@string/add_user"
             android:textColor="@color/black"
-            android:textSize="18.0sp" />
+            android:textSize="18.0sp" />        
     </RelativeLayout>
 
     <ImageView
@@ -37,13 +39,14 @@
         android:layout_marginTop="20dp"
         android:orientation="horizontal" >
 
-        <EditText
+        <com.view.asim.view.ClearEditText
             android:id="@+id/search_user_input"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             android:layout_marginLeft="10dp"
             android:layout_weight="1.0"
             android:background="@drawable/white_editbox_frame"
+            android:drawableRight="@drawable/et_delete"
             android:cursorVisible="true"
             android:hint="@string/search_hint"
             android:paddingLeft="10dp"
@@ -73,14 +76,15 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
-        android:background="@color/linegray" />
+        android:background="@color/white2" />
 
     <LinearLayout
         android:id="@+id/add_user_by_contacts_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:background="@drawable/clickable_background"
         android:orientation="horizontal" >
 
         <ImageView
@@ -106,15 +110,17 @@
         android:layout_height="1px"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="10dp"
-        android:background="@color/lightgray"
+        android:background="@color/white2"
         android:contentDescription="@null" />
 
     <LinearLayout
         android:id="@+id/add_user_by_invite_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:background="@drawable/clickable_background"
+        android:clickable="true"
         android:orientation="horizontal" >
 
         <ImageView
@@ -139,15 +145,17 @@
         android:layout_height="1px"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="10dp"
-        android:background="@color/lightgray"
+        android:background="@color/white2"
         android:contentDescription="@null" />
 
     <LinearLayout
         android:id="@+id/add_user_by_barcode_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:background="@drawable/clickable_background"
+        android:clickable="true"
         android:orientation="horizontal" >
 
         <ImageView
@@ -173,7 +181,7 @@
         android:layout_height="1px"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="10dp"
-        android:background="@color/lightgray"
+        android:background="@color/white2"
         android:contentDescription="@null" />
 
 </LinearLayout>

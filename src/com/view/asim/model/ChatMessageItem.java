@@ -8,7 +8,18 @@ public class ChatMessageItem {
 	
 	private String type;
 	private Object value;
+	private int progress;
 	
+	public ChatMessageItem() {
+		progress = 0;
+	}
+	
+	public int getProgress() {
+		return progress;
+	}
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
 	public String getType() {
 		return type;
 	}

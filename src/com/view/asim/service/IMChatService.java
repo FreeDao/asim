@@ -8,6 +8,7 @@ import java.util.List;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.MessageTypeFilter;
+import org.jivesoftware.smack.filter.OrFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
@@ -43,6 +44,7 @@ import com.view.asim.worker.SendGroupTextMsgHandler;
 import com.view.asim.worker.SendTextMsgHandler;
 import com.view.asim.worker.SendGroupFileMsgHandler;
 import com.view.asim.worker.SendFileMsgHandler;
+import com.view.asim.worker.RemoteDestroyMessageHandler;
 
 import com.view.asim.worker.Worker;
 import android.app.Notification;
@@ -78,12 +80,12 @@ public class IMChatService extends Service {
 		context = this;
 		super.onCreate();
 		mRecvMsgWorker = new Worker();
-		mRecvMsgWorker.initilize("mRecvMsgWorker");
+		mRecvMsgWorker.initilize("IM Receive Message Worker");
 		
 		mSendMsgWorker = new Worker();
-		mSendMsgWorker.initilize("mSendMsgWorker");
+		mSendMsgWorker.initilize("IM Send Message Worker");
 		
-		initChatManager();
+		//initChatManager();
 		initBroadcastReceiver();
 	}
 
@@ -114,7 +116,9 @@ public class IMChatService extends Service {
 
 		filter.addAction(Constant.SEND_FILE_ACTION);
 		filter.addAction(Constant.SEND_MESSAGE_ACTION);
+		filter.addAction(Constant.REMOTE_DESTROY_ACTION);
 		filter.addAction(Constant.RECV_OFFLINE_MSG_ACTION);
+		filter.addAction(Constant.ACTION_RECONNECT_STATE);
 
 		registerReceiver(receiver, filter);
 	}
@@ -128,8 +132,12 @@ public class IMChatService extends Service {
 			
 			String action = intent.getAction();
 			BaseHandler handler = null;
-
-			if (action.equals(Constant.SEND_FILE_ACTION)) {
+			
+			if (action.equals(Constant.REMOTE_DESTROY_ACTION)) {
+				final ChatMessage remoteMsg = (ChatMessage) intent.getParcelableExtra(Constant.REMOTE_DESTROY_KEY_MESSAGE);
+				handler = (RemoteDestroyMessageHandler) new RemoteDestroyMessageHandler(remoteMsg);
+			}
+			else if (action.equals(Constant.SEND_FILE_ACTION)) {
 				final ChatMessage fileMsg = (ChatMessage) intent.getParcelableExtra(Constant.SEND_FILE_KEY_MESSAGE);
 				if (fileMsg.getChatType().equals(IMMessage.SINGLE)) {					
 					handler = (SendFileMsgHandler) new SendFileMsgHandler(context, fileMsg, 
@@ -144,10 +152,13 @@ public class IMChatService extends Service {
 
 								@Override
 								public void onSentProgress(long cur, long total) {
-									Intent intent = new Intent(Constant.FILE_PROGRESS_ACTION);
-									intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, fileMsg);
-									intent.putExtra(Constant.SEND_FILE_KEY_PROGRESS, (int)(cur * 100 / total));
-									sendBroadcast(intent);
+									int ratio = (int)(cur * 100 / total);
+									if(ratio % 20 == 0) {
+										Intent intent = new Intent(Constant.FILE_PROGRESS_ACTION);
+										intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, fileMsg);
+										intent.putExtra(Constant.SEND_FILE_KEY_PROGRESS, ratio);
+										sendBroadcast(intent);
+									}
 								}
 						
 					});
@@ -166,10 +177,13 @@ public class IMChatService extends Service {
 
 								@Override
 								public void onSentProgress(long cur, long total) {
-									Intent intent = new Intent(Constant.FILE_PROGRESS_ACTION);
-									intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, fileMsg);
-									intent.putExtra(Constant.SEND_FILE_KEY_PROGRESS, (int)(cur * 100 / total));
-									sendBroadcast(intent);
+									long ratio = cur * 100 / total;
+									if(ratio % 20 == 0) {
+										Intent intent = new Intent(Constant.FILE_PROGRESS_ACTION);
+										intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, fileMsg);
+										intent.putExtra(Constant.SEND_FILE_KEY_PROGRESS, ratio);
+										sendBroadcast(intent);
+									}
 								}
 					});
 				}
@@ -210,7 +224,7 @@ public class IMChatService extends Service {
 
 			}
 			else if (action.equals(Constant.RECV_OFFLINE_MSG_ACTION)) {
-				dealOfflineMsg();
+				//dealOfflineMsg();
 				XmppConnectionManager.getInstance().getConnection()
 					.sendPacket(new Presence(Presence.Type.available));
 			}
@@ -226,7 +240,20 @@ public class IMChatService extends Service {
 				GroupUser grp = (GroupUser) intent.getParcelableExtra(Constant.GROUP_ACTION_KEY_INFO);
 				handler = (GroupInfoUpdateHandler) new GroupInfoUpdateHandler(grp);
 			}
-			
+			else if (Constant.ACTION_RECONNECT_STATE.equals(action)) {
+				String status = intent.getStringExtra(
+						Constant.RECONNECT_STATE);
+				if(status.equals(XmppConnectionManager.DISCONNECTED)) {
+					Log.i(TAG, "disconn succ, uninit chat listener");
+					unInitChatManager();
+				}
+				else if(status.equals(XmppConnectionManager.CONNECTED)) {
+					Log.i(TAG, "connection succ, init chat listener");
+					initChatManager();
+					XmppConnectionManager.getInstance().getConnection()
+					.sendPacket(new Presence(Presence.Type.available));
+				}
+			}
 			
 			if (handler != null) {
 				mSendMsgWorker.addHandler(handler);
@@ -287,6 +314,14 @@ public class IMChatService extends Service {
 										else if (msgType.equals(CtrlMessage.CTRL_SEK_EXCHANGE)) {
 											// TODO:
 										}
+										else if (msgType.equals(CtrlMessage.REMOTE_DESTROY)) {
+											String id = (String) message.getProperty(CtrlMessage.PROP_ID);
+											Log.i(TAG, "recv remote destroy command for message unique id:" + id);
+											MessageManager.getInstance().delMessageByUniqueId(id);
+
+											Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
+											sendBroadcast(intent);
+										}
 										else {
 											h = (RecvFileMsgHandler) new RecvFileMsgHandler(context, message, 
 													new MessageRecvResultListener() {
@@ -319,13 +354,25 @@ public class IMChatService extends Service {
 
 	}
 	
+	private void unInitChatManager() {
+		try {
+			XMPPConnection conn = XmppConnectionManager.getInstance()
+					.getConnection();
+			
+			conn.removePacketListener(pListener);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	private void initChatManager() {
 		try {
 			XMPPConnection conn = XmppConnectionManager.getInstance()
 					.getConnection();
-			conn.addPacketListener(pListener, new MessageTypeFilter(
-					Message.Type.chat));
+			conn.addPacketListener(pListener, new OrFilter(
+					new MessageTypeFilter(Message.Type.chat), 
+					new MessageTypeFilter(Message.Type.normal)));
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 			stopSelf();
@@ -344,6 +391,15 @@ public class IMChatService extends Service {
 				ContacterManager.userMe);
 	}
 
+	PacketListener pSysListener = new PacketListener() {
+
+		@Override
+		public void processPacket(Packet arg0) {
+			Log.d(TAG, "normal packet: " + arg0);
+
+		}
+	};
+	
 	PacketListener pListener = new PacketListener() {
 
 		@Override
@@ -396,6 +452,14 @@ public class IMChatService extends Service {
 					else if (msgType.equals(CtrlMessage.CTRL_SEK_EXCHANGE)) {
 						// TODO:
 					}
+					else if (msgType.equals(CtrlMessage.REMOTE_DESTROY)) {
+						String id = (String) message.getProperty(CtrlMessage.PROP_ID);
+						Log.i(TAG, "recv remote destroy command for message unique id:" + id);
+						MessageManager.getInstance().delMessageByUniqueId(id);
+
+						Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
+						sendBroadcast(intent);
+					}
 					else {
 						handler = (RecvFileMsgHandler) new RecvFileMsgHandler(context, message, 
 								new MessageRecvResultListener() {
@@ -414,8 +478,9 @@ public class IMChatService extends Service {
 					
 				}
 				
-				mRecvMsgWorker.addHandler(handler);
-				
+				if (handler != null) {
+					mRecvMsgWorker.addHandler(handler);
+				}
 				
 				// 生成通知
 				NoticeManager noticeManager = NoticeManager.getInstance();

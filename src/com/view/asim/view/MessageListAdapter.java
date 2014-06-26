@@ -3,6 +3,13 @@ package com.view.asim.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.model.ChatMessageItem;
@@ -18,21 +25,24 @@ import com.view.asim.R;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore.Images;
 import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 
 /**
  * 聊天会话界面适配器
@@ -62,6 +72,14 @@ public class MessageListAdapter extends BaseAdapter {
 	public static final int VALUE_RIGHT_VIDEO = 0x23;
 	public static final int VALUE_RIGHT_FILE = 0x24;
 	public static final int VALUE_RIGHT_BURN = 0x25;
+	
+	public static final int MAX_IMAGE_THUMBNAIL_WIDTH = 200;
+	public static final int MAX_IMAGE_THUMBNAIL_HEIGHT = 200;
+	public static final int MAX_VIDEO_THUMBNAIL_WIDTH = 200;
+	public static final int MAX_VIDEO_THUMBNAIL_HEIGHT = 200;
+	
+	private DisplayImageOptions options;
+	private ImageLoader imageLoader;
 
 	private LayoutInflater mInflater;
 	private ListView adapterList;
@@ -77,9 +95,10 @@ public class MessageListAdapter extends BaseAdapter {
 	private OnClickListener mFileClickListener = null;
 	private OnClickListener mLeftBurnClickListener = null;
 	private OnClickListener mRightBurnClickListener = null;
+	private OnClickListener mSentFailedClickListener = null;
 
 	public MessageListAdapter(Context context, List<ChatMessageItem> items,
-			ListView adapterList, User user) {
+			ListView adapterList, User user, ImageLoader loader) {
 		this.items = items;
 		this.adapterList = adapterList;
 		this.user = user;
@@ -87,6 +106,15 @@ public class MessageListAdapter extends BaseAdapter {
 		mInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mCntx = context;
+		
+		imageLoader = loader;
+		options = new DisplayImageOptions.Builder()
+			.showImageOnFail(R.drawable.image_download_fail_icon)
+			.cacheInMemory(true)
+			.cacheOnDisc(true)
+			.considerExifParams(true)
+			.imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
+			.build();
 	}
 
 	@Override
@@ -104,15 +132,49 @@ public class MessageListAdapter extends BaseAdapter {
 		return arg0;
 	}
 
+	/**
+	 * 更新整个 ListView
+	 * @param items
+	 */
 	public void refreshList(List<ChatMessageItem> items) {
 		this.items = items;
 		this.notifyDataSetChanged();
 		adapterList.setSelection(items.size() - 1);
 	}
 	
+	/**
+	 * 更新 List 中单个 View（仅限于 IM 消息）
+	 * @param item
+	 */
+	public void refreshItem(ChatMessageItem item) {
+		int index = -1;
+		int i = -1;
+		
+		for (i = 0; i < items.size(); i++) {
+			if (!items.get(i).getType().equals(ChatMessage.TIMESTAMP)) {
+				ChatMessage m = (ChatMessage) items.get(i).getValue();
+				if (m.getId().equals(((ChatMessage)item.getValue()).getId())) {
+					index = i;
+					break;
+				}
+			}
+		}
+		
+		if (index == -1) {
+			Log.d(TAG, "cannot find the view which needs to be updated: " + (ChatMessage)item.getValue());
+			return;
+		}
+		
+		int visiblePosition = adapterList.getFirstVisiblePosition(); 
+		View view = adapterList.getChildAt(index - visiblePosition);
+		items.set(index, item);
+		getView(index, view, null);
+	}
+	
 	@Override
 	public View getView(int position, View convertView, ViewGroup arg2) {
 
+		ImageSize is = null;
 		Bitmap bm = null;
 		SpannableString spannableString;
 		ChatMessage msg = null;
@@ -148,8 +210,6 @@ public class MessageListAdapter extends BaseAdapter {
 					break;
 					
 				case VALUE_LEFT_TEXT:
-					msg = (ChatMessage)item.getValue();
-					
 					holderLeftText = new ViewHolderLeftText();
 					convertView = mInflater.inflate(R.layout.list_item_left_text,
 							null);
@@ -157,21 +217,14 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftText.btnLeftText = (Button) convertView
 							.findViewById(R.id.btn_left_text);
-					spannableString = FaceConversionUtil.getInstace().
-							getExpressionString(mCntx, msg.getContent(), 60);
-
-					setAvatarImage(holderLeftText.ivLeftIcon, user);
-					holderLeftText.btnLeftText.setText(spannableString);
+					convertView.setTag(holderLeftText);
 					if (mMessageContentLongClickListener != null) {
 						holderLeftText.btnLeftText.setOnLongClickListener(mMessageContentLongClickListener);
 					}
-					holderLeftText.btnLeftText.setTag(msg);
 
-					convertView.setTag(holderLeftText);
 					break;
 
 				case VALUE_LEFT_IMAGE:
-					msg = (ChatMessage)item.getValue();
 					holderLeftImg = new ViewHolderLeftImg();
 					convertView = mInflater.inflate(R.layout.list_item_left_image,
 							null);
@@ -179,12 +232,6 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftImg.ivLeftImage = (ImageView) convertView
 							.findViewById(R.id.iv_left_image_thumb);
-					setAvatarImage(holderLeftImg.ivLeftIcon, user);
-					
-					bm = BitmapFactory.decodeFile(msg.getAttachment().getThumbUri());
-					holderLeftImg.ivLeftImage.setImageBitmap(bm);
-					holderLeftImg.ivLeftImage.setTag(msg);
-					
 					if (mImageClickListener != null) {
 						holderLeftImg.ivLeftImage.setOnClickListener(mImageClickListener);
 					}
@@ -192,26 +239,17 @@ public class MessageListAdapter extends BaseAdapter {
 					if (mMessageContentLongClickListener != null) {
 						holderLeftImg.ivLeftImage.setOnLongClickListener(mMessageContentLongClickListener);
 					}
-					
 					convertView.setTag(holderLeftImg);
 					break;
 					
 				case VALUE_LEFT_VIDEO:
-					msg = (ChatMessage)item.getValue();
 					holderLeftVideo = new ViewHolderLeftVideo();
 					convertView = mInflater.inflate(R.layout.list_item_left_video,
 							null);
 					holderLeftVideo.ivLeftIcon = (ImageView) convertView
 							.findViewById(R.id.iv_icon);
 					holderLeftVideo.btnLeftVideoThumb = (ImageView) convertView
-							.findViewById(R.id.iv_left_video_thumb);
-					setAvatarImage(holderLeftVideo.ivLeftIcon, user);
-					
-					bm = BitmapFactory.decodeFile(msg.getAttachment().getThumbUri());
-					holderLeftVideo.btnLeftVideoThumb.setImageBitmap(bm);
-					
-					holderLeftVideo.btnLeftVideoThumb.setTag(msg);
-					
+							.findViewById(R.id.iv_left_video_thumb);					
 					if (mVideoClickListener != null) {
 						holderLeftVideo.btnLeftVideoThumb.setOnClickListener(mVideoClickListener);
 					}
@@ -223,8 +261,6 @@ public class MessageListAdapter extends BaseAdapter {
 					break;
 
 				case VALUE_LEFT_AUDIO:
-					msg = (ChatMessage)item.getValue();
-
 					holderLeftAudio = new ViewHolderLeftAudio();
 					convertView = mInflater.inflate(R.layout.list_item_left_audio,
 							null);
@@ -232,48 +268,33 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftAudio.btnLeftAudio = (Button) convertView
 							.findViewById(R.id.btn_left_audio);
-					setAvatarImage(holderLeftAudio.ivLeftIcon, user);
-					holderLeftAudio.btnLeftAudio.setText(msg.getAttachment().getAudioLength() + "''");
-					
-					holderLeftAudio.btnLeftAudio.setTag(msg);
-					
 					if (mLeftAudioClickListener != null) {
 						holderLeftAudio.btnLeftAudio.setOnClickListener(mLeftAudioClickListener);
 					}
 					if (mMessageContentLongClickListener != null) {
 						holderLeftAudio.btnLeftAudio.setOnLongClickListener(mMessageContentLongClickListener);
 					}
-					
 					convertView.setTag(holderLeftAudio);
 					break;
 					
 				case VALUE_LEFT_BURN:
-					msg = (ChatMessage)item.getValue();
-
 					holderLeftBurn = new ViewHolderLeftBurn();
 					convertView = mInflater.inflate(R.layout.list_item_left_burn,
 							null);
 					holderLeftBurn.ivLeftIcon = (ImageView) convertView
 							.findViewById(R.id.iv_icon);
-					holderLeftBurn.btnLeftBurn = (Button) convertView
+					holderLeftBurn.btnLeftBurn = (ImageView) convertView
 							.findViewById(R.id.btn_left_burn);
-					
-					setAvatarImage(holderLeftBurn.ivLeftIcon, user);					
-					holderLeftBurn.btnLeftBurn.setTag(msg);
-					
 					if (mLeftBurnClickListener != null) {
 						holderLeftBurn.btnLeftBurn.setOnClickListener(mLeftBurnClickListener);
 					}
 					if (mMessageContentLongClickListener != null) {
 						holderLeftBurn.btnLeftBurn.setOnLongClickListener(mMessageContentLongClickListener);
 					}
-					
 					convertView.setTag(holderLeftBurn);
 					break;
 
 				case VALUE_RIGHT_TEXT:
-					msg = (ChatMessage)item.getValue();
-
 					holderRightText= new ViewHolderRightText();
 					convertView = mInflater.inflate(R.layout.list_item_right_text,
 							null);
@@ -281,23 +302,19 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderRightText.btnRightText = (Button) convertView
 							.findViewById(R.id.btn_right_text);
-					spannableString = FaceConversionUtil.getInstace().
-							getExpressionString(mCntx, msg.getContent(), 60);
+					holderRightText.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
+					holderRightText.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
 
-					setAvatarImage(holderRightText.ivRightIcon, ContacterManager.userMe);
-
-					holderRightText.btnRightText.setText(spannableString);
+					if (mSentFailedClickListener != null) {
+						holderRightText.ivFailedImg.setOnClickListener(mSentFailedClickListener);
+					}
 					if (mMessageContentLongClickListener != null) {
 						holderRightText.btnRightText.setOnLongClickListener(mMessageContentLongClickListener);
 					}
-					holderRightText.btnRightText.setTag(msg);
-					
 					convertView.setTag(holderRightText);
 					break;
 
 				case VALUE_RIGHT_IMAGE:
-					msg = (ChatMessage)item.getValue();
-
 					holderRightImg = new ViewHolderRightImg();
 					convertView = mInflater.inflate(R.layout.list_item_right_image,
 							null);
@@ -305,14 +322,13 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderRightImg.ivRightImage = (ImageView) convertView
 							.findViewById(R.id.iv_right_image_thumb);
-					setAvatarImage(holderRightImg.ivRightIcon, ContacterManager.userMe);
-					
-					Log.d(TAG, "msg list view pos " + position + ", path " + msg.getAttachment().getSrcUri());
-					bm = ImageUtil.getImageThumbnail(msg.getAttachment().getSrcUri(), 200, 200);
-					holderRightImg.ivRightImage.setImageBitmap(bm);
-					
-					holderRightImg.ivRightImage.setTag(msg);
+					holderRightImg.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
+					holderRightImg.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
+					holderRightImg.tvProgressTxt = (TextView) convertView.findViewById(R.id.progress_txt);
 
+					if (mSentFailedClickListener != null) {
+						holderRightImg.ivFailedImg.setOnClickListener(mSentFailedClickListener);
+					}
 					if (mImageClickListener != null) {
 						holderRightImg.ivRightImage.setOnClickListener(mImageClickListener);
 					}
@@ -323,20 +339,19 @@ public class MessageListAdapter extends BaseAdapter {
 					break;
 
 				case VALUE_RIGHT_AUDIO:
-					msg = (ChatMessage)item.getValue();
-
-					holderRightAudio=new ViewHolderRightAudio();
+					holderRightAudio = new ViewHolderRightAudio();
 					convertView = mInflater.inflate(R.layout.list_item_right_audio,
 							null);
 					holderRightAudio.ivRightIcon = (ImageView) convertView
 							.findViewById(R.id.iv_icon);
 					holderRightAudio.btnRightAudio = (Button) convertView
 							.findViewById(R.id.btn_right_audio);
-					setAvatarImage(holderRightAudio.ivRightIcon, ContacterManager.userMe);
-					holderRightAudio.btnRightAudio.setText(msg.getAttachment().getAudioLength() + "''");
-					
-					holderRightAudio.btnRightAudio.setTag(msg);
+					holderRightAudio.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
+					holderRightAudio.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
 
+					if (mSentFailedClickListener != null) {
+						holderRightAudio.ivFailedImg.setOnClickListener(mSentFailedClickListener);
+					}
 					if (mRightAudioClickListener != null) {
 						holderRightAudio.btnRightAudio.setOnClickListener(mRightAudioClickListener);
 					}
@@ -347,7 +362,6 @@ public class MessageListAdapter extends BaseAdapter {
 					break;
 					
 				case VALUE_RIGHT_VIDEO:
-					msg = (ChatMessage)item.getValue();
 					holderRightVideo = new ViewHolderRightVideo();
 					convertView = mInflater.inflate(R.layout.list_item_right_video,
 							null);
@@ -355,14 +369,13 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderRightVideo.btnRightVideoThumb = (ImageView) convertView
 							.findViewById(R.id.iv_right_video_thumb);
-					setAvatarImage(holderRightVideo.ivRightIcon, ContacterManager.userMe);
-					
-					bm = ImageUtil.getVideoThumbnail(msg.getAttachment().getSrcUri(), 100, 100,
-							Images.Thumbnails.MINI_KIND);
-					holderRightVideo.btnRightVideoThumb.setImageBitmap(bm);
-					
-					holderRightVideo.btnRightVideoThumb.setTag(msg);
+					holderRightVideo.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
+					holderRightVideo.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
+					holderRightVideo.tvProgressTxt = (TextView) convertView.findViewById(R.id.progress_txt);
 
+					if (mSentFailedClickListener != null) {
+						holderRightVideo.ivFailedImg.setOnClickListener(mSentFailedClickListener);
+					}
 					if (mVideoClickListener != null) {
 						holderRightVideo.btnRightVideoThumb.setOnClickListener(mVideoClickListener);
 					}
@@ -373,26 +386,26 @@ public class MessageListAdapter extends BaseAdapter {
 					break;
 					
 				case VALUE_RIGHT_BURN:
-					msg = (ChatMessage)item.getValue();
-
 					holderRightBurn = new ViewHolderRightBurn();
 					convertView = mInflater.inflate(R.layout.list_item_right_burn,
 							null);
 					holderRightBurn.ivRightIcon = (ImageView) convertView
 							.findViewById(R.id.iv_icon);
-					holderRightBurn.btnRightBurn = (Button) convertView
+					holderRightBurn.btnRightBurn = (ImageView) convertView
 							.findViewById(R.id.btn_right_burn);
-					
-					setAvatarImage(holderRightBurn.ivRightIcon, ContacterManager.userMe);					
-					holderRightBurn.btnRightBurn.setTag(msg);
-					
+					holderRightBurn.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
+					holderRightBurn.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
+					//holderRightBurn.tvProgressTxt = (TextView) convertView.findViewById(R.id.progress_txt);
+
+					if (mSentFailedClickListener != null) {
+						holderRightBurn.ivFailedImg.setOnClickListener(mSentFailedClickListener);
+					}
 					if (mRightBurnClickListener != null) {
 						holderRightBurn.btnRightBurn.setOnClickListener(mRightBurnClickListener);
 					}
 					if (mMessageContentLongClickListener != null) {
 						holderRightBurn.btnRightBurn.setOnLongClickListener(mMessageContentLongClickListener);
 					}
-					
 					convertView.setTag(holderRightBurn);
 					break;
 
@@ -403,112 +416,333 @@ public class MessageListAdapter extends BaseAdapter {
 			switch (type) {
 				case VALUE_TIMESTAMP:
 					holderTime = (ViewHolderTime)convertView.getTag();
-					holderTime.tvTimeTip.setText((String)item.getValue());
-					break;				
+					break;
+					
 				case VALUE_LEFT_TEXT:
-					msg = (ChatMessage)item.getValue();
 					holderLeftText = (ViewHolderLeftText)convertView.getTag();
-					spannableString = FaceConversionUtil.getInstace().
-							getExpressionString(mCntx, msg.getContent(), 60);
-					setAvatarImage(holderLeftText.ivLeftIcon, user);
-					holderLeftText.btnLeftText.setText(spannableString);
-					holderLeftText.btnLeftText.setTag(msg);
-
 					break;
+					
 				case VALUE_LEFT_IMAGE:
-					msg = (ChatMessage)item.getValue();
 					holderLeftImg = (ViewHolderLeftImg)convertView.getTag();
-					setAvatarImage(holderLeftImg.ivLeftIcon, user);
-					holderLeftImg.ivLeftImage.setTag(msg);
-
-					bm = BitmapFactory.decodeFile(msg.getAttachment().getThumbUri());
-					holderLeftImg.ivLeftImage.setImageBitmap(bm);
 					break;
+					
 				case VALUE_LEFT_AUDIO:
-					msg = (ChatMessage)item.getValue();
 					holderLeftAudio = (ViewHolderLeftAudio)convertView.getTag();
-					setAvatarImage(holderLeftAudio.ivLeftIcon, user);
-					holderLeftAudio.btnLeftAudio.setTag(msg);
-
-					holderLeftAudio.btnLeftAudio.setText(msg.getAttachment().getAudioLength() + "''");
-					convertView.setTag(holderLeftAudio);
 					break;
+					
 				case VALUE_LEFT_VIDEO:
-					msg = (ChatMessage)item.getValue();
 					holderLeftVideo = (ViewHolderLeftVideo)convertView.getTag();
-					setAvatarImage(holderLeftVideo.ivLeftIcon, user);
-					holderLeftVideo.btnLeftVideoThumb.setTag(msg);
-
-					bm = BitmapFactory.decodeFile(msg.getAttachment().getThumbUri());
-					holderLeftVideo.btnLeftVideoThumb.setImageBitmap(bm);
-					convertView.setTag(holderLeftVideo);
 					break;
 					
 				case VALUE_LEFT_BURN:
-					msg = (ChatMessage)item.getValue();
 					holderLeftBurn = (ViewHolderLeftBurn) convertView.getTag();
-					setAvatarImage(holderLeftBurn.ivLeftIcon, user);					
-					holderLeftBurn.btnLeftBurn.setTag(msg);
-					convertView.setTag(holderLeftBurn);
 					break;
 					
 				case VALUE_RIGHT_TEXT:
-					msg = (ChatMessage)item.getValue();
 					holderRightText = (ViewHolderRightText)convertView.getTag();
-					spannableString = FaceConversionUtil.getInstace().
-							getExpressionString(mCntx, msg.getContent(), 60);
-					setAvatarImage(holderRightText.ivRightIcon, ContacterManager.userMe);
-					holderRightText.btnRightText.setTag(msg);
-
-					holderRightText.btnRightText.setText(spannableString);
 					break;
 					
 				case VALUE_RIGHT_IMAGE:
-					msg = (ChatMessage)item.getValue();
 					holderRightImg = (ViewHolderRightImg)convertView.getTag();
-					setAvatarImage(holderRightImg.ivRightIcon, ContacterManager.userMe);
-					holderRightImg.ivRightImage.setTag(msg);
-
-					bm = ImageUtil.getImageThumbnail(msg.getAttachment().getSrcUri(), 200, 200);
-					holderRightImg.ivRightImage.setImageBitmap(bm);
 					break;
 					
 				case VALUE_RIGHT_AUDIO:
-					msg = (ChatMessage)item.getValue();
 					holderRightAudio = (ViewHolderRightAudio)convertView.getTag();
-					setAvatarImage(holderRightAudio.ivRightIcon, ContacterManager.userMe);
-					holderRightAudio.btnRightAudio.setTag(msg);
-
-					holderRightAudio.btnRightAudio.setText(msg.getAttachment().getAudioLength() + "''");
 					break;
 					
 				case VALUE_RIGHT_VIDEO:
-					msg = (ChatMessage)item.getValue();
 					holderRightVideo = (ViewHolderRightVideo)convertView.getTag();
-
-					setAvatarImage(holderRightVideo.ivRightIcon, ContacterManager.userMe);
-					holderRightVideo.btnRightVideoThumb.setTag(msg);
-
-					bm = ImageUtil.getVideoThumbnail(msg.getAttachment().getSrcUri(), 100, 100,
-							Images.Thumbnails.MINI_KIND);
-					holderRightVideo.btnRightVideoThumb.setImageBitmap(bm);
 					break;
 					
 				case VALUE_RIGHT_BURN:
-					msg = (ChatMessage)item.getValue();
 					holderRightBurn = (ViewHolderRightBurn) convertView.getTag();
-					setAvatarImage(holderRightBurn.ivRightIcon, ContacterManager.userMe);					
-					holderRightBurn.btnRightBurn.setTag(msg);
-					convertView.setTag(holderRightBurn);
 					break;
+
+				default:
+					break;
+			}
+		}
+		
+		switch (type) {
+			case VALUE_TIMESTAMP:
+				holderTime.tvTimeTip.setText((String)item.getValue());
+				break;
+				
+			case VALUE_LEFT_TEXT:
+				msg = (ChatMessage)item.getValue();
+				spannableString = FaceConversionUtil.getInstace().
+						getExpressionString(mCntx, msg.getContent(), 60);
+				setAvatarImage(holderLeftText.ivLeftIcon, user);
+				holderLeftText.btnLeftText.setText(spannableString);
+				holderLeftText.btnLeftText.setTag(msg);
+				break;
+				
+			case VALUE_LEFT_IMAGE:
+				msg = (ChatMessage)item.getValue();
+				setAvatarImage(holderLeftImg.ivLeftIcon, user);
+				final ImageView leftImage = holderLeftImg.ivLeftImage;
+				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
+				
+				imageLoader.loadImage("file://" + msg.getAttachment().getThumbUri(), is, options, new SimpleImageLoadingListener() {
+				    @Override
+				    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+						Log.d(TAG, "loader img bitmap width " + loadedImage.getWidth() + ", height " + loadedImage.getHeight());
+						
+						LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+								leftImage.getPaddingLeft() + loadedImage.getWidth() + leftImage.getPaddingRight() , 
+								leftImage.getPaddingTop() + loadedImage.getHeight() + leftImage.getPaddingBottom());
+						leftImage.setLayoutParams(layoutParams);
+						new RoundedBitmapDisplayer(15).display(loadedImage, new ImageViewAware(leftImage), null);
+						
+				    }
+				});
+				holderLeftImg.ivLeftImage.setTag(msg);
+				break;
+				
+			case VALUE_LEFT_AUDIO:
+				msg = (ChatMessage)item.getValue();
+				setAvatarImage(holderLeftAudio.ivLeftIcon, user);
+				holderLeftAudio.btnLeftAudio.setText(msg.getAttachment().getAudioLength() + "''");
+				holderLeftAudio.btnLeftAudio.setTag(msg);
+				
+				break;
+				
+			case VALUE_LEFT_VIDEO:
+				msg = (ChatMessage)item.getValue();
+				setAvatarImage(holderLeftVideo.ivLeftIcon, user);
+				
+				final ImageView leftVideoThumb = holderLeftVideo.btnLeftVideoThumb;
+				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
+				
+				imageLoader.loadImage("file://" + msg.getAttachment().getThumbUri(), is, options, new SimpleImageLoadingListener() {
+				    @Override
+				    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+						Log.d(TAG, "loader img bitmap width " + loadedImage.getWidth() + ", height " + loadedImage.getHeight());
+						
+						RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+								leftVideoThumb.getPaddingLeft() + loadedImage.getWidth() + leftVideoThumb.getPaddingRight() , 
+								leftVideoThumb.getPaddingTop() + loadedImage.getHeight() + leftVideoThumb.getPaddingBottom());
+						leftVideoThumb.setLayoutParams(layoutParams);
+						new RoundedBitmapDisplayer(15).display(loadedImage, new ImageViewAware(leftVideoThumb), null);
+						
+				    }
+				});
+				holderLeftVideo.btnLeftVideoThumb.setTag(msg);
+				break;
+				
+			case VALUE_LEFT_BURN:
+				msg = (ChatMessage)item.getValue();
+				setAvatarImage(holderLeftBurn.ivLeftIcon, user);					
+				holderLeftBurn.btnLeftBurn.setTag(msg);
+				break;
+				
+			case VALUE_RIGHT_TEXT:
+				msg = (ChatMessage)item.getValue();
+				if(msg.getStatus().equals(IMMessage.ERROR)) {
+					AnimationDrawable anim = (AnimationDrawable) holderRightText.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightText.ivProgressImg.setVisibility(View.GONE);
+					holderRightText.ivFailedImg.setVisibility(View.VISIBLE);
+				}
+				else if(msg.getStatus().equals(IMMessage.INPROGRESS)) {
+					holderRightText.ivFailedImg.setVisibility(View.GONE);
+					holderRightText.ivProgressImg.setVisibility(View.VISIBLE);
+					AnimationDrawable anim = (AnimationDrawable) holderRightText.ivProgressImg.getDrawable();
+					if(!anim.isRunning()) {
+						anim.start();
+					}
+				}
+				else {
+					AnimationDrawable anim = (AnimationDrawable) holderRightText.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightText.ivFailedImg.setVisibility(View.GONE);
+					holderRightText.ivProgressImg.setVisibility(View.GONE);
+				}
+				
+				spannableString = FaceConversionUtil.getInstace().
+						getExpressionString(mCntx, msg.getContent(), 60);
+				setAvatarImage(holderRightText.ivRightIcon, ContacterManager.userMe);
+				holderRightText.btnRightText.setText(spannableString);
+				holderRightText.btnRightText.setTag(msg);
+				holderRightText.ivFailedImg.setTag(msg);
+
+				break;
+				
+			case VALUE_RIGHT_IMAGE:
+				msg = (ChatMessage)item.getValue();
+				if(msg.getStatus().equals(IMMessage.ERROR)) {
+					AnimationDrawable anim = (AnimationDrawable) holderRightImg.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightImg.ivProgressImg.setVisibility(View.GONE);
+					holderRightImg.tvProgressTxt.setVisibility(View.GONE);
+					holderRightImg.ivFailedImg.setVisibility(View.VISIBLE);
+				}
+				else if(msg.getStatus().equals(IMMessage.INPROGRESS)) {
+					holderRightImg.ivFailedImg.setVisibility(View.GONE);
+					holderRightImg.ivProgressImg.setVisibility(View.VISIBLE);
+					holderRightImg.tvProgressTxt.setText(item.getProgress() + "%");
+
+					AnimationDrawable anim = (AnimationDrawable) holderRightImg.ivProgressImg.getDrawable();
+					if(!anim.isRunning()) {
+						anim.start();
+					}
+				}
+				else {
+					AnimationDrawable anim = (AnimationDrawable) holderRightImg.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightImg.ivFailedImg.setVisibility(View.GONE);
+					holderRightImg.ivProgressImg.setVisibility(View.GONE);
+					holderRightImg.tvProgressTxt.setVisibility(View.GONE);
+				}
+				
+				setAvatarImage(holderRightImg.ivRightIcon, ContacterManager.userMe);
+				Log.d(TAG, "msg list view pos " + position + ", path " + msg.getAttachment().getSrcUri());
+				final ImageView rightImage = holderRightImg.ivRightImage;
+				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
+				imageLoader.loadImage("file://" + msg.getAttachment().getSrcUri(), is, options, new SimpleImageLoadingListener() {
+				    @Override
+				    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+						Log.d(TAG, "loader img bitmap width " + loadedImage.getWidth() + ", height " + loadedImage.getHeight());
+						
+						RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+								rightImage.getPaddingLeft() + loadedImage.getWidth() + rightImage.getPaddingRight() , 
+								rightImage.getPaddingTop() + loadedImage.getHeight() + rightImage.getPaddingBottom());
+						rightImage.setLayoutParams(layoutParams);
+						new RoundedBitmapDisplayer(15).display(loadedImage, new ImageViewAware(rightImage), null);
+						
+				    }
+				});
+				holderRightImg.ivRightImage.setTag(msg);
+				holderRightImg.ivFailedImg.setTag(msg);
+
+				break;
+				
+			case VALUE_RIGHT_AUDIO:
+				msg = (ChatMessage)item.getValue();
+				if(msg.getStatus().equals(IMMessage.ERROR)) {
+					AnimationDrawable anim = (AnimationDrawable) holderRightAudio.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightAudio.ivProgressImg.setVisibility(View.GONE);
+					holderRightAudio.ivFailedImg.setVisibility(View.VISIBLE);
+				}
+				else if(msg.getStatus().equals(IMMessage.INPROGRESS)) {
+					holderRightAudio.ivFailedImg.setVisibility(View.GONE);
+					holderRightAudio.ivProgressImg.setVisibility(View.VISIBLE);
+					
+					AnimationDrawable anim = (AnimationDrawable) holderRightAudio.ivProgressImg.getDrawable();
+					if(!anim.isRunning()) {
+						anim.start();
+					}
+				}
+				else {
+					AnimationDrawable anim = (AnimationDrawable) holderRightAudio.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightAudio.ivFailedImg.setVisibility(View.GONE);
+					holderRightAudio.ivProgressImg.setVisibility(View.GONE);
+				}
+				setAvatarImage(holderRightAudio.ivRightIcon, ContacterManager.userMe);
+				holderRightAudio.btnRightAudio.setText(msg.getAttachment().getAudioLength() + "''");
+				holderRightAudio.btnRightAudio.setTag(msg);		
+				holderRightAudio.ivFailedImg.setTag(msg);				
+
+				break;
+				
+			case VALUE_RIGHT_VIDEO:
+				msg = (ChatMessage)item.getValue();
+				if(msg.getStatus().equals(IMMessage.ERROR)) {
+					AnimationDrawable anim = (AnimationDrawable) holderRightVideo.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightVideo.ivProgressImg.setVisibility(View.GONE);
+					holderRightVideo.tvProgressTxt.setVisibility(View.GONE);
+					holderRightVideo.ivFailedImg.setVisibility(View.VISIBLE);
+				}
+				else if(msg.getStatus().equals(IMMessage.INPROGRESS)) {
+					holderRightVideo.ivFailedImg.setVisibility(View.GONE);
+					holderRightVideo.ivProgressImg.setVisibility(View.VISIBLE);
+					holderRightVideo.tvProgressTxt.setText(item.getProgress() + "%");
+
+					AnimationDrawable anim = (AnimationDrawable) holderRightVideo.ivProgressImg.getDrawable();
+					if(!anim.isRunning()) {
+						anim.start();
+					}
+				}
+				else {
+					AnimationDrawable anim = (AnimationDrawable) holderRightVideo.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightVideo.ivFailedImg.setVisibility(View.GONE);
+					holderRightVideo.ivProgressImg.setVisibility(View.GONE);
+					holderRightVideo.tvProgressTxt.setVisibility(View.GONE);
+				}
+				setAvatarImage(holderRightVideo.ivRightIcon, ContacterManager.userMe);
+				final ImageView rightVideoThumb = holderRightVideo.btnRightVideoThumb;
+				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
+				imageLoader.loadImage("file://" + msg.getAttachment().getThumbUri(), is, options, new SimpleImageLoadingListener() {
+				    @Override
+				    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+						Log.d(TAG, "loader img bitmap width " + loadedImage.getWidth() + ", height " + loadedImage.getHeight());
+						
+						RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+								rightVideoThumb.getPaddingLeft() + loadedImage.getWidth() + rightVideoThumb.getPaddingRight() , 
+								rightVideoThumb.getPaddingTop() + loadedImage.getHeight() + rightVideoThumb.getPaddingBottom());
+						rightVideoThumb.setLayoutParams(layoutParams);
+						new RoundedBitmapDisplayer(15).display(loadedImage, new ImageViewAware(rightVideoThumb), null);
+						
+				    }
+				});
+				holderRightVideo.btnRightVideoThumb.setTag(msg);
+				holderRightVideo.ivFailedImg.setTag(msg);
+
+				break;
+				
+			case VALUE_RIGHT_BURN:
+				msg = (ChatMessage)item.getValue();
+				if(msg.getStatus().equals(IMMessage.ERROR)) {
+					AnimationDrawable anim = (AnimationDrawable) holderRightBurn.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightBurn.ivProgressImg.setVisibility(View.GONE);
+					//holderRightBurn.tvProgressTxt.setVisibility(View.GONE);
+					holderRightBurn.ivFailedImg.setVisibility(View.VISIBLE);
+				}
+				else if(msg.getStatus().equals(IMMessage.INPROGRESS)) {
+					holderRightBurn.ivFailedImg.setVisibility(View.GONE);
+					holderRightBurn.ivProgressImg.setVisibility(View.VISIBLE);
+					//holderRightBurn.tvProgressTxt.setText(item.getProgress() + "%");
+					
+					AnimationDrawable anim = (AnimationDrawable) holderRightBurn.ivProgressImg.getDrawable();
+					if(!anim.isRunning()) {
+						anim.start();
+					}
+				}
+				else {
+					AnimationDrawable anim = (AnimationDrawable) holderRightBurn.ivProgressImg.getDrawable();
+					anim.stop();
+
+					holderRightBurn.ivFailedImg.setVisibility(View.GONE);
+					holderRightBurn.ivProgressImg.setVisibility(View.GONE);
+					//holderRightBurn.tvProgressTxt.setVisibility(View.GONE);
+				}
+				setAvatarImage(holderRightBurn.ivRightIcon, ContacterManager.userMe);					
+				holderRightBurn.btnRightBurn.setTag(msg);
+				holderRightBurn.ivFailedImg.setTag(msg);
+
+				break;
 
 			default:
 				break;
-			}
-			//holder = (ViewHolder) convertView.getTag();
 		}
+		
 		return convertView;
 	}
+	
 	
 	protected void setAvatarImage(ImageView v, User u) {
 		if (u.getHeadImg() != null) {
@@ -580,6 +814,11 @@ public class MessageListAdapter extends BaseAdapter {
 	public void setRightBurnClickListener(OnClickListener listener) {
 
 		this.mRightBurnClickListener = listener;
+	}
+	
+	public void setSentFailedClickListener(OnClickListener listener) {
+
+		this.mSentFailedClickListener = listener;
 	}
 	
 	private int parseMsgType(ChatMessageItem msg) {
@@ -656,31 +895,47 @@ public class MessageListAdapter extends BaseAdapter {
 	class ViewHolderRightText {
 		private ImageView ivRightIcon;
 		private Button btnRightText;
+		private ImageView ivFailedImg;
+		private ImageView ivProgressImg;
 	}
 	
 	class ViewHolderRightBurn {
 		private ImageView ivRightIcon;
-		private Button btnRightBurn;
+		private ImageView btnRightBurn;
+		private ImageView ivFailedImg;
+		private ImageView ivProgressImg;
+		private TextView tvProgressTxt;
 	}
 
 	class ViewHolderRightImg {
 		private ImageView ivRightIcon;
 		private ImageView ivRightImage;
+		private ImageView ivFailedImg;
+		private ImageView ivProgressImg;
+		private TextView tvProgressTxt;
 	}
 
 	class ViewHolderRightAudio {
 		private ImageView ivRightIcon;
 		private Button btnRightAudio;
+		private ImageView ivFailedImg;
+		private ImageView ivProgressImg;
 	}
 	
 	class ViewHolderRightVideo {
 		private ImageView ivRightIcon;
 		private ImageView btnRightVideoThumb;
+		private ImageView ivFailedImg;
+		private ImageView ivProgressImg;
+		private TextView tvProgressTxt;
 	}	
 	
 	class ViewHolderRightFile {
 		private ImageView ivRightIcon;
 		private Button btnRightFileName;
+		private ImageView ivFailedImg;
+		private ImageView ivProgressImg;
+		private TextView tvProgressTxt;
 	}
 
 	class ViewHolderLeftText {
@@ -690,7 +945,7 @@ public class MessageListAdapter extends BaseAdapter {
 	
 	class ViewHolderLeftBurn {
 		private ImageView ivLeftIcon;
-		private Button btnLeftBurn;
+		private ImageView btnLeftBurn;
 	}
 	
 	class ViewHolderLeftImg {
@@ -712,5 +967,6 @@ public class MessageListAdapter extends BaseAdapter {
 		private ImageView ivLeftIcon;
 		private Button btnLeftFileName;
 	}
+	
 
 }

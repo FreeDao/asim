@@ -46,8 +46,9 @@
             android:id="@+id/user_remark_layout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:background="@drawable/clickable_background"
             android:orientation="horizontal" >
 
             <TextView
@@ -81,8 +82,9 @@
             android:id="@+id/user_location_layout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:background="@drawable/clickable_background"
             android:orientation="horizontal" >
 
             <TextView
@@ -115,8 +117,9 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:background="@drawable/clickable_background"
             android:orientation="horizontal" >
 
             <TextView
@@ -163,7 +166,7 @@
             android:layout_weight="1.0"
             android:background="@null"
             android:drawablePadding="5dp"
-            android:drawableTop="@drawable/comp_icon_eventcard_default"
+            android:drawableTop="@drawable/groupchat_btn"
             android:gravity="center"
             android:text="群聊"
             android:textColor="@color/gray"
@@ -178,7 +181,7 @@
             android:layout_weight="1.0"
             android:background="@null"
             android:drawablePadding="5dp"
-            android:drawableTop="@drawable/comp_icon_voice_input_default"
+            android:drawableTop="@drawable/voicecall_btn"
             android:gravity="center"
             android:text="语音"
             android:textColor="@color/gray"
@@ -193,7 +196,7 @@
             android:layout_weight="1.0"
             android:background="@null"
             android:drawablePadding="5dp"
-            android:drawableTop="@drawable/comp_icon_qupai_default"
+            android:drawableTop="@drawable/videocall_btn"
             android:gravity="center"
             android:text="视频"
             android:textColor="@color/gray"
@@ -208,7 +211,7 @@
             android:layout_weight="1.0"
             android:background="@null"
             android:drawablePadding="5dp"
-            android:drawableTop="@drawable/comp_icon_card_default"
+            android:drawableTop="@drawable/settings_btn"
             android:gravity="center"
             android:text="设置"
             android:textColor="@color/gray"

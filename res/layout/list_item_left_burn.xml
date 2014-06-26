@@ -19,23 +19,21 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/default_avatar_male" 
-app:border_width="1px"
-            app:border_color="@color/white"/>
+            android:src="@drawable/default_avatar_male"
+            app:border_color="@color/white"
+            app:border_width="1px" />
 
-        <Button
+        <ImageView
             android:id="@+id/btn_left_burn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/chat_class_burn_left_default"
             android:gravity="left|center_vertical"
-            android:textColor="@color/darkgray"
-            android:textSize="16dp" />
-        
-        
-        </LinearLayout>
+            android:src="@drawable/image_burn_left_readed"
+            />
+    </LinearLayout>
+
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="10dp" />

@@ -79,20 +79,25 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 	@Override
 	protected void onPostExecute(Integer result) {
 		pd.dismiss();
+		
+		SignUpActivity signup;
 		switch (result) {
 		case Constant.SERVER_SUCCESS: // 注册成功
-			Toast.makeText(activity, "注册成功", Toast.LENGTH_SHORT).show();
 			activity.saveLoginConfig(loginConfig);// 保存用户配置信息
 
-			SignUpActivity signup = (SignUpActivity)activity;
+			signup = (SignUpActivity)activity;
 			signup.notifySignUpSucc();
 			break;
 		case Constant.SIGNUP_ERROR_ACCOUNT_PASS:// 账户或者密码错误
+			/*
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
 							R.string.message_existed_username),
 					Toast.LENGTH_LONG).show();
+					*/
+			signup = (SignUpActivity)activity;
+			signup.notifyUserIsExist();
 			break;
 		case Constant.SERVER_UNAVAILABLE:// 服务器连接失败
 			Toast.makeText(
@@ -119,22 +124,25 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 		
 		try {
 			// 注册
-			XMPPConnection connection = XmppConnectionManager.getInstance()
-					.getConnection();
-			connection.connect();
+			XmppConnectionManager manager = XmppConnectionManager.getInstance(activity);
+			manager.connectOnly(loginConfig);
+			
+			//XMPPConnection connection = XmppConnectionManager.getInstance()
+					//.getConnection();
+			//connection.connect();
 			loginConfig.setOnline(true);
 			
 	        Registration reg = new Registration();  
 	        reg.setType(IQ.Type.SET);  
-	        reg.setTo(connection.getServiceName());  
+	        reg.setTo(manager.getConnection().getServiceName());  
 	        reg.setUsername(username);  
 	        reg.setPassword(password);  
 	        reg.addAttribute("name", mUser.getNickName());
 
 	        PacketFilter filter = new AndFilter(new PacketIDFilter(  
 	                reg.getPacketID()), new PacketTypeFilter(IQ.class));  
-	        PacketCollector collector = connection.createPacketCollector(filter);  
-	        connection.sendPacket(reg);  
+	        PacketCollector collector = manager.getConnection().createPacketCollector(filter);  
+	        manager.getConnection().sendPacket(reg);  
 	        IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());  
 	        // Stop queuing results停止请求results（是否成功的结果）  
 	        collector.cancel();  
@@ -146,7 +154,7 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 	            if (result.getError().toString().equalsIgnoreCase("conflict(409)")) {  
 	            	Log.d(TAG, "IQ.Type.ERROR: "  
 	                        + result.getError().toString());  
-	                return Constant.LOGIN_ERROR_ACCOUNT_PASS;  
+	                return Constant.SIGNUP_ERROR_ACCOUNT_PASS;  
 	            } else {  
 	            	Log.d(TAG, "IQ.Type.ERROR: "  
 	                        + result.getError().toString());  
@@ -155,6 +163,7 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 	        } else if (result.getType() == IQ.Type.RESULT) {  
 	        	Log.d(TAG, "register success.");
 	        }
+	        
 	        return Constant.SERVER_SUCCESS;
 
 		} catch (Exception xee) {

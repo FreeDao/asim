@@ -33,6 +33,9 @@ public class CtrlMessage extends IMMessage {
 	public static final String CTRL_SEND_VIDEO = "video";
 	// 文件发送通知
 	public static final String CTRL_SEND_FILE = "file";
+	// 远程销毁消息
+	public static final String REMOTE_DESTROY = "remote_destroy";
+
 	
 	public CtrlMessage() {
 		super();

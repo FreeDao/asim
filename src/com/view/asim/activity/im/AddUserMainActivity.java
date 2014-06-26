@@ -37,6 +37,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+
 import com.view.asim.R;
 
 /**
@@ -53,6 +55,8 @@ public class AddUserMainActivity extends ActivitySupport {
 	
 	private Button mSearchCfmBtn = null;
 	private EditText mSearchText = null;
+	private TextView mBackTxtBtn;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,14 @@ public class AddUserMainActivity extends ActivitySupport {
 	protected void init() {
 		getEimApplication().addActivity(this);
 
+		mBackTxtBtn = (TextView) findViewById(R.id.title_back_btn);
+		mBackTxtBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+		
 		mSearchCfmBtn = (Button) findViewById(R.id.search_cfm_btn);
 		mSearchText = (EditText) findViewById(R.id.search_user_input);
 		

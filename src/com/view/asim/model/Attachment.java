@@ -1,12 +1,9 @@
 package com.view.asim.model;
 
 /**
- * 附件对象
+ * 复杂 IM 消息中携带的附件
  */
 
-import java.util.ArrayList;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -16,10 +13,23 @@ import android.os.Parcelable;
 
 public class Attachment implements Parcelable{
 
-	// 本地 URI
+	/**
+	 * 本地 URI：
+	 * 对于相机拍摄发送，此参数必须存在，指向相机拍摄生成的照片保存的位置（对应好友的 image 目录中）
+	 * 对于发送的图片或视频，此参数必须存在，指向资源文件原先存在的位置
+	 * 对于接收的图片或视频，此参数为可选，未完整下载前为空，完整下载成功后为下载保存的位置（对应好友的 image/video 目录中）
+	 * 对于接收的语音，此参数必须存在，为下载后保存的位置（对应好友的 audio 目录中）
+	 * 对于发送的语音，此参数必须存在，为采集语音后保存的位置（对应好友的 audio 目录中）
+	 */
 	private String srcUri;
 	
-	// 缩略图 URI
+	/** 
+	 * 缩略图 URI：(仅限于图片和视频）
+	 * 对于发送的图片，此参数忽略
+	 * 对于发送的视频，此参数为视频缩略图 URI，视频缩略图是根据原视频文件新生成的图片保存的位置（对应好友的 video 目录中）
+	 * 对于接收的图片，此参数为从服务器下载的缩略图保存在本地的 URI（对应好友的 image 目录中）
+	 * 对于接收的视频，此参数为从服务器下载的缩略图保存在本地的 URI（对应好友的 video 目录中）
+	 */
 	private String thumbUri;
 	
 	// 录音音频时长

@@ -18,6 +18,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -175,11 +181,37 @@ public class ImageUtil {
 		    closeInputStream(inputStream);
 		    outStream.close();
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			return null;
 		}
         return outStream.toByteArray();  
 	}
+	
+	/**
+	 * 从七牛返回的 avinfo 信息中解析视频图像尺寸
+	 * @param avinfo
+	 * @return 图像尺寸
+	 */
+	public static ImageSize getVideoDisplaySizeByAvInfo(String info) {
+		try {
+			JSONObject avinfo = new JSONObject(info);
+			JSONArray streams = avinfo.getJSONArray("streams");
+			for (int i = 0; i < streams.length(); i ++) {
+				JSONObject stream = streams.getJSONObject(i);
+				if (stream.has("width") && stream.has("height")) {
+					ImageSize is = new ImageSize(stream.getInt("width"), stream.getInt("height"));
+					return is;
+				}
+			}
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return null;
+	}
+	
 	
 	 /** 
      * 保存图片到文件 
@@ -250,7 +282,62 @@ public class ImageUtil {
 	    return Bitmap.createBitmap(org, 0, 0, org.getWidth(), org.getHeight(),
 	            matrix, true);
 	}
+	
+	/**
+	 * 根据欲载入的图片实际尺寸和欲显示的尺寸自动计算缩小比例
+	 * （Google code）
+	 * @param options
+	 * @param reqWidth
+	 * @param reqHeight
+	 * @return
+	 */
+	public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+	    // Raw height and width of image
+	    final int height = options.outHeight;
+	    final int width = options.outWidth;
+	    int inSampleSize = 1;
+	
+	    if (height > reqHeight || width > reqWidth) {
+	
+	        final int halfHeight = height / 2;
+	        final int halfWidth = width / 2;
+	
+	        // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+	        // height and width larger than the requested height and width.
+	        while ((halfHeight / inSampleSize) > reqHeight
+	                && (halfWidth / inSampleSize) > reqWidth) {
+	            inSampleSize *= 2;
+	        }
+	    }
+	
+	    return inSampleSize;
+	}
+	
+	/**
+	 * 从文件中读取图片（根据欲显示的尺寸自动缩小）
+	 * （Google Code）
+	 * @param imgPath
+	 * @param reqWidth
+	 * @param reqHeight
+	 * @return
+	 */
+	public static Bitmap decodeSampledBitmapFromFile(String imgPath,
+	        int reqWidth, int reqHeight) {
 
+	    // First decode with inJustDecodeBounds=true to check dimensions
+	    final BitmapFactory.Options options = new BitmapFactory.Options();
+	    options.inJustDecodeBounds = true;
+	    BitmapFactory.decodeFile(imgPath, options);
+
+	    // Calculate inSampleSize
+	    options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+	    // Decode bitmap with inSampleSize set
+	    options.inJustDecodeBounds = false;
+	    return BitmapFactory.decodeFile(imgPath, options);
+	}
+	
 	
 	/**
 	* 根据指定的图像路径和大小来获取缩略图
@@ -313,6 +400,14 @@ public class ImageUtil {
 		ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 		return bitmap;
 	}
+	
+	public static Bitmap getVideoThumbnail(String videoPath, int kind) {
+		Bitmap bitmap = null;
+		// 获取视频的缩略图
+		bitmap = ThumbnailUtils.createVideoThumbnail(videoPath, kind);
+		return bitmap;
+	}
+	
 	/**
 	 * 关闭输入流
 	 * 

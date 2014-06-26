@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,9 +13,17 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import com.view.asim.comm.Constant;
+import com.view.asim.manager.ContacterManager;
+import com.view.asim.model.User;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
@@ -24,7 +33,7 @@ import android.util.Log;
  * 
  * 文件工具类
  * 
- * @author shimiso
+ * @author xuweinan
  */
 public class FileUtil {
 	private static final String TAG = "FileUtil";
@@ -341,7 +350,7 @@ public class FileUtil {
 	public static List<String> getEmojiFile(Context context) {
 		try {
 			List<String> list = new ArrayList<String>();
-			InputStream in = context.getResources().getAssets().open("emoji");// 锟侥硷拷锟斤拷锟斤拷为rose.txt
+			InputStream in = context.getResources().getAssets().open("emoji");
 			BufferedReader br = new BufferedReader(new InputStreamReader(in,
 					"UTF-8"));
 			String str = null;
@@ -408,12 +417,266 @@ public class FileUtil {
 			return false;
 		}
 		
-		if (s.getTotalBytes() != 0) {
+		if (s.getBlockCount() * s.getBlockSize() != 0) {
 			return true;
 		}
 		else {
 			return false;
 		}
 	}
+	
+	public static boolean checkFileValid(String path, String size, String sha1) {
+		File downloadFile = new File(path);
+		
+		
+		if (downloadFile.length() == Long.parseLong(size)) {
+			StringBuffer hexString = new StringBuffer();
+			
+			try {
+	            MessageDigest md = MessageDigest.getInstance("SHA-1");
+	            FileInputStream fis = new FileInputStream(path);
+	            byte[] dataBytes = new byte[4096];
+	            int nread = 0;
+	            while ((nread = fis.read(dataBytes)) != -1) {
+	                md.update(dataBytes, 0, nread);
+	            }
+	            byte[] mdbytes = md.digest();
+	            
+	            for (int i = 0; i < mdbytes.length; i++) {
+	                hexString.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+	            }
+	            //compare with sha hash code
+	            Log.d(TAG, "rule SHA-1: " + hexString.toString()  + ", download SHA1 = " + sha1);
+	            
+	        } catch (NoSuchAlgorithmException e) {
+	            Log.e(TAG, "There is no SHA-1 algorithm");
+	            e.printStackTrace();
+	        } catch (FileNotFoundException e) {
+	            Log.e(TAG, "Update package does not exists");
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            Log.e(TAG, "Read file error. Maybe file is corrupted");
+	            e.printStackTrace();
+	        }
+			
+			if(sha1 != null && sha1.equalsIgnoreCase(hexString.toString())){
+                return true;
+            } else {
+                return false;
+            }
+		}
+		else {
+            Log.e(TAG, "rule size: " + size  + ", download size = " + downloadFile.length());
 
+			return false;
+		}
+	}
+	
+	public static String getGlobalLogPath() {
+		if (Constant.SDCARD_ROOT_PATH == null) {
+			return null;
+		}
+		return Constant.SDCARD_ROOT_PATH + Constant.LOG_PATH + File.separator;
+	}
+
+	public static String getGlobalCachePath() {
+		if (Constant.SDCARD_ROOT_PATH == null) {
+			return null;
+		}
+
+		return Constant.SDCARD_ROOT_PATH + Constant.CACHE_PATH + File.separator;
+	}
+	
+	
+	public static String getUserRootPath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return Constant.SDCARD_ROOT_PATH + Constant.DATA_PATH + File.separator + 
+				ContacterManager.userMe.getName();
+	}
+	
+	public static String getUserDBPath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return getUserRootPath() + Constant.DB_PATH + File.separator;
+	}
+	
+	public static String getUserTempPath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return getUserRootPath() + Constant.TEMP_PATH + File.separator;
+	}
+	
+	public static String getUserImagePath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return getUserRootPath() + Constant.IMAGE_PATH + File.separator;
+	}
+	
+	public static String getUserAudioPath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return getUserRootPath() + Constant.AUDIO_PATH + File.separator;
+	}
+	
+	public static String getUserVideoPath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return getUserRootPath() + Constant.VIDEO_PATH + File.separator;
+	}
+	
+	public static String getUserFilePath() {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+			return null;
+		}
+
+		return getUserRootPath() + Constant.FILE_PATH + File.separator;
+	}
+		
+	public static String getImagePathByWith(String with) {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+			return null;
+		}
+
+		return getUserImagePath() + StringUtil.getUserNameByJid(with) + File.separator;
+	}
+	
+	public static String getAudioPathByWith(String with) {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+			return null;
+		}
+
+		return getUserAudioPath() + StringUtil.getUserNameByJid(with) + File.separator;
+	}
+	
+	public static String getVideoPathByWith(String with) {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+			return null;
+		}
+
+		return getUserVideoPath() + StringUtil.getUserNameByJid(with) + File.separator;
+	}
+	
+	public static String getFilePathByWith(String with) {
+		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+			return null;
+		}
+
+		return getUserFilePath() + StringUtil.getUserNameByJid(with) + File.separator;
+	}
+	
+	/**
+	 * 资源文件命名规范：
+	 *   普通日志文件：normal-时间戳.log
+	 *   崩溃日志文件：crash-时间戳.log（上传到服务器时加上机型和版本信息作为前缀，机型-版本-(用户名)-crash-时间戳.log）
+	 *   发送本地相册的已有文件：文件原名
+	 *   在密信中拍照发送的照片：自身用户名-对方用户名-image-时间戳.src
+	 *   在密信中录影发送的视频：自身用户名-对方用户名-video-时间戳.src
+	 *   在密信中录影发送的视频缩略图：自身用户名-对方用户名-video-时间戳.thumb
+	 *   接收到好友发来的照片：对方用户名-自身用户名-image-时间戳.src
+	 *   接收到好友发来的照片缩略图：对方用户名-自身用户名-image-时间戳.thumb
+	 *   接收到好友发来的视频：对方用户名-自身用户名-video-时间戳.src
+	 *   接收到好友发来的视频缩略图：对方用户名-自身用户名-video-时间戳.thumb
+	 *   在密信中录音发送的语音：自身用户名-对方用户名-audio-时间戳.src
+	 *   接收到好友发来的语音：对方用户名-自身用户名-audio-时间戳.src
+	 *   发送和接收的普通文件：文件原名 
+	 *   
+	 */
+	
+	public static String genLogFileName() {
+		return Constant.LOG_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
+	}
+
+	public static String genCrashFileName() {
+		return Constant.CRASH_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
+	}	
+	
+	public static String genAvatarTempImageName() {
+		return Constant.IMAGE_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".jpg";
+	}
+	
+	public static String genCaptureImageName(String with) {
+		return ContacterManager.userMe.getName() + "-" + 
+				StringUtil.getUserNameByJid(with) + "-" + 
+				Constant.IMAGE_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.FILE_SUFFIX;
+	}
+	
+	public static String genCaptureVideoName(String with) {
+		return ContacterManager.userMe.getName() + "-" + 
+				StringUtil.getUserNameByJid(with) + "-" + 
+				Constant.VIDEO_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.FILE_SUFFIX;
+	}
+	
+	public static String genCaptureVideoThumbName(String with) {
+		return ContacterManager.userMe.getName() + "-" + 
+				StringUtil.getUserNameByJid(with) + "-" + 
+				Constant.VIDEO_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.THUMB_SUFFIX;
+	}
+
+	public static String genRecvImageName(String with) {
+		return StringUtil.getUserNameByJid(with) + "-" +
+				ContacterManager.userMe.getName() + "-" + 
+				Constant.IMAGE_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.FILE_SUFFIX;
+	}
+	
+	public static String genRecvImageThumbName(String with) {
+		return StringUtil.getUserNameByJid(with) + "-" +
+				ContacterManager.userMe.getName() + "-" + 
+				Constant.IMAGE_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.THUMB_SUFFIX;
+	}
+	
+	public static String genRecvVideoName(String with) {
+		return StringUtil.getUserNameByJid(with) + "-" +
+				ContacterManager.userMe.getName() + "-" + 
+				Constant.VIDEO_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.FILE_SUFFIX;
+	}
+	
+	public static String genRecvVideoThumbName(String with) {
+		return StringUtil.getUserNameByJid(with) + "-" +
+				ContacterManager.userMe.getName() + "-" + 
+				Constant.VIDEO_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.THUMB_SUFFIX;
+	}
+	
+	public static String genCaptureAudioName(String with) {
+		return ContacterManager.userMe.getName() + "-" + 
+				StringUtil.getUserNameByJid(with) + "-" + 
+				Constant.AUDIO_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.FILE_SUFFIX;
+	}
+	
+	public static String genRecvAudioName(String with) {
+		return StringUtil.getUserNameByJid(with) + "-" +
+				ContacterManager.userMe.getName() + "-" + 
+				Constant.AUDIO_PREFIX + "-" +
+				String.valueOf(Calendar.getInstance().getTimeInMillis())
+				+ Constant.FILE_SUFFIX;
+	}
+	
 }

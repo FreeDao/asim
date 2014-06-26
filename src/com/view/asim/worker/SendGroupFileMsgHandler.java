@@ -186,6 +186,7 @@ public class SendGroupFileMsgHandler implements BaseHandler {
 				try {
 		    		for (String member: mGroupUser.getGroupUsers()) {
 						Message message = new Message();
+						message.setProperty(IMMessage.PROP_ID, mSendMsg.getUniqueId());
 						message.setProperty(IMMessage.PROP_TYPE, IMMessage.PROP_TYPE_CTRL);
 						message.setProperty(IMMessage.PROP_TIME, mSendMsg.getTime());
 						message.setProperty(IMMessage.PROP_WITH, mSendMsg.getWith());
@@ -213,8 +214,11 @@ public class SendGroupFileMsgHandler implements BaseHandler {
 					
 				} catch (XMPPException e) {
 					mSendMsg.setStatus(IMMessage.ERROR);
+					mListener.onSentResult(mSendMsg);
+					return;
 				}
 
+				mSendMsg.setStatus(IMMessage.SUCCESS);
 				mListener.onSentResult(mSendMsg);
 			}
 

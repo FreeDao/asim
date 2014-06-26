@@ -25,7 +25,7 @@ import android.util.Log;
  *
  */
 public class RecvOfflineMsgHandler implements BaseHandler {
-	private final static String TAG = "RecvTextMsgHandler";
+	private final static String TAG = "RecvOfflineMsgHandler";
     
     private final OfflineMessageRecvResultListener mListener;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
@@ -40,24 +40,26 @@ public class RecvOfflineMsgHandler implements BaseHandler {
     	OfflineMessageManager offlineManager = new OfflineMessageManager(
 				XmppConnectionManager.getInstance().getConnection());
     	
-    	Iterator<org.jivesoftware.smack.packet.Message> it = null;
-    	List<org.jivesoftware.smack.packet.Message> msgs = new ArrayList<org.jivesoftware.smack.packet.Message>();
+    	Iterator<Message> it = null;
+    	List<Message> msgs = new ArrayList<Message>();
 		try {
 			Log.i(TAG, "offline message num: " + offlineManager.getMessageCount());
 
-			it = offlineManager.getMessages();
-			
-			while (it.hasNext()) {
-				msgs.add(it.next());
+			if(offlineManager.getMessageCount() > 0) {
+				it = offlineManager.getMessages();
+				
+				while (it.hasNext()) {
+					msgs.add(it.next());
+					Log.i(TAG, "offline messages: " + it.next());
+
+				}
+				offlineManager.deleteMessages();
 			}
-			offlineManager.deleteMessages();
 
 		} catch (XMPPException e) {
 			e.printStackTrace();
 		}
-		
-
-    	
+		    	
 		mListener.onRecvResult(msgs);
     }
 }

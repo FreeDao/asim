@@ -3,9 +3,8 @@ package com.view.asim.activity.im;
 import java.io.InputStream;
 
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.packet.VCard;
-
 import com.view.asim.activity.ActivitySupport;
+import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -44,6 +43,7 @@ public class SettingsActivity extends ActivitySupport {
 
 	private Button mLogoutBtn;
 	private Button mExitBtn;
+	private TextView mBackTxtBtn;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,30 +57,43 @@ public class SettingsActivity extends ActivitySupport {
 	private void init() {
 		getEimApplication().addActivity(this);
 
-		mLogoutBtn = (Button) findViewById(R.id.logout_btn);
-		mLogoutBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mLoginCfg.setUsername(null);
-				mLoginCfg.setPassword(null);
-				mLoginCfg.setOnline(false);
-				saveLoginConfig(mLoginCfg);
-				
-				isExit();
-			}
-		});
-		
-
-		/*
-
-		mExitBtn = (Button) findViewById(R.id.exit_btn);
-		mExitBtn.setOnClickListener(new OnClickListener() {
+		mBackTxtBtn = (TextView) findViewById(R.id.title_back_btn);
+		mBackTxtBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				finish();
 			}
 		});
-		*/
+		
+		mLogoutBtn = (Button) findViewById(R.id.logout_btn);
+		mLogoutBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+				new AlertDialog.Builder(context).setTitle("退出登录")
+				.setNeutralButton("确定", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mLoginCfg.setUsername(null);
+						mLoginCfg.setPassword(null);
+						mLoginCfg.setOnline(false);
+						saveLoginConfig(mLoginCfg);
+
+						stopService();
+						LogcatHelper.getInstance().stop();
+						eimApplication.exit();
+					}
+				})
+				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				}).show();
+			}
+		});
+		
+
 		
 	}
 

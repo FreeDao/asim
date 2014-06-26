@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -59,7 +60,6 @@ public class SignUpActivity extends ActivitySupport {
 	
 	private String to = null;
 	private User newUser = null;
-	private boolean newUserIsExist = false;
 	private ImageView loginImg = null;
 
 	private LinearLayout mCellphoneStepLayout = null;
@@ -164,37 +164,14 @@ public class SignUpActivity extends ActivitySupport {
 
 	}
 	
-	private class QueryUserExistThread extends Thread {
-		private String userName = null;
-		
-		public QueryUserExistThread(String cellphone) {
-			userName = StringUtil.getNameByCellphone(cellphone);
-		}
-		
-		@Override
-		public void run() {
-			Log.d(TAG, "QueryUserExistThread");
-			List<User> users = null;
-			try {
-				users = ContacterManager.searchUserByCellphone(userName);
-			} catch (XMPPException e) {
-				e.printStackTrace();
-			}
-			if (users.size() == 0) {
-				notifyUserIsExistSucc(false);
-			}
-			else {
-				notifyUserIsExistSucc(true);
-			}
-		}
-	}
-	
     
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
         	switch(msg.what) {
         	case 0:
+    			showToast("注册成功");
+
             	// 注册成功，直接登录
     			LoginTask task = new LoginTask(SignUpActivity.this,
     					mLoginCfg, (AnimationDrawable) loginImg.getBackground());
@@ -205,14 +182,9 @@ public class SignUpActivity extends ActivitySupport {
         		break;
         		
         	case 1:
-        		if (newUserIsExist) {
-        			showToast("该手机号码已注册密信，请直接登录，或者注册其他号码");
-        			
-        		}
-        		else {
-        			mCellphoneStepLayout.setVisibility(View.GONE);
-					mUserInfoStepLayout.setVisibility(View.VISIBLE);
-        		}
+    			showToast("该手机号码已注册密信，请直接登录，或者注册其他号码");
+				mUserInfoStepLayout.setVisibility(View.GONE);
+    			mCellphoneStepLayout.setVisibility(View.VISIBLE);
         			
         		break;
         	}
@@ -224,8 +196,7 @@ public class SignUpActivity extends ActivitySupport {
     	handler.sendEmptyMessage(0);
     }
     
-    public void notifyUserIsExistSucc(boolean isExist) {
-    	this.newUserIsExist = isExist;
+    public void notifyUserIsExist() {
     	handler.sendEmptyMessage(1);
     }
     

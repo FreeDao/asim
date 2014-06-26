@@ -39,6 +39,7 @@ public class RecvTextMsgHandler implements BaseHandler {
 		String destroy = (String) mRawMsg.getProperty(IMMessage.PROP_DESTROY);
 		String security = (String) mRawMsg.getProperty(IMMessage.PROP_SECURITY);
 		String chatType = (String) mRawMsg.getProperty(IMMessage.PROP_CHATTYPE);
+		String uniqueId = (String) mRawMsg.getProperty(IMMessage.PROP_ID);
 		String content = null;
 		
 		if (security.equals(IMMessage.ENCRYPTION)) {
@@ -59,6 +60,7 @@ public class RecvTextMsgHandler implements BaseHandler {
 		}
 		
 		ChatMessage newMessage = new ChatMessage();
+		newMessage.setUniqueId(uniqueId);
 		newMessage.setDir(IMMessage.RECV);
 		newMessage.setFrom(from);
 		newMessage.setWith(with);
@@ -67,6 +69,7 @@ public class RecvTextMsgHandler implements BaseHandler {
 		newMessage.setChatType(chatType);
 		newMessage.setContent(content);
 		newMessage.setSecurity(security);
+		newMessage.setStatus(IMMessage.SUCCESS);
 		
 		if(time == null || time.length() == 0) {
 			time = DateUtil.getCurDateStr();

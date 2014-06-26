@@ -13,15 +13,25 @@
         android:layout_height="match_parent"
         android:gravity="right"
         android:orientation="horizontal" >
-
+        
+        <ImageView 
+            android:id="@+id/sent_failed_img"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/g_ic_failed"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            />
+        
         <Button
             android:id="@+id/btn_right_file"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/message_right_green_bg"
-                    android:drawableRight="@drawable/icon_file_picture"
+            android:drawableRight="@drawable/icon_file_picture"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:paddingTop="10dp"

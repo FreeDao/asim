@@ -8,11 +8,17 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.packet.VCard;
+import org.sipdroid.sipua.UserAgent;
+import org.sipdroid.sipua.ui.Checkin;
+import org.sipdroid.sipua.ui.Receiver;
+import org.sipdroid.sipua.ui.Settings;
+import org.zoolu.tools.Random;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.im.AContacterActivity;
@@ -38,6 +44,7 @@ import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.DateUtil;
 import com.view.asim.util.FaceConversionUtil;
+import com.view.asim.util.FileUtil;
 import com.view.asim.util.PinyinComparator;
 import com.view.asim.util.StringUtil;
 import com.view.asim.view.ContactsAdapter;
@@ -49,18 +56,24 @@ import com.view.asim.view.SideBar.*;
 
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.CallLog.Calls;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -164,16 +177,43 @@ public class MainActivity extends AContacterActivity implements
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		setContentView(com.view.asim.R.layout.contacter_main);
-		initView();
-		//initService();
-	}
-
-	private void initService() {
-		stopService();
-		startService();
+		init();
+		initSip();
+		//SmackAndroid.init(context);
 	}
 	
-	private void initView() {
+	public static boolean on(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_ON, Settings.DEFAULT_ON);
+	}
+
+	public static void on(Context context,boolean on) {
+		Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		edit.putBoolean(Settings.PREF_ON, on);
+		edit.commit();
+        if (on) Receiver.engine(context).isRegistered();
+	}
+	
+	private void initSip() {
+		on(this, true);
+		Settings.getInstance(this);
+		// 保存 SIP 配置信息
+		Editor edit = PreferenceManager.getDefaultSharedPreferences(this).edit();
+		edit.putString(Settings.PREF_USERNAME, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()));
+		edit.putString(Settings.PREF_PASSWORD, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()));
+		edit.putString(Settings.PREF_SERVER, getLoginConfig().getXmppHost());
+		edit.commit();
+		
+	}
+	
+	private void resumeSip() {
+		if (Receiver.call_state != UserAgent.UA_STATE_IDLE) 
+			Receiver.moveTop();
+	}
+
+	private void startSip() {
+		Receiver.engine(this).registerMore();
+	}
+	private void init() {
 
 		getEimApplication().addActivity(this);
         FaceConversionUtil.getInstace().getFileText(this);
@@ -238,8 +278,6 @@ public class MainActivity extends AContacterActivity implements
 		mMyInfoVideoChatTxt.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Notice n = null;
-				Log.d(TAG, n.getContent());
 			}
 		});
 		
@@ -301,7 +339,7 @@ public class MainActivity extends AContacterActivity implements
 					            intent = new Intent("android.media.action.IMAGE_CAPTURE");  
 					            // 判断存储卡是否可以用，可用进行存储  
 					            
-					            String tmpImgfile = Constant.SDCARD_ROOT_PATH + Constant.CACHE_PATH + Calendar.getInstance().getTimeInMillis() + ".jpg";
+					            String tmpImgfile = FileUtil.getUserTempPath() + FileUtil.genAvatarTempImageName();
 					            
 				                mTempCaptureAvatarImgFile = new File(tmpImgfile);  
 				                // 从文件中创建uri  
@@ -472,11 +510,21 @@ public class MainActivity extends AContacterActivity implements
         // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_CUT  
         startActivityForResult(intent, Constant.REQCODE_MOD_AVATAR_CROP);  
     }  
+    
+    @Override
+    protected void onStart() {
+    	super.onStart();
+    	startSip();
+    }
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		resumeSip();
+
 		refreshList();
+		
 		/*
 		Intent intent = getIntent();
 	    if (intent != null && intent.getAction() != null) {
@@ -495,6 +543,10 @@ public class MainActivity extends AContacterActivity implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		MessageManager.getInstance().destroy();
+		NoticeManager.getInstance().destroy();
+		AUKeyManager.getInstance().destroy();
+		
 		if (mMyInfoPopupWindow != null)
 			mMyInfoPopupWindow.dismiss();
 	}
@@ -999,8 +1051,8 @@ public class MainActivity extends AContacterActivity implements
 
 	// 网络状态变化通知处理
 	@Override
-	protected void handReConnect(boolean isSuccess) {
-		if (isSuccess && XmppConnectionManager.getInstance().getConnection().isConnected()) {
+	protected void handReConnect(String status) {
+		if (status.equals(XmppConnectionManager.CONNECTED) && XmppConnectionManager.getInstance().getConnection().isConnected()) {
 			mNetworkFailedTxt.setVisibility(View.GONE);
 		} else {
 			mNetworkFailedTxt.setVisibility(View.VISIBLE);

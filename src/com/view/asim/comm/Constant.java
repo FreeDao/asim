@@ -9,6 +9,11 @@ public class Constant {
 	 */
 
 	/**
+	 * 在线检查更新 ACTION 
+	 */
+	public static final String OTA_CHECK_ACTION = "ota.checknow";
+
+	/**
 	 * 花名册有删除的ACTION和KEY
 	 */
 	public static final String ROSTER_DELETED = "roster.deleted";
@@ -49,6 +54,11 @@ public class Constant {
 	 * 接收离线消息通知
 	 */
 	public static final String RECV_OFFLINE_MSG_ACTION = "roster.offlinemessage";
+
+	/**
+	 * 通知重连通知
+	 */
+	public static final String RECONN_ACTION = "xmpp.reconn";
 	
 	/**
 	 * 发送文件
@@ -76,6 +86,12 @@ public class Constant {
 	public static final String GROUP_ACTION_KEY_INFO = "immessage.group.key.info";
 	
 	/**
+	 * 远程销毁消息
+	 */
+	public static final String REMOTE_DESTROY_ACTION = "immessage.remotedestroy";
+	public static final String REMOTE_DESTROY_KEY_MESSAGE = "immessage.remotedestroy.key.message";
+
+	/**
 	 * 音视频和文件预览
 	 */
 	public static final String PREVIEW_AUDIO = "preview.audio";
@@ -95,9 +111,9 @@ public class Constant {
 	public static final String MY_NEWS_DATE = "my.news.date";
 
 	/**
-	 * 服务器的配置
+	 * IM 配置
 	 */
-	public static final String LOGIN_SET = "eim_login_set";// 登录设置
+	public static final String IM_SET_PREF = "asim_im_settings_pref";// 登录设置
 	public static final String USERNAME = "username";// 账户
 	public static final String PASSWORD = "password";// 密码
 	public static final String XMPP_HOST = "xmpp_host";// 地址
@@ -105,6 +121,12 @@ public class Constant {
 	public static final String XMPP_SERVICE_NAME = "xmpp_service_name";// 服务名
 	public static final String DATA_ROOT_PATH = "data_root_path"; // 数据存放路径的根目录
 
+	/**
+	 * SIP 配置
+	 */
+	public static final String SIP_SET_PREF = "asim_sip_settings_pref";// 登录设置
+
+	
 	/**
 	 * 连接服务器/账户登录/注册/搜索返回值
 	 */
@@ -163,7 +185,7 @@ public class Constant {
 	 * 重连接
 	 */
 	/**
-	 * 重连接状态acttion
+	 * 重连接状态action
 	 * 
 	 */
 	public static final String ACTION_RECONNECT_STATE = "action_reconnect_state";
@@ -211,20 +233,86 @@ public class Constant {
 	// 聊天界面与阅后即焚界面间的 action
 	public final static int REQCODE_BURN_AFTER_READ = 30;
 
-	// 图床域名
+	// IM 消息资源库
 	public final static String FILE_STORAGE_HOST = "com-viewiot-mobile-asim.qiniudn.com";
+	
+	// App 日志库
 	public final static String DUMPS_STORAGE_HOST = "com-viewiot-mobile-asim-dumps.qiniudn.com";
+
+	// App OTA库
+	public final static String OTA_STORAGE_HOST = "com-viewiot-mobile-asim-ota.qiniudn.com";
+	public final static String OTA_CHECK_STATUS_PATH = "/upgrade_rule.json";
+
+	
+	/**
+	 * 数据缓存目录结构
+	 *       asim
+	 *         |
+	 *         |--- cache
+	 *         |--- log
+	 *         |--- data
+	 *                |--- 用户 A
+	 *                |      |
+	 *                |      |--- database
+	 *                |      |--- temp
+	 *                |      |--- image
+	 *                |      |      |
+	 *                |      |      |--- 好友 A
+	 *                |      |      |--- 好友 B
+	 *                |      |--- audio
+	 *                |      |      |
+	 *                |      |      |--- 好友 A
+	 *                |      |      |--- 好友 B
+	 *                |      |--- video
+	 *                |      |      |
+	 *                |      |      |--- 好友 A
+	 *                |      |      |--- 好友 B
+	 *                |      |--- file
+	 *                |             |
+	 *                |             |--- 好友 A
+	 *                |             |--- 好友 B
+	 *                |--- 用户 B
+	 */
 	
 	// 数据存放在存储卡的相关路径定义
 	public static String SDCARD_ROOT_PATH = null;
+	
+	// 以下为密信根路径
 	public final static String ASIM_ROOT_PATH = "/asim"; 
-	public final static String DB_PATH = ASIM_ROOT_PATH + "/database"; 
-	public final static String IMAGE_PATH = ASIM_ROOT_PATH + "/image";
-	public final static String AUDIO_PATH = ASIM_ROOT_PATH + "/audio";
-	public final static String VIDEO_PATH = ASIM_ROOT_PATH + "/video";
-	public final static String FILE_PATH = ASIM_ROOT_PATH + "/file";
 	public final static String CACHE_PATH = ASIM_ROOT_PATH + "/cache";
 	public final static String LOG_PATH = ASIM_ROOT_PATH + "/log";
+	public final static String DATA_PATH = ASIM_ROOT_PATH + "/data";
+
+	// 以下为用户名下的子目录
+	public final static String DB_PATH = "/database"; 
+	public final static String IMAGE_PATH = "/image";
+	public final static String AUDIO_PATH = "/audio";
+	public final static String VIDEO_PATH = "/video";
+	public final static String FILE_PATH = "/file";
+	public final static String TEMP_PATH = "/temp";
+
+	/**
+	 * 
+	 * 资源文件命名规范：
+	 *   普通日志文件：normal-时间戳.log
+	 *   崩溃日志文件：crash-时间戳.log（上传到服务器时加上机型和版本信息作为前缀，机型-版本-(用户名)-crash-时间戳.log）
+	 *   发送本地相册的已有文件：文件原名
+	 *   在密信中拍照发送的照片：自身用户名-对方用户名-image-时间戳.src
+	 *   在密信中录影发送的视频：自身用户名-对方用户名-video-时间戳.src
+	 *   在密信中录影发送的视频缩略图：自身用户名-对方用户名-video-时间戳.thumb
+	 *   接收到好友发来的照片：对方用户名-自身用户名-image-时间戳.src
+	 *   接收到好友发来的照片缩略图：对方用户名-自身用户名-image-时间戳.thumb
+	 *   接收到好友发来的视频：对方用户名-自身用户名-video-时间戳.src
+	 *   接收到好友发来的视频缩略图：对方用户名-自身用户名-video-时间戳.thumb
+	 *   在密信中录音发送的语音：自身用户名-对方用户名-audio-时间戳.src
+	 *   接收到好友发来的语音：对方用户名-自身用户名-audio-时间戳.src
+	 *   发送和接收的普通文件：文件原名 
+	 *   
+	 */
+	
+	public final static String IMAGE_PREFIX = "image-";
+	public final static String VIDEO_PREFIX = "video-";
+	public final static String AUDIO_PREFIX = "audio-";
 
 	public final static String FILE_SUFFIX = ".src";
 	public final static String THUMB_SUFFIX = ".thumb";
@@ -234,5 +322,7 @@ public class Constant {
 	// 下载超时时间（10分钟）
 	public final static int FILE_DOWNLOAD_TIMEOUT = 1000 * 60 * 10;
 
+	// 发送多媒体文件的大小上限（10M）
+	public final static int SEND_MEDIA_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
 	
 }

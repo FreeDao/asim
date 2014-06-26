@@ -4,15 +4,18 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.view.asim.comm.Constant;
+import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.R;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.service.AUKeyService;
 import com.view.asim.service.IMChatService;
 import com.view.asim.service.IMContactService;
-import com.view.asim.service.ReConnectService;
+import com.view.asim.service.OTAService;
+import com.view.asim.service.ConnectService;
+import com.view.asim.util.DateUtil;
 import com.view.asim.util.FileUtil;
-import com.view.asim.util.LogcatHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +27,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -38,7 +42,7 @@ import android.widget.Toast;
 /**
  * Actity 工具支持类
  * 
- * @author shimiso
+ * @author xuweinan
  * 
  */
 public class ActivitySupport extends Activity implements IActivitySupport {
@@ -47,55 +51,60 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	protected Context context = null;
 	protected SharedPreferences preferences;
+	protected SharedPreferences sipPreferences;
 	protected AsimApplication eimApplication;
 	protected ProgressDialog pg = null;
 	protected LoginConfig mLoginCfg = null;
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
-		preferences = getSharedPreferences(Constant.LOGIN_SET, 0);
+		preferences = getSharedPreferences(Constant.IM_SET_PREF, 0);
+		sipPreferences = getSharedPreferences(Constant.SIP_SET_PREF, 0);
 		pg = new ProgressDialog(context);
 		eimApplication = (AsimApplication) getApplication();
 		eimApplication.addActivity(this);
 		
 		mLoginCfg = getLoginConfig();
+		Log.d(this.toString(), "onCreate on " + DateUtil.getCurDateStr());
+
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.d(this.toString(), "onStart");
+		Log.d(this.toString(), "onStart on " + DateUtil.getCurDateStr());
 
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d(this.toString(), "onResume");
+		Log.d(this.toString(), "onResume on " + DateUtil.getCurDateStr());
 
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Log.d(this.toString(), "onStop");
+		Log.d(this.toString(), "onPause on " + DateUtil.getCurDateStr());
 
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Log.d(this.toString(), "onStop");
+		Log.d(this.toString(), "onStop on " + DateUtil.getCurDateStr());
 
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.d(this.toString(), "onDestroy");
-
+		Log.d(this.toString(), "onDestroy on " + DateUtil.getCurDateStr());
+		mLoginCfg = null;
 	}
 
 	@Override
@@ -105,6 +114,14 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	@Override
 	public void startService() {
+		// XMPP连接管理服务
+		Intent xmpp = new Intent(context, ConnectService.class);
+		context.startService(xmpp);
+		
+		// OTA在线升级服务
+		Intent ota = new Intent(context, OTAService.class);
+		context.startService(ota);
+		
 		// 好友联系人服务
 		Intent server = new Intent(context, IMContactService.class);
 		context.startService(server);
@@ -112,10 +129,8 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		// 聊天服务
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.startService(chatServer);
-		// 自动恢复连接服务
-		Intent reConnectService = new Intent(context, ReConnectService.class);
-		context.startService(reConnectService);
 		
+		// 安司盾监控管理服务
 		Intent keyService = new Intent(context, AUKeyService.class);
 		context.startService(keyService);
 
@@ -126,21 +141,28 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	 * 销毁服务.
 	 * 
 	 * @author xuweinan
-	 * @update 2012-5-16 下午12:16:08
 	 */
 	@Override
 	public void stopService() {
+		// OTA在线升级服务
+		Intent ota = new Intent(context, OTAService.class);
+		context.stopService(ota);
+		
 		// 好友联系人服务
 		Intent server = new Intent(context, IMContactService.class);
 		context.stopService(server);
+		
 		// 聊天服务
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.stopService(chatServer);
-
-		// 自动恢复连接服务
-		Intent reConnectService = new Intent(context, ReConnectService.class);
-		context.stopService(reConnectService);
-
+		
+		// XMPP连接管理服务
+		Intent xmpp = new Intent(context, ConnectService.class);
+		context.stopService(chatServer);
+		
+		// 安司盾监控管理服务
+		Intent keyService = new Intent(context, AUKeyService.class);
+		context.stopService(keyService);
 	}
 
 	@Override
@@ -361,5 +383,25 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	@Override
 	public AsimApplication getEimApplication() {
 		return eimApplication;
+	}
+	
+	@Override
+	public String getVersion() {
+		final String unknown = "Unknown";
+		
+		if (context == null) {
+			return unknown;
+		}
+		
+		try {
+	    	String ret = context.getPackageManager()
+			   .getPackageInfo(context.getPackageName(), 0)
+			   .versionName;
+	    	if (ret.contains(" + "))
+	    		ret = ret.substring(0,ret.indexOf(" + "))+"b";
+	    	return ret;
+		} catch(NameNotFoundException ex) {}
+		
+		return unknown;		
 	}
 }

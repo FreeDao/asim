@@ -23,8 +23,10 @@ import com.view.asim.util.DateUtil;
 import com.view.asim.util.StringUtil;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.util.Log;
@@ -40,7 +42,6 @@ public class IMContactService extends Service {
 	
 	private static final String TAG = "IMContactService";
 
-	private Roster roster = null;
 	private Context context;
 
 	@Override
@@ -48,27 +49,49 @@ public class IMContactService extends Service {
 		Log.d(TAG, "service create");
 
 		context = this;
-		addSubscriptionListener();
 		super.onCreate();
+		
+		IntentFilter mFilter = new IntentFilter();
+		mFilter.addAction(Constant.ACTION_RECONNECT_STATE);
+
+		registerReceiver(reConnectionBroadcastReceiver, mFilter);
+
 	}
+	
+	BroadcastReceiver reConnectionBroadcastReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+
+			if (Constant.ACTION_RECONNECT_STATE.equals(action)) {
+				String status = intent.getStringExtra(
+						Constant.RECONNECT_STATE);
+				if(status.equals(XmppConnectionManager.DISCONNECTED)) {
+					Log.i(TAG, "disconnect succ, uninit roster listener");
+					unInitRoster();
+				}
+				else if(status.equals(XmppConnectionManager.CONNECTED)) {
+					Log.i(TAG, "connection succ, init roster listener");
+					initRoster();
+				}
+			}
+		}
+
+	};
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
 
+	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		init();
+		//init();
 		return START_NOT_STICKY;
 		//return super.onStartCommand(intent, flags, startId);
 	}
-
-	private void init() {
-		/* 初始化对象 */
-		initRoster();
-	}
-
 	/**
 	 * 添加一个监听，监听好友添加请求。
 	 */
@@ -104,13 +127,25 @@ public class IMContactService extends Service {
 				.addPacketListener(subscriptionPacketListener, filter);
 	}
 
+	private void removeSubscriptionListener() {
+		if (XmppConnectionManager.getInstance().getConnection() != null) {
+			XmppConnectionManager.getInstance().getConnection()
+				.removePacketListener(subscriptionPacketListener);
+		}
+	}
+	
+	private void unInitRoster() {
+		removeSubscriptionListener();
+		if (XmppConnectionManager.getInstance().getRoster() != null) {
+			XmppConnectionManager.getInstance().getRoster().removeRosterListener(rosterListener);
+		}
+	}
 	/**
 	 * 初始化花名册 服务重启时，更新花名册
 	 */
 	private void initRoster() {
-		roster = XmppConnectionManager.getInstance().getConnection().getRoster();
-		roster.removeRosterListener(rosterListener);
-		roster.addRosterListener(rosterListener);
+		addSubscriptionListener();
+		XmppConnectionManager.getInstance().getRoster().addRosterListener(rosterListener);
 	}
 
 	private PacketListener subscriptionPacketListener = new PacketListener() {
@@ -119,7 +154,7 @@ public class IMContactService extends Service {
 		public void processPacket(Packet packet) {
 			Presence presence = (Presence) packet;
 
-			String user = getSharedPreferences(Constant.LOGIN_SET, 0)
+			String user = getSharedPreferences(Constant.IM_SET_PREF, 0)
 					.getString(Constant.USERNAME, null);
 			
 			String from = packet.getFrom().split("@")[0];
@@ -229,7 +264,7 @@ public class IMContactService extends Service {
 	private void userAddFriendRequest(Packet packet) {
 
 		NoticeManager noticeManager = NoticeManager
-				.getInstance();
+				.getInstance(context);
 		
 		List<Notice> notices = null;
 		
@@ -321,9 +356,8 @@ public class IMContactService extends Service {
 	public void onDestroy() {
 		Log.d(TAG, "onDestroy");
 		// 释放资源
-		XmppConnectionManager.getInstance().getConnection()
-				.removePacketListener(subscriptionPacketListener);
-		//ContacterManager.destroy();
+		unregisterReceiver(reConnectionBroadcastReceiver);
+
 		super.onDestroy();
 	}
 
@@ -335,7 +369,7 @@ public class IMContactService extends Service {
 			intent.setAction(Constant.ROSTER_PRESENCE_CHANGED);
 			String subscriber = presence.getFrom().substring(0,
 					presence.getFrom().indexOf("/"));
-			RosterEntry entry = roster.getEntry(subscriber);
+			RosterEntry entry = XmppConnectionManager.getInstance().getRoster().getEntry(subscriber);
 			
 			if (ContacterManager.contacters.containsKey(subscriber)) {
 				// 将状态改变之前的user广播出去
@@ -345,7 +379,7 @@ public class IMContactService extends Service {
 				//ContacterManager.contacters.remove(subscriber);
 				ContacterManager.contacters.put(subscriber,
 						ContacterManager.getUserByRosterEntry(XmppConnectionManager.getInstance().getConnection(),
-								entry, roster));
+								entry, XmppConnectionManager.getInstance().getRoster()));
 				sendBroadcast(intent);
 			}
 		}
@@ -359,11 +393,11 @@ public class IMContactService extends Service {
 				Intent intent = new Intent();
 				intent.setAction(Constant.ROSTER_UPDATED);
 				// 获得状态改变的entry
-				RosterEntry userEntry = roster.getEntry(address);
+				RosterEntry userEntry = XmppConnectionManager.getInstance().getRoster().getEntry(address);
 				
 				User user = ContacterManager
 						.getUserByRosterEntry(XmppConnectionManager.getInstance().getConnection(),
-								userEntry, roster);
+								userEntry, XmppConnectionManager.getInstance().getRoster());
 				intent.putExtra(User.userKey, user);
 
 				if (ContacterManager.contacters.containsKey(address)) {

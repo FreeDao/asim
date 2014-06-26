@@ -13,13 +13,29 @@
         android:layout_height="match_parent"
         android:gravity="right"
         android:orientation="horizontal" >
-
+                    <ImageView
+                android:id="@+id/sending_progress_img"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/message_sending_anim"
+                android:visibility="gone" />
+        <ImageView 
+            android:id="@+id/sent_failed_img"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/g_ic_failed"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            />
+        
         <Button
             android:id="@+id/btn_right_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/message_right_green_bg"
             android:gravity="left|center_vertical"
             android:textColor="@color/white"

@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.view.asim.R;
 import com.view.asim.comm.Constant;
+import com.view.asim.util.FileUtil;
 
 
 import android.content.Context;
@@ -19,9 +20,10 @@ import android.util.Log;
  * 
  * 该类主要用于直接设置,创建,升级数据库以及打开,关闭数据库资源
  * 
- * @author shimiso
+ * @author xuweinan
  * 
  */
+
 public abstract class SDCardSQLiteOpenHelper {
 	private static final String TAG = SDCardSQLiteOpenHelper.class
 			.getSimpleName();
@@ -220,14 +222,14 @@ public abstract class SDCardSQLiteOpenHelper {
 
 	public File getDatabasePath(String name) {
 		String dbPath = null;
-		dbPath = Constant.SDCARD_ROOT_PATH + Constant.DB_PATH;
+		dbPath = FileUtil.getUserDBPath();
 		
 		File f = new File(dbPath);
 		if (!f.exists()) {
 			f.mkdirs();
 		}
 			
-		return new File(dbPath + "/" + name);
+		return new File(dbPath + name);
 	}
 
 	/**

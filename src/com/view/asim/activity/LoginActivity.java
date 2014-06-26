@@ -1,11 +1,15 @@
 package com.view.asim.activity;
 
 
+import org.jivesoftware.smack.SmackAndroid;
+
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.task.LoginTask;
 import com.view.asim.util.StringUtil;
 import com.view.asim.util.ValidateUtil;
+
+import com.view.asim.view.ClearEditText;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -31,7 +35,7 @@ import com.view.asim.R;
  * @author allen
  */
 public class LoginActivity extends ActivitySupport {
-	private EditText mUsernameText, mPasswdText;
+	private ClearEditText mUsernameText, mPasswdText;
 	private Button mLoginCfmBtn = null;
 	private ImageView loginImg = null;
 
@@ -54,8 +58,8 @@ public class LoginActivity extends ActivitySupport {
 	protected void init() {
 		getEimApplication().addActivity(this);
 
-		mUsernameText = (EditText) findViewById(R.id.login_name_input);
-		mPasswdText = (EditText) findViewById(R.id.login_password_input);
+		mUsernameText = (ClearEditText) findViewById(R.id.login_name_input);
+		mPasswdText = (ClearEditText) findViewById(R.id.login_password_input);
 		mLoginCfmBtn = (Button) findViewById(R.id.login_cfm_btn);
 		loginImg = (ImageView) findViewById(R.id.loading_img);
 
@@ -81,6 +85,9 @@ public class LoginActivity extends ActivitySupport {
 				}
 			}
 		});
+		
+		//SmackAndroid.init(context);
+
 	}
 
 	/**

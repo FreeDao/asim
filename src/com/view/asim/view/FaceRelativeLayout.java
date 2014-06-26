@@ -8,6 +8,7 @@ import com.view.asim.util.FaceConversionUtil;
 
 import com.view.asim.R;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -18,9 +19,11 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -33,7 +36,9 @@ import android.widget.RelativeLayout;
 public class FaceRelativeLayout extends RelativeLayout implements
 		OnItemClickListener, OnClickListener {
 
+	private final static String TAG = "FaceConversionUtil";
 	private Context context;
+	private Activity activity;
 
 	private OnCorpusSelectedListener mListener;
 
@@ -75,6 +80,10 @@ public class FaceRelativeLayout extends RelativeLayout implements
 	public void setOnCorpusSelectedListener(OnCorpusSelectedListener listener) {
 		mListener = listener;
 	}
+	
+	public void setActivityContext(Activity a) {
+		activity = a;
+	}
 
 	public interface OnCorpusSelectedListener {
 
@@ -101,6 +110,7 @@ public class FaceRelativeLayout extends RelativeLayout implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.chat_emoji_btn:
+			closeInput();
 			hideVoiceView();
 			hideAddMoreView();
 			if (faceView.getVisibility() == View.VISIBLE) {
@@ -111,6 +121,7 @@ public class FaceRelativeLayout extends RelativeLayout implements
 			break;
 			
 		case R.id.chat_add_more_btn:
+			closeInput();
 			hideFaceView();
 			hideVoiceView();
 			if (AddView.getVisibility() == View.VISIBLE) {
@@ -151,6 +162,14 @@ public class FaceRelativeLayout extends RelativeLayout implements
 			return true;
 		}
 		return false;
+	}
+	
+	public void closeInput() {
+		InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null && activity.getCurrentFocus() != null) {
+			inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus()
+					.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		}
 	}
 
 	private void initView() {
@@ -205,6 +224,8 @@ public class FaceRelativeLayout extends RelativeLayout implements
 
 		faceAdapters = new ArrayList<FaceAdapter>();
 		for (int i = 0; i < emojis.size(); i++) {
+			Log.d(TAG, "all emoji pages: " + emojis.size() + ", init page: " + i);
+
 			GridView view = new GridView(context);
 			FaceAdapter adapter = new FaceAdapter(context, emojis.get(i), vp_face.getWidth());
 			view.setAdapter(adapter);

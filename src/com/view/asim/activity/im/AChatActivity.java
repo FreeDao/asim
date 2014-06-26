@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -25,6 +26,9 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.DateUtil;
+import com.view.asim.worker.MessageSentResultListener;
+import com.view.asim.worker.UISendVideoHandler;
+import com.view.asim.worker.Worker;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -51,6 +55,7 @@ public abstract class AChatActivity extends ActivitySupport {
 	private static int pageSize = 50;
 	private ChatMessage mInitialMsg = null;
 	protected String mChatType = null;
+	protected Worker mWorker = null; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,7 @@ public abstract class AChatActivity extends ActivitySupport {
 			mUser = getIntent().getParcelableExtra(User.userKey);
 			if (mUser == null)
 				throw new RuntimeException("user is null at chat activity");
+			Log.i(TAG, "create chat view for user:" + mUser);
 			
 		}
 		else {
@@ -87,6 +93,9 @@ public abstract class AChatActivity extends ActivitySupport {
 			}
 		}
 		
+		mWorker = new Worker();
+		mWorker.initilize("Chat Activity Worker");
+
 		mMessagePool = new HashMap<String, ChatMessage>();
 		/*
 		chat = XmppConnectionManager.getInstance().getConnection()
@@ -96,12 +105,14 @@ public abstract class AChatActivity extends ActivitySupport {
 
 	@Override
 	protected void onPause() {
-		unregisterReceiver(receiver);
 		super.onPause();
+		unregisterReceiver(receiver);
 	}
 
 	@Override
 	protected void onResume() {
+		super.onResume();
+
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constant.NEW_MESSAGE_ACTION);
 		filter.addAction(Constant.SEND_FILE_RESULT_ACTION);
@@ -112,12 +123,14 @@ public abstract class AChatActivity extends ActivitySupport {
 		filter.addAction(Constant.ACTION_RECONNECT_STATE);
 
 		registerReceiver(receiver, filter);
-		refreshMessage();
-		
-		super.onResume();
-
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mWorker.destroy();
+	}
+	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 
 		@Override
@@ -132,11 +145,13 @@ public abstract class AChatActivity extends ActivitySupport {
 
 				ChatMessage message = intent
 						.getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
-				mMessagePool.remove(message.getId());
-				mMessagePool.put(message.getId(), message);
+				if (message != null) {
+					mMessagePool.remove(message.getId());
+					mMessagePool.put(message.getId(), message);
+				}
 				receiveNewMessage(message);
 				refreshMessage();
-			} 
+			}
 			else
 			if (Constant.SEND_FILE_RESULT_ACTION.equals(action)) {
 				ChatMessage message = intent
@@ -149,7 +164,7 @@ public abstract class AChatActivity extends ActivitySupport {
 			else
 			if (Constant.FILE_PROGRESS_ACTION.equals(action)) {
 				ChatMessage message = intent
-						.getParcelableExtra(Constant.SEND_MESSAGE_KEY_MESSAGE);
+						.getParcelableExtra(Constant.SEND_FILE_KEY_MESSAGE);
 				int ratio = intent.getIntExtra(Constant.SEND_FILE_KEY_PROGRESS, 100);
 				
 				sendFileProgressUpdate(message, ratio);
@@ -164,37 +179,30 @@ public abstract class AChatActivity extends ActivitySupport {
 				refreshMessage();
 			}
 			else if (Constant.ACTION_RECONNECT_STATE.equals(action)) {
-				boolean isSuccess = intent.getBooleanExtra(
-						Constant.RECONNECT_STATE, true);
-				handReConnect(isSuccess);
+				String status = intent.getStringExtra(Constant.RECONNECT_STATE);
+				handReConnect(status);
 			}
 		}
 
 	};
 
-	protected abstract void handReConnect(boolean isSuccess);
+	protected abstract void handReConnect(String status);
 	protected abstract void receiveNewMessage(ChatMessage message);
 	protected abstract void sendMessageResult(ChatMessage message);
 	protected abstract void sendFileResult(ChatMessage message);
 	protected abstract void sendFileProgressUpdate(ChatMessage message, int ratio);
 
 	protected void refreshMessage() {
+		Log.d(TAG, "refresh msg pool start on: " + DateUtil.getCurDateStr());
 
-		String name = null;
-		if (mChatType.equals(IMMessage.SINGLE)) {
-			name = mUser.getJID();
-		}
-		else {
-			name = mGroup.getName();
-		}
 		List<ChatMessage> messages = MessageManager.getInstance()
-				.getMessageListByName(name, 1, pageSize);
+				.getMessageListByName(getWith(), 1, pageSize);
 		mMessagePool.clear();
 		for (ChatMessage msg: messages) {
-			//Log.d(TAG, "refresh msg pool: id = " + msg.getId() + ", from=" + msg.getFrom() + ", with=" + msg.getWith() + ", content=" + msg.getContent());
 			mMessagePool.put(msg.getId(), msg);
 		}
-		
+		Log.d(TAG, "refresh msg pool start on: " + DateUtil.getCurDateStr());
+
 	}
 	
 
@@ -238,16 +246,11 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setContent(messageContent);
 		newMessage.setTime(time);
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
-		
 		newMessage.setChatType(mChatType);
-		if (mChatType.equals(IMMessage.SINGLE)) {
-			newMessage.setWith(mUser.getJID());
-		}
-		else {
-			newMessage.setWith(mGroup.getName());
-		}
-
-		Log.d(TAG, "send text msg to " + newMessage.getWith() + ", " + messageContent);
+		newMessage.setWith(getWith());
+		newMessage.setUniqueId(String.valueOf(newMessage.hashCode()));
+		
+		Log.d(TAG, "send text msg to " + newMessage.getWith() + ", " + messageContent + ", code:" + newMessage.getUniqueId());
 
 		long msgId = MessageManager.getInstance().saveIMMessage(newMessage);
 		newMessage.setId("" + msgId);
@@ -268,6 +271,7 @@ public abstract class AChatActivity extends ActivitySupport {
 	
 	protected void sendMessage(ChatMessage msg) throws Exception {
 
+		msg.setStatus(IMMessage.INPROGRESS);
 		long msgId = MessageManager.getInstance().saveIMMessage(msg);
 		msg.setId("" + msgId);
 		
@@ -282,7 +286,7 @@ public abstract class AChatActivity extends ActivitySupport {
 
 	}
 	
-	private String getMediaAbsolutePath(Uri uri) {
+	protected String getMediaAbsolutePath(Uri uri) {
 		String name = null;
 		ContentResolver cr = context.getContentResolver();
 		Cursor cursor = cr.query(uri, null, null, null, null);
@@ -291,7 +295,11 @@ public abstract class AChatActivity extends ActivitySupport {
 		if (cursor != null) {
 			cursor.moveToFirst();
 			// Column 2 = _display_name
-			name = cursor.getString(1);
+			int columnIdx = cursor.getColumnIndex("_data");
+			name = cursor.getString(columnIdx);
+			for(int i = 0; i < cursor.getColumnCount(); i++) {
+				Log.d(TAG, "cur " + i + ", " + cursor.getColumnName(i) + ", " + cursor.getString(i));
+			}
 		}
 		else {
 			name = uri.getPath();
@@ -300,6 +308,18 @@ public abstract class AChatActivity extends ActivitySupport {
 		Log.d(TAG, "uri path=" + uri.getPath() + ", absolute path=" + name);
 		
 		return name;
+	}
+	
+	protected boolean judgeMediaFileSize(Uri uri) {
+		String absolutePath = getMediaAbsolutePath(uri);
+		File mediaFile = new File(absolutePath);
+        if (mediaFile.length() > Constant.SEND_MEDIA_FILE_SIZE_LIMIT) {
+            Log.e(TAG, "send media file " +  absolutePath + ", size " + mediaFile.length() + " out of limit.");
+            showToast("只支持发送不超过 10M 大小的媒体文件");
+        	return false;
+        }
+		
+        return true;
 	}
 	
 	protected void sendImage(Uri imgUri, String destroy) throws Exception {
@@ -318,19 +338,15 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setTime(time);
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 
-		
 		newMessage.setChatType(mChatType);
-		if (mChatType.equals(IMMessage.SINGLE)) {
-			newMessage.setWith(mUser.getJID());
-		}
-		else {
-			newMessage.setWith(mGroup.getName());
-		}
-		
+		newMessage.setWith(getWith());
+
 		Attachment att = new Attachment();
 		att.setSrcUri(absoluteUri);
 		newMessage.setAttachment(att);
 		
+		newMessage.setUniqueId(String.valueOf(newMessage.hashCode()));
+
 		long msgId = MessageManager.getInstance().saveIMMessage(newMessage);
 		newMessage.setId("" + msgId);
 		
@@ -348,44 +364,33 @@ public abstract class AChatActivity extends ActivitySupport {
 	protected void sendVideo(Uri videoUri, String destroy) throws Exception {
 		String absoluteUri = getMediaAbsolutePath(videoUri);
 
-		boolean needEncr = AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED);
+		UISendVideoHandler handler = new UISendVideoHandler(getWith(), absoluteUri, destroy, mChatType, 
+				new MessageSentResultListener() {
 
-
-		String time = DateUtil.getCurDateStr();
+					@Override
+					public void onSentResult(ChatMessage msgSent) {
+						long msgId = MessageManager.getInstance().saveIMMessage(msgSent);
+						msgSent.setId("" + msgId);
+						
+						mMessagePool.put(msgSent.getId(), msgSent);
+						Intent intent = new Intent(Constant.SEND_FILE_ACTION);
+						intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, msgSent);
+						sendBroadcast(intent);
+						
+						runOnUiThread(new Runnable()    
+				        {    
+				            public void run()    
+				            {    
+								// 刷新视图
+								refreshMessage();
+				            }    
+				    
+				        });
+					}
+			
+		});
 		
-		ChatMessage newMessage = new ChatMessage();
-		newMessage.setDir(IMMessage.SEND);
-		newMessage.setFrom(ContacterManager.userMe.getJID());
-		newMessage.setType(ChatMessage.CHAT_VIDEO);
-		newMessage.setDestroy(destroy);
-		newMessage.setContent("你发了一段视频");
-		newMessage.setTime(time);
-		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
-
-		newMessage.setChatType(mChatType);
-		if (mChatType.equals(IMMessage.SINGLE)) {
-			newMessage.setWith(mUser.getJID());
-		}
-		else {
-			newMessage.setWith(mGroup.getName());
-		}
-		
-		Attachment att = new Attachment();
-		att.setSrcUri(absoluteUri);
-		newMessage.setAttachment(att);
-		
-		long msgId = MessageManager.getInstance().saveIMMessage(newMessage);
-		newMessage.setId("" + msgId);
-		
-		mMessagePool.put(newMessage.getId(), newMessage);
-
-		Intent intent = new Intent(Constant.SEND_FILE_ACTION);
-		intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, newMessage);
-		sendBroadcast(intent);
-		
-		// 刷新视图
-		refreshMessage();
-
+		mWorker.addHandler(handler);
 	}
 	
 	// 发送文件（语音）
@@ -406,18 +411,14 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 
 		newMessage.setChatType(mChatType);
-		if (mChatType.equals(IMMessage.SINGLE)) {
-			newMessage.setWith(mUser.getJID());
-		}
-		else {
-			newMessage.setWith(mGroup.getName());
-		}
+		newMessage.setWith(getWith());
 		
 		Attachment att = new Attachment();
 		att.setSrcUri(absoluteUri);
 		att.setAudioLength(duration);
 		newMessage.setAttachment(att);
-		
+		newMessage.setUniqueId(String.valueOf(newMessage.hashCode()));
+
 		long msgId = MessageManager.getInstance().saveIMMessage(newMessage);
 		newMessage.setId("" + msgId);
 		
@@ -450,12 +451,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 
 		newMessage.setChatType(mChatType);
-		if (mChatType.equals(IMMessage.SINGLE)) {
-			newMessage.setWith(mUser.getJID());
-		}
-		else {
-			newMessage.setWith(mGroup.getName());
-		}
+		newMessage.setWith(getWith());
 		
 		Attachment att = new Attachment();
 		att.setSrcUri(absoluteUri);
@@ -511,5 +507,12 @@ public abstract class AChatActivity extends ActivitySupport {
 		refreshMessage();
 	}
 	*/
-
+	protected String getWith() {
+		if (mChatType.equals(IMMessage.SINGLE)) {
+			return mUser.getJID();
+		}
+		else {
+			return mGroup.getName();
+		}
+	}
 }

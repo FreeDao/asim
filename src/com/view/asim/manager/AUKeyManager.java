@@ -61,6 +61,9 @@ public class AUKeyManager {
 		return aUkeyManager;
 	}
 
+	public void destroy() {
+		aUkeyManager = null;
+	}
 
 	public void setAUKeyStatus(Context cntx, String status) {
 

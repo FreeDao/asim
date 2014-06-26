@@ -9,6 +9,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.packet.VCard;
+import org.sipdroid.sipua.ui.Settings;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
@@ -21,12 +22,16 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
+import com.view.asim.util.FileUtil;
+import com.view.asim.util.StringUtil;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.view.asim.R;
@@ -35,7 +40,7 @@ import com.view.asim.R;
  * 
  * 登录异步任务.
  * 
- * @author allen
+ * @author xuweinan
  */
 public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	private final static String TAG = "LoginTask";
@@ -80,9 +85,9 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	protected void onProgressUpdate(Integer... values) {
 	}
 
+
 	@Override
 	protected void onPostExecute(Integer result) {
-		//pd.dismiss();
 		loginAnim.stop();
 		switch (result) {
 		case Constant.SERVER_SUCCESS: // 登录成功
@@ -90,8 +95,10 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			Intent intent = new Intent();
 			intent.setClass(activity, MainActivity.class);
 			activity.saveLoginConfig(loginConfig);// 保存用户配置信息
-			activity.stopService();
-			activity.startService();
+			
+			
+			//activity.stopService();
+			//activity.startService();
 			activity.startActivity(intent);
 			activity.finish();
 			
@@ -101,21 +108,33 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 					activity,
 					activity.getResources().getString(
 							R.string.message_invalid_username_password),
-					Toast.LENGTH_SHORT).show();
+					Toast.LENGTH_LONG).show();
+			
+			// 账户或密码错误，需要清空保存的信息，以便下次重新登录
+			loginConfig.setUsername(null);
+			loginConfig.setPassword(null);
+			loginConfig.setOnline(false);
+			activity.saveLoginConfig(loginConfig);
+
+			activity.finish();
+
 			break;
 		case Constant.SERVER_UNAVAILABLE:// 服务器连接失败
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
 							R.string.message_server_unavailable),
-					Toast.LENGTH_SHORT).show();
+					Toast.LENGTH_LONG).show();
+			activity.finish();
 			break;
 		case Constant.UNKNOWN_ERROR:// 未知异常
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
-							R.string.unrecoverable_error), Toast.LENGTH_SHORT)
+							R.string.unrecoverable_error), Toast.LENGTH_LONG)
 					.show();
+			activity.finish();
+
 			break;
 		}
 		super.onPostExecute(result);
@@ -126,34 +145,43 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 		String username = loginConfig.getUsername();
 		String password = loginConfig.getPassword();
 		try {
-			XMPPConnection connection = XmppConnectionManager.getInstance()
-					.getConnection();
-			if (mUser == null) {
-				connection.connect();
+			XmppConnectionManager manager = XmppConnectionManager.getInstance(activity);
+					//.getConnection();
+			
+			/*
+			if (mUser != null) {
+				manager.connect();
 			}
-			connection.login(username, password); // 登录
+			else {
+				manager.login(username, password); // 登录
+			}
+			*/
+			manager.reconnectForcely(loginConfig);
 			
 			// 如果是第一次注册，登录时保存用户注册信息
 			if (mUser != null) {
+				
+				/* FIXME:
 				// 初始化密钥
 				AUKeyManager keyMan = AUKeyManager.getInstance();
 				keyMan.initKey();
 				
 				mUser.setPrivateKey(keyMan.encryptPrivateKey(password));
 				mUser.setPublicKey(keyMan.encodePublicKey());
+				*/
 				
-				VCard r = ContacterManager.saveUserVCard(connection, mUser);
+				VCard r = ContacterManager.saveUserVCard(manager.getConnection(), mUser);
 				Log.d(TAG, "register new user succ: " + r);
 			} else {
 				// 正常登录，从服务器获取登录用户的信息
-				mUser = ContacterManager.getUserByName(connection, username);
+				mUser = ContacterManager.getUserByName(manager.getConnection(), username);
 				Log.d(TAG, "login user succ: " + mUser);
 			}
 			
 			// 登录成功后，初始化联系人列表
-			ContacterManager.init(connection, activity, mUser);
+			ContacterManager.init(manager.getConnection(), activity, mUser);
 			loginConfig.setOnline(true);
-			initCacheFolder(mUser);
+			initUserCacheFolder(mUser);
 			
 			return Constant.SERVER_SUCCESS;
 		} catch (Exception xee) {
@@ -179,31 +207,19 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 		}
 	}
 	
-	private void initCacheFolder(User u) {
-		File videoFolder = new File(Constant.SDCARD_ROOT_PATH + Constant.VIDEO_PATH + "/" + u.getName() + "/");
-		File imgFolder = new File(Constant.SDCARD_ROOT_PATH + Constant.IMAGE_PATH + "/" + u.getName() + "/");
-		File audioFolder = new File(Constant.SDCARD_ROOT_PATH + Constant.AUDIO_PATH + "/" + u.getName() + "/");
-		File fileFolder = new File(Constant.SDCARD_ROOT_PATH + Constant.FILE_PATH + "/" + u.getName() + "/");
-		File cacheFolder = new File(Constant.SDCARD_ROOT_PATH + Constant.CACHE_PATH + "/" + u.getName() + "/");
+	private void initUserCacheFolder(User u) {
 		
-		if (!videoFolder.exists()) {
-			videoFolder.mkdirs();
-		}
+		File videoFolder = new File(FileUtil.getUserVideoPath());
+		File imgFolder = new File(FileUtil.getUserImagePath());
+		File audioFolder = new File(FileUtil.getUserAudioPath());
+		File fileFolder = new File(FileUtil.getUserFilePath());
+		File tempFolder = new File(FileUtil.getUserTempPath());
+
+		FileUtil.createDir(videoFolder);
+		FileUtil.createDir(imgFolder);
+		FileUtil.createDir(audioFolder);
+		FileUtil.createDir(fileFolder);
+		FileUtil.createDir(tempFolder);
 		
-		if (!imgFolder.exists()) {
-			imgFolder.mkdirs();
-		}
-		
-		if (!audioFolder.exists()) {
-			audioFolder.mkdirs();
-		}
-		
-		if (!fileFolder.exists()) {
-			fileFolder.mkdirs();
-		}
-		
-		if (!cacheFolder.exists()) {
-			cacheFolder.mkdirs();
-		}
 	}
 }

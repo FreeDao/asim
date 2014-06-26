@@ -73,6 +73,7 @@ public class SendGroupTextMsgHandler implements BaseHandler {
     		for (String member: mGroupUser.getGroupUsers()) {
 
     			Message message = new Message();
+    			message.setProperty(IMMessage.PROP_ID, mSendMsg.getUniqueId());
     			message.setProperty(IMMessage.PROP_TYPE, IMMessage.PROP_TYPE_CHAT);
     			message.setProperty(IMMessage.PROP_TIME, time);
     			message.setProperty(IMMessage.PROP_WITH, mGroupUser.getName());
@@ -99,10 +100,13 @@ public class SendGroupTextMsgHandler implements BaseHandler {
         catch (Exception e) {         
             e.printStackTrace(); 
             mSendMsg.setStatus(IMMessage.ERROR);
+    		mListener.onSentResult(mSendMsg);
+    		return;
     		//MessageManager.getInstance().saveIMMessage(newMessage);
         }
         
 		//MessageManager.getInstance().saveIMMessage(newMessage);
+        mSendMsg.setStatus(IMMessage.SUCCESS);
 		mListener.onSentResult(mSendMsg);
     }
 }

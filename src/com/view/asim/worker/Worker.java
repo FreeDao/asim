@@ -6,6 +6,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.view.asim.util.DateUtil;
+
 import android.util.Log;
 
 /**
@@ -15,8 +17,6 @@ import android.util.Log;
  */
 public class Worker {
 	
-	private final static String TAG = "Worker";
-    
 	private String name = null;
     //控制线程执行/退出的标志变量
     private volatile boolean mIsRunning = true;
@@ -32,13 +32,14 @@ public class Worker {
     public void initilize(String name) {
     	this.name = name;
         new Thread(new WorkRunnable()).start();
-    	Log.d(TAG, name + " worker start");
+    	Log.d(name, "worker start");
 
     }
                                                                                                                                                      
     //销毁函数，关闭任务等待线程
     public void destroy() {
-                                                                                                                                                         
+    	Log.d(name, "worker destroy");
+                                                                                                                                    
         //线程退出命令
         mIsRunning = false;
                                                                                                                                                          
@@ -48,7 +49,7 @@ public class Worker {
                                                                                                                                                      
     //添加一个新任务
     public void addHandler( BaseHandler handler ) {
-                                                                                                                                                         
+        Log.d(name, "add handler " + handler);                                                                                                                             
         mLock.lock();
         mHandlerQueue.add(handler);
         mCondition.signal();
@@ -87,10 +88,12 @@ public class Worker {
                                                                                                                                                              
             while(mIsRunning) {          
                 BaseHandler handler = getNextHandler();
-                handler.execute();                                                
+                Log.d(name, "run handler " + handler + " start on " + DateUtil.getCurDateStr());
+                handler.execute();       
+                Log.d(name, "run handler " + handler + " end on " + DateUtil.getCurDateStr());
             }
                                                                                                                                                              
-            Log.d(TAG, "WorkRunnable run exit ! ");
+            Log.d(name, "WorkRunnable run exit ! ");
         }
                                                                                                                                                          
     }

@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.jivesoftware.smack.SmackAndroid;
+import org.jivesoftware.smack.XMPPException;
+import org.sipdroid.sipua.ui.Receiver;
+
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.view.asim.util.SoundMeter;
 import com.view.asim.activity.LoginActivity;
 import com.view.asim.activity.MainActivity;
@@ -24,6 +29,7 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.DateUtil;
+import com.view.asim.util.FileUtil;
 import com.view.asim.util.StringUtil;
 import com.view.asim.view.FaceRelativeLayout;
 import com.view.asim.view.MessageListAdapter;
@@ -88,6 +94,8 @@ import com.view.asim.R;
 
 public class ChatActivity extends AChatActivity implements SensorEventListener {
 	private static final String TAG = "ChatActivity";
+	private static final String STATE_PAUSE_ON_SCROLL = "STATE_PAUSE_ON_SCROLL";
+	private static final String STATE_PAUSE_ON_FLING = "STATE_PAUSE_ON_FLING";
 
 	private AudioManager audioManager;
     private SensorManager mSensorManager;
@@ -95,17 +103,21 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	private TextView mNetworkFailedTxt;
 
 	private boolean playAudioNow = false;
-	private ImageView titleBack;
+	private TextView titleBack;
 	private MessageListAdapter adapter = null;
 	private List<ChatMessageItem> mChatItems = null;
 	private EditText messageInput = null;
 	private ImageView messageSendBtn = null;
 	private ImageView voiceRecordBtn = null;
 	private ImageView destroyBtn = null;
+	
 	private View addImgView = null;
 	private View addVideoView = null;
 	private View takePictureView = null;
-	private View addFileView = null;
+	private View voiceCallView = null;
+	private View voiceInputView = null;
+	private View addVCardView = null;
+	
 	private FaceRelativeLayout faceLayout;
 	private boolean isShort = false;
 	private ImageView img1, sc_img1;
@@ -114,11 +126,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 	private ChatMessage mForwardMsg = null;
 	private String mDestroy = IMMessage.NEVER_BURN;
-	private File mTempCaptureAvatarImgFile = null;
+	private File mTempCaptureImgFile = null;
 
 	private ImageButton userInfo;
 	private ListView listView;
-	private TextView tvChatTitle;
 	private LinearLayout del_re;
 	private int flag = 1;
 	private View rcChat_popup;
@@ -134,6 +145,9 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	NoticeManager mNoticeManager = null;
 	ClipboardManager mClipMan = null;
 	private MediaPlayer mMediaPlayer = new MediaPlayer();
+
+	protected boolean pauseOnScroll = false;
+	protected boolean pauseOnFling = true;
 
 
 	@Override
@@ -159,13 +173,14 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		mClipMan = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 		mNetworkFailedTxt = (TextView) findViewById(R.id.network_failed_txt);
 
-		titleBack = (ImageView) findViewById(R.id.title_back);
+		titleBack = (TextView) findViewById(R.id.title_back_btn);
 		titleBack.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				finish();
 			}
 		});
+		
 		del_re = (LinearLayout) this.findViewById(R.id.del_re);
 		rcChat_popup = this.findViewById(R.id.rcChat_popup);
 		voice_rcd_hint_rcding = (LinearLayout) this
@@ -176,13 +191,11 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				.findViewById(R.id.voice_rcd_hint_tooshort);
 		mSensor = new SoundMeter();
 		
-		// 与谁聊天
-		tvChatTitle = (TextView) findViewById(R.id.to_chat_name);
-		
 		faceLayout = (FaceRelativeLayout) findViewById(R.id.FaceRelativeLayout);
+		faceLayout.setActivityContext(this);
 		voiceView = findViewById(R.id.ll_audio_record);
 
-		tvChatTitle.setText(mUser.getNickName());
+		titleBack.setText(mUser.getNickName());
 
 		userInfo = (ImageButton) findViewById(R.id.user_info);
 		userInfo.setOnClickListener(new OnClickListener() {
@@ -200,7 +213,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		listView = (ListView) findViewById(R.id.chat_list);
 		listView.setCacheColorHint(0);
 		adapter = new MessageListAdapter(ChatActivity.this, mChatItems,
-				listView, mUser);
+				listView, mUser, imageLoader);
 		img1 = (ImageView) this.findViewById(R.id.img1);
 		sc_img1 = (ImageView) this.findViewById(R.id.sc_img1);
 		volume = (ImageView) this.findViewById(R.id.volume);
@@ -208,6 +221,15 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		listView.setAdapter(adapter);
 		
 		adapter.setMessageContentLongClickListener(mChatMessageOnLongClickListener);  
+		
+		adapter.setSentFailedClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				ChatMessage msg = (ChatMessage) v.getTag();
+				showResendDialog(msg);
+			}
+		});
 
 		adapter.setLeftAudioClickListener(new View.OnClickListener() {
 
@@ -221,7 +243,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				}
 
 				volumeIcon = (AnimationDrawable) drawables[0];
-				playMusic(msg.getAttachment().getSrcUri()) ;
+				playMusic(msg.getAttachment().getSrcUri());
 			}
 		});
 		
@@ -262,7 +284,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 		        String type = "video/*";
-		        Uri uri = Uri.parse(msg.getAttachment().getSrcUri());
+		        Uri uri = Uri.parse("file://" + msg.getAttachment().getSrcUri());
 		        intent.setDataAndType(uri, type);
 		        startActivity(intent);
 			}
@@ -273,10 +295,16 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 				ChatMessage msg = (ChatMessage) v.getTag();
-
 				Intent intent = new Intent();
-				intent.setClass(context, BurnMsgViewActivity.class);
-				intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+
+				if (msg.getType().equals(ChatMessage.CHAT_IMAGE)) {
+					intent.setClass(context, ImagePreviewActivity.class);
+					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+					
+				} else {
+					intent.setClass(context, BurnMsgViewActivity.class);
+					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+				}
 	            startActivityForResult(intent, Constant.REQCODE_BURN_AFTER_READ); 
 			}
 		}); 
@@ -286,10 +314,16 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 				ChatMessage msg = (ChatMessage) v.getTag();
-
 				Intent intent = new Intent();
-				intent.setClass(context, BurnMsgViewActivity.class);
-				intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+
+				if (msg.getType().equals(ChatMessage.CHAT_IMAGE)) {
+					intent.setClass(context, ImagePreviewActivity.class);
+					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+					
+				} else {
+					intent.setClass(context, BurnMsgViewActivity.class);
+					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+				}
 	            startActivityForResult(intent, Constant.REQCODE_BURN_AFTER_READ); 
 			}
 		});
@@ -302,11 +336,11 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			}
 		});
 		
-		
 		findViewById(R.id.chat_voice_btn).setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
+				closeInput();
 				faceLayout.hideFaceView();
 				faceLayout.hideAddMoreView();
 				if (voiceView.getVisibility() == View.VISIBLE) {
@@ -337,7 +371,6 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 						e.printStackTrace();
 						messageInput.setText(message);
 					}
-					closeInput();
 					
 					faceLayout.hideFaceView();
 					faceLayout.hideAddMoreView();
@@ -376,7 +409,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 	        	// 激活系统图库，选择一张图片  
-	            Intent intent = new Intent(Intent.ACTION_PICK);  
+	            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);  
 	            intent.setType("image/*");  
 	            startActivityForResult(intent, Constant.REQCODE_IMAGE_PICK);
 			}
@@ -387,14 +420,36 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-	            Intent intent = new Intent(Intent.ACTION_PICK);  
+	            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);  
 	            intent.setType("video/*");  
 	            startActivityForResult(intent, Constant.REQCODE_VIDEO_PICK);
 			}
 		});
 		
-		addFileView = findViewById(R.id.ll_send_file_btn);
-		addFileView.setOnClickListener(new View.OnClickListener() {
+		addVCardView = findViewById(R.id.ll_send_vcard_btn);
+		addVCardView.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				//Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+				//intent.setType("*/*");   
+	            //startActivityForResult(intent, Constant.REQCODE_FILE_PICK);
+				showToast("本功能将在下一版本发布，敬请期待:)");
+
+			}
+		});
+		
+		voiceCallView = findViewById(R.id.ll_voice_call_btn);
+		voiceCallView.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Receiver.engine(context).call(StringUtil.getCellphoneByName(mUser.getJID()), true);
+			}
+		});
+		
+		voiceInputView = findViewById(R.id.ll_voice_input_btn);
+		voiceInputView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -412,21 +467,14 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 	        	// 激活相机  
-	            Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");  
-	            // 判断存储卡是否可以用，可用进行存储  
-	            
-	    		String fileSavePath = Constant.SDCARD_ROOT_PATH + Constant.IMAGE_PATH + "/" + ContacterManager.userMe.getName();
-	    		File dir = new File(fileSavePath);
-	    		if(!dir.exists()) {
-	    			dir.mkdir();
-	    		}
+	            Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 	    		
-	    		String fileSaveName = fileSavePath + "/" + String.valueOf(Calendar.getInstance().getTimeInMillis())
-	    				+ Constant.FILE_SUFFIX;
+	    		String fileSaveName = FileUtil.genCaptureImageName(getWith());
 	    		
-	    		mTempCaptureAvatarImgFile = new File(fileSaveName);  
+	    		mTempCaptureImgFile = new File(FileUtil.getImagePathByWith(getWith()) + fileSaveName);  
+	    		Log.d(TAG, "start capture image from camera: " + mTempCaptureImgFile);
                 // 从文件中创建uri  
-                Uri uri = Uri.fromFile(mTempCaptureAvatarImgFile);
+                Uri uri = Uri.fromFile(mTempCaptureImgFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 
 	            startActivityForResult(intent, Constant.REQCODE_TAKE_PICTURE); 
@@ -446,6 +494,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				case Constant.REQCODE_BURN_AFTER_READ:
 		        	ChatMessage msg = data.getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
 		        	Log.d(TAG, "remove message id " + msg.getId() + ", " + msg.getContent());
+		        	showToast("消息已销毁");
 		        	MessageManager.getInstance().delChatHisById(msg.getId());
 		        	refreshMessage();
 					
@@ -456,12 +505,17 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		            if (data != null) {  
 		                // 得到图片的全路径  
 		                uri = data.getData();  
-		                try {
-							sendImage(uri, mDestroy);
-						} catch (Exception e) {
-							e.printStackTrace();
-							return;
-						}  
+		                Log.d(TAG, "send image from local: " + uri.toString());
+		                
+		                if(judgeMediaFileSize(uri)) {
+
+			                try {
+								sendImage(uri, mDestroy);
+							} catch (Exception e) {
+								e.printStackTrace();
+								return;
+							}  
+		                }
 		            }   
 		            
 		            break;
@@ -469,19 +523,24 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		        case Constant.REQCODE_VIDEO_PICK:
 		        	if (data != null) {  
 		                // 得到图片的全路径  
-		                uri = data.getData();  
-		                try {
-							sendVideo(uri, mDestroy);
-						} catch (Exception e) {
-							e.printStackTrace();
-							return;
-						}  
+		                uri = data.getData();
+		                Log.d(TAG, "send video from local: " + uri.toString());
+
+		                if(judgeMediaFileSize(uri)) {
+
+			                try {
+								sendVideo(uri, mDestroy);
+							} catch (Exception e) {
+								e.printStackTrace();
+								return;
+							}  
+		                }
 		            }  
 		        	break;
 		        	
 		        case Constant.REQCODE_TAKE_PICTURE:
 	                // 得到图片的全路径  
-	                uri = Uri.fromFile(mTempCaptureAvatarImgFile);
+	                uri = Uri.fromFile(mTempCaptureImgFile);
 	                Log.d(TAG, "capture a picutre " + uri.getPath());
 	                try {
 						sendImage(uri, mDestroy);
@@ -545,6 +604,22 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		}
     }
 	
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		pauseOnScroll = savedInstanceState.getBoolean(STATE_PAUSE_ON_SCROLL, false);
+		pauseOnFling = savedInstanceState.getBoolean(STATE_PAUSE_ON_FLING, true);
+	}
+
+	private void applyScrollListener() {
+		listView.setOnScrollListener(new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling));
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putBoolean(STATE_PAUSE_ON_SCROLL, pauseOnScroll);
+		outState.putBoolean(STATE_PAUSE_ON_FLING, pauseOnFling);
+	}
+	
 	
 	OnLongClickListener mChatMessageOnLongClickListener = new OnLongClickListener() {
 
@@ -553,7 +628,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			
 			final View targetView = v;
 			new AlertDialog.Builder(ChatActivity.this).
-			setItems(new String[] { "复制", "转发", "删除" }, new DialogInterface.OnClickListener() {
+			setItems(new String[] { "复制", "转发", "销毁" }, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					Intent intent = null;
@@ -580,6 +655,9 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 						Log.d(TAG, "remove message id " + msg.getId() + ", " + msg.getContent());
 			        	MessageManager.getInstance().delChatHisById(msg.getId());
 			        	refreshMessage();
+			        	if(msg.getDir().equals(IMMessage.SEND)) {
+			        		showRemoteDestroyDialog(msg);
+			        	}
 					}
 					
 				}
@@ -614,6 +692,8 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	}
 	
 	private void playMusic(String name) {
+		
+		Log.d(TAG, "play audio file: " + name);
 		try {
 			playAudioNow = true;
 			
@@ -638,6 +718,63 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private void showResendDialog(final ChatMessage msg) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getResources().getString(R.string.resend_msg_confim))
+				.setCancelable(false)
+				.setPositiveButton(getResources().getString(R.string.yes),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								msg.setStatus(IMMessage.INPROGRESS);
+								Intent intent = new Intent();
+								intent.setAction(Constant.SEND_MESSAGE_ACTION);
+								intent.putExtra(Constant.SEND_MESSAGE_KEY_MESSAGE, msg);
+								sendBroadcast(intent);
+
+								// 刷新视图
+								refreshMessage();
+							}
+						})
+				.setNegativeButton(getResources().getString(R.string.no),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.cancel();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void showRemoteDestroyDialog(final ChatMessage msg) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getResources().getString(R.string.remote_destroy_msg_confim))
+				.setCancelable(false)
+				.setPositiveButton(getResources().getString(R.string.yes),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								Intent intent = new Intent();
+								intent.setAction(Constant.REMOTE_DESTROY_ACTION);
+								intent.putExtra(Constant.REMOTE_DESTROY_KEY_MESSAGE, msg);
+								sendBroadcast(intent);
+
+								// 刷新视图
+								refreshMessage();
+							}
+						})
+				.setNegativeButton(getResources().getString(R.string.no),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.cancel();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 	
 	protected void refreshChatMessageList() {
@@ -683,7 +820,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 	@Override
 	protected void receiveNewMessage(ChatMessage message) {
-		Log.d(TAG, "receiveNewMessage: " + message.getWith());
+		Log.d(TAG, "receiveNewMessage: " + message);
 
 	}
 
@@ -691,9 +828,13 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	protected void refreshMessage() {
 		super.refreshMessage();
 		
+		Log.d(TAG, "refresh chat msg list start on: " + DateUtil.getCurDateStr());
+
 		refreshChatMessageList();
+		
+		Log.d(TAG, "refresh chat msg list end on: " + DateUtil.getCurDateStr());
+
 		// 更新某人所有通知
-		//NoticeManager.getInstance().updateStatusByFrom(mUser.getJID(), Notice.READ);
 		MessageManager.getInstance().updateReadStatus(mUser.getJID(), IMMessage.READ);
 
 		adapter.refreshList(mChatItems);
@@ -702,6 +843,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		
 		// 更新网络状态界面
 		refreshConnStatusView();
+
 	}
 	
 	protected void refreshConnStatusView() {
@@ -714,22 +856,26 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	
 	private void refreshViewOnAUKeyStatusChange() {
 		View titleBar = findViewById(R.id.main_head);
-		TextView title = (TextView) findViewById(R.id.to_chat_name);
 		ImageView aukeyOnlineImg = (ImageView) findViewById(R.id.aukey_online_img);
 		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
 			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
-			title.setTextColor(getResources().getColor(R.color.white));
-			aukeyOnlineImg.setVisibility(View.VISIBLE);
-			findViewById(R.id.aukey_online_img).setVisibility(View.VISIBLE);
+			titleBack.setTextColor(getResources().getColor(R.color.white));
+			titleBack.setBackgroundResource(R.drawable.title_clickable_background_black);
+			userInfo.setBackgroundResource(R.drawable.title_clickable_background_black);
+			//aukeyOnlineImg.setVisibility(View.VISIBLE);
+			//findViewById(R.id.aukey_online_img).setVisibility(View.VISIBLE);
 			listView.setBackgroundResource(R.drawable.account_guidance_bg);
 			findViewById(R.id.head_body_divide).setVisibility(View.GONE);
 
 		}
 		else {
 			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
-			title.setTextColor(getResources().getColor(R.color.darkgray));
-			aukeyOnlineImg.setVisibility(View.GONE);
-			findViewById(R.id.aukey_online_img).setVisibility(View.GONE);
+			titleBack.setTextColor(getResources().getColor(R.color.darkgray));
+			titleBack.setBackgroundResource(R.drawable.title_clickable_background);
+			userInfo.setBackgroundResource(R.drawable.title_clickable_background);
+
+			//aukeyOnlineImg.setVisibility(View.GONE);
+			//findViewById(R.id.aukey_online_img).setVisibility(View.GONE);
 			listView.setBackgroundColor(getResources().getColor(R.color.chatgray));
 			findViewById(R.id.head_body_divide).setVisibility(View.VISIBLE);
 
@@ -740,6 +886,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		closeInput();
+
+		applyScrollListener();
+
 		refreshMessage();
 		
 		if (mChatType.equals(IMMessage.SINGLE)) {
@@ -771,8 +921,8 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 	@Override
 	protected void sendFileProgressUpdate(ChatMessage message, int ratio) {
-		
-		
+		ChatMessageItem newItem = createChatMessageItem(message);
+		adapter.refreshItem(newItem);
 	}
 	
 	
@@ -809,7 +959,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					img1.setVisibility(View.VISIBLE);
 					del_re.setVisibility(View.GONE);
 					startVoiceT = Calendar.getInstance().getTimeInMillis();
-					voiceName = startVoiceT + ".amr";
+					voiceName = FileUtil.genCaptureAudioName(getWith());
 					start(voiceName);
 					flag = 2;
 				}
@@ -827,7 +977,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					del_re.setVisibility(View.GONE);
 					stop();
 					flag = 1;
-					File file = new File(Constant.SDCARD_ROOT_PATH + Constant.AUDIO_PATH + "/" + ContacterManager.userMe.getName() + "/" + voiceName);
+					File file = new File(FileUtil.getAudioPathByWith(getWith()) + voiceName);
 					if (file.exists()) {
 						file.delete();
 					}
@@ -858,8 +1008,8 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					
 					
 					try {
-						sendFile(Uri.parse(Constant.AUDIO_PATH + "/" + ContacterManager.userMe.getName() + "/" + voiceName), 
-								time, mDestroy);
+						String fileName = FileUtil.getAudioPathByWith(getWith()) + voiceName;
+						sendFile(Uri.parse(fileName), time, mDestroy);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -912,7 +1062,9 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		};
 
 		private void start(String name) {
-			String fileName = Constant.SDCARD_ROOT_PATH + Constant.AUDIO_PATH + "/" + ContacterManager.userMe.getName() + "/" + name;
+			String path = FileUtil.getAudioPathByWith(getWith());
+			FileUtil.createDir(new File(path));
+			String fileName = path + name;
 			mSensor.start(fileName);
 			mHandler.postDelayed(mPollTask, POLL_INTERVAL);
 		}
@@ -934,7 +1086,6 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			case 2:
 			case 3:
 				volume.setImageResource(R.drawable.voice_amp2);
-				
 				break;
 			case 4:
 			case 5:
@@ -981,8 +1132,8 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 		// 网络状态变化通知处理
 		@Override
-		protected void handReConnect(boolean isSuccess) {
-			if (isSuccess && XmppConnectionManager.getInstance().getConnection().isConnected()) {
+		protected void handReConnect(String status) {
+			if (status.equals(XmppConnectionManager.CONNECTED) && XmppConnectionManager.getInstance().getConnection().isConnected()) {
 				mNetworkFailedTxt.setVisibility(View.GONE);
 			} else {
 				mNetworkFailedTxt.setVisibility(View.VISIBLE);

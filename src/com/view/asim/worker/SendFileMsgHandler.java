@@ -125,33 +125,6 @@ public class SendFileMsgHandler implements BaseHandler {
 		final boolean needEncr = AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED);
 		final String time = DateUtil.getCurDateStr();
 		final Uri localUri = uri;
-
-		/*
-		newMessage.setDir(IMMessage.SEND);
-		newMessage.setFrom(ContacterManager.userMe.getJID());
-		newMessage.setTo(mToUser.getJID());
-		newMessage.setType(mSendType);
-		newMessage.setTime(time);
-		newMessage.setChatType(IMMessage.SINGLE);
-		newMessage.setDestroy(mDestroy);
-		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
-		*/
-		
-		// 七牛 API 上传文件（异步任务）
-		/*
-		String key = null;
-		ContentResolver cr = mCntx.getContentResolver();
-		Cursor cursor = cr.query(uri, null, null, null, null);
-
-		if (cursor != null) {
-			cursor.moveToFirst();
-			// Column 2 = _display_name
-			key = cursor.getString(2);
-		}
-		else {
-			key = uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1, uri.getPath().length());
-		}
-		*/
 		
 		String key = uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1, uri.getPath().length());
 				
@@ -182,6 +155,7 @@ public class SendFileMsgHandler implements BaseHandler {
 				try {
 		    		
 					Message message = new Message();
+					message.setProperty(IMMessage.PROP_ID, mSendMsg.getUniqueId());
 					message.setProperty(IMMessage.PROP_TYPE, IMMessage.PROP_TYPE_CTRL);
 					message.setProperty(IMMessage.PROP_TIME, time);
 					message.setProperty(IMMessage.PROP_WITH, mSendMsg.getWith());
@@ -207,8 +181,11 @@ public class SendFileMsgHandler implements BaseHandler {
 					e.printStackTrace();
 					
 					mSendMsg.setStatus(IMMessage.ERROR);
+					mListener.onSentResult(mSendMsg);
+					return;
 				}
 
+				mSendMsg.setStatus(IMMessage.SUCCESS);
 				mListener.onSentResult(mSendMsg);
 			}
 

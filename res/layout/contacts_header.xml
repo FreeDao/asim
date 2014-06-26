@@ -10,8 +10,9 @@
         android:id="@+id/add_user_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
+        android:paddingLeft="10dp"
         android:layout_marginRight="30dp"
+        android:background="@drawable/clickable_background"
         android:orientation="horizontal" >
 
         <ImageView
@@ -19,7 +20,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/add_user"
+            android:src="@drawable/add_user"
             android:contentDescription="null" />
 
         <TextView
@@ -39,15 +40,16 @@
         android:layout_height="1px"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="30dp"
-        android:background="@color/lightgray"
+        android:background="@color/white2"
         android:contentDescription="@null" />
 
     <LinearLayout
         android:id="@+id/user_notify_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
+        android:paddingLeft="10dp"
         android:layout_marginRight="30dp"
+        android:background="@drawable/clickable_background"
         android:orientation="horizontal" >
 
         <ImageView
@@ -55,7 +57,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/user_notify"
+            android:src="@drawable/user_notify"
             android:contentDescription="null" />
 
         <TextView
@@ -84,14 +86,17 @@
         android:layout_height="1px"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="30dp"
-        android:background="@color/lightgray"
+        
+        android:background="@color/white2"
         android:contentDescription="@null" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="10dp"
+        android:paddingLeft="10dp"
         android:layout_marginRight="30dp"
+        android:background="@drawable/clickable_background"
+        
         android:orientation="horizontal" >
 
         <ImageView
@@ -99,7 +104,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/user_group"
+            android:src="@drawable/contacts_choose_group_icon"
             android:contentDescription="null" />
 
         <TextView
@@ -119,7 +124,7 @@
         android:layout_height="1px"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="30dp"
-        android:background="@color/lightgray"
+        android:background="@color/white2"
         android:contentDescription="@null" />
 
     <LinearLayout

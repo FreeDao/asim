@@ -35,15 +35,18 @@ public class MessageManager {
 
 	private MessageManager(Context context) {
 		SharedPreferences sharedPre = context.getSharedPreferences(
-				Constant.LOGIN_SET, Context.MODE_PRIVATE);
+				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
 		String databaseName = sharedPre.getString(Constant.USERNAME, null);
-		
+		Log.d(TAG, "init database " + databaseName);
+
 		manager = DBManager.getInstance(context, databaseName);
 	}
 
 	public static MessageManager getInstance(Context context) {
 
 		if (messageManager == null) {
+			Log.d(TAG, "new MessageManager");
+
 			messageManager = new MessageManager(context);
 			messageManager.init();
 		}
@@ -55,6 +58,11 @@ public class MessageManager {
 		return messageManager;
 	}
 
+	public void destroy() {
+		messageManager = null;
+		manager = null;
+	}
+	
 	protected void init() {
 		if (ContacterManager.contacters == null) {
 			return;
@@ -62,6 +70,7 @@ public class MessageManager {
 		
 		// 核查好友列表和消息是否对应，删除不存在的好友的消息
 		List<String> users = getAllUsersFromMessages();
+		Log.d(TAG, "find " + users.size() + " contacters in message list");
 		for(String u: users) {
 			if (!ContacterManager.contacters.containsKey(u)) {
 				Log.d(TAG, u + " does not exist in contacter list, so delete all messages of it." );
@@ -108,6 +117,7 @@ public class MessageManager {
 	public long saveIMMessage(ChatMessage msg) {
 		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
+		contentValues.put("unique_id", msg.getUniqueId());
 		contentValues.put("status", msg.getStatus());
 		contentValues.put("readStatus", IMMessage.UNREAD);
 		contentValues.put("content", msg.getContent());
@@ -136,6 +146,7 @@ public class MessageManager {
 	public void updateIMMessage(ChatMessage msg) {
 		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
+		contentValues.put("unique_id", msg.getUniqueId());
 		contentValues.put("status", msg.getStatus());
 		contentValues.put("content", msg.getContent());
 		contentValues.put("with", msg.getWith());
@@ -217,6 +228,7 @@ public class MessageManager {
 					public ChatMessage mapRow(Cursor cursor, int index) {
 						ChatMessage msg = new ChatMessage();
 						msg.setId(cursor.getString(cursor.getColumnIndex("_id")));
+						msg.setUniqueId(cursor.getString(cursor.getColumnIndex("unique_id")));
 						msg.setStatus(cursor.getString(cursor.getColumnIndex("status")));
 						msg.setContent(cursor.getString(cursor.getColumnIndex("content")));
 						msg.setWith(cursor.getString(cursor.getColumnIndex("with")));
@@ -239,6 +251,23 @@ public class MessageManager {
 		return list;
 
 	}
+	
+	/**
+	 * 根据 uniqueId 删除一条消息 
+	 * 
+	 * @param  unique_id
+	 * 
+	 * @author xuweinan
+	 */
+	public int delMessageByUniqueId(String id) {
+		if (StringUtil.empty(id)) {
+			return 0;
+		}
+		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
+		return st.deleteByCondition("im_msg_his", "unique_id=?",
+				new String[] { "" + id });
+	}
+	
 
 	/**
 	 * 

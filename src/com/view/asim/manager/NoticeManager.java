@@ -43,8 +43,9 @@ public class NoticeManager {
 
 	private NoticeManager(Context context) {
 		SharedPreferences sharedPre = context.getSharedPreferences(
-				Constant.LOGIN_SET, Context.MODE_PRIVATE);
+				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
 		String databaseName = sharedPre.getString(Constant.USERNAME, null);
+		Log.d(TAG, "init database " + databaseName);
 		manager = DBManager.getInstance(context, databaseName);
 
 		this.mCntx = context;
@@ -64,6 +65,11 @@ public class NoticeManager {
 	
 	public static NoticeManager getInstance() {
 		return noticeManager;
+	}
+	
+	public void destroy() {
+		noticeManager = null;
+		manager = null;
 	}
 
 	protected void init() {
@@ -626,13 +632,15 @@ public class NoticeManager {
 		int unreadCount = MessageManager.getInstance().getMsgCountByWithAndReadStatus(user.getJID(), IMMessage.UNREAD);
 
 		Intent notifyIntent = new Intent(mCntx, ChatActivity.class);
-		notifyIntent.putExtra(User.userKey, user);
+		notifyIntent.putExtra(User.userKey, user.clone());
 		notifyIntent.putExtra(IMMessage.PROP_CHATTYPE, IMMessage.SINGLE);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		String ticker = user.getNickName() + "发来1条新消息";
-		String content = "发来" + unreadCount + "条新消息";
+		String content = "发来" + (unreadCount + 1) + "条新消息";
 
+		Log.i(TAG, "notify new message from user:" + user);
+		
 		Bitmap avatar = null;
 		if (user.getHeadImg() != null) {
 			avatar = user.getHeadImg();

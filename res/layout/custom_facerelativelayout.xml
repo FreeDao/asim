@@ -76,7 +76,7 @@
                     android:id="@+id/chat_add_more_btn"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/message_input_plus" />
+                    android:src="@drawable/chat_addmore_btn" />
                 
                <ImageView
                     android:id="@+id/chat_normal_sendbtn"
@@ -165,7 +165,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/btn_chat_photo_n" />
+                        android:src="@drawable/chat_photo_btn" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -185,7 +185,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/btn_chat_movie_n" />
+                        android:src="@drawable/chat_video_btn" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -205,7 +205,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/btn_chat_camera_n" />
+                        android:src="@drawable/chat_camera_btn" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -233,13 +233,13 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/btn_chat_voicecall_n" />
+                        android:src="@drawable/chat_voicecall_btn" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="免费电话" />
+                        android:text="语音通话" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -253,7 +253,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/btn_chat_voicemessage_n" />
+                        android:src="@drawable/chat_voiceinput_btn" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -263,7 +263,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/ll_send_file_btn"
+                    android:id="@+id/ll_send_vcard_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1.0"
@@ -273,13 +273,13 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/btn_chat_contact_n" />
+                        android:src="@drawable/chat_vcard_btn" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="发送文件" />
+                        android:text="发送名片" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
