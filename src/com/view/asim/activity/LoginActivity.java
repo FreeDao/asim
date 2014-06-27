@@ -71,8 +71,8 @@ public class LoginActivity extends ActivitySupport {
 			@Override
 			public void onClick(View v) {
 				if (checkCellphone() && checkData()) {
-					String password = mPasswdText.getText().toString();
-					String username = StringUtil.getNameByCellphone(mUsernameText.getText().toString());
+					String password = mPasswdText.getText().toString().trim();
+					String username = StringUtil.getNameByCellphone(mUsernameText.getText().toString().trim());
 
 					// 先记录下各组件的目前状态,登录成功后才保存
 					mLoginCfg.setPassword(password);

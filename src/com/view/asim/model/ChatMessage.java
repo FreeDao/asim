@@ -39,6 +39,37 @@ public class ChatMessage extends IMMessage {
         this.attachment = in.readParcelable(Attachment.class.getClassLoader());
     }  
 	
+	
+	public boolean isTextMessage() {
+		if (getType().equals(CHAT_TEXT)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean isMultiMediaMessage() {
+		if (!getType().equals(CHAT_TEXT) && !getType().equals(TIMESTAMP)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	@Override
+	public String toString() {
+		String att;
+		if(attachment != null) {
+			att = attachment.dumps();
+		}
+		else {
+			att = "";
+		}
+		return super.toString() + ", attachment: " + att;
+	}
+	
 	@Override
 	public int describeContents() {
 		return 0;

@@ -224,9 +224,10 @@ public class IMChatService extends Service {
 
 			}
 			else if (action.equals(Constant.RECV_OFFLINE_MSG_ACTION)) {
-				//dealOfflineMsg();
+				/* dealOfflineMsg();
 				XmppConnectionManager.getInstance().getConnection()
 					.sendPacket(new Presence(Presence.Type.available));
+					*/
 			}
 			else if (action.equals(Constant.GROUP_INVITE_ACTION)) {
 				GroupUser grp = (GroupUser) intent.getParcelableExtra(Constant.GROUP_ACTION_KEY_INFO);
@@ -250,8 +251,10 @@ public class IMChatService extends Service {
 				else if(status.equals(XmppConnectionManager.CONNECTED)) {
 					Log.i(TAG, "connection succ, init chat listener");
 					initChatManager();
+					/*
 					XmppConnectionManager.getInstance().getConnection()
 					.sendPacket(new Presence(Presence.Type.available));
+					*/
 				}
 			}
 			

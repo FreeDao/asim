@@ -69,6 +69,8 @@ public class XmppConnectionManager {
 	public final static String DISCONNECTED = "xmpp.disconnected";
     private static ReentrantLock lock = new ReentrantLock();
 
+	public static final int PING_INTERVAL_SECONDS = 30; // 30 s
+
 	/*
 	static {     
         try{    
@@ -78,7 +80,7 @@ public class XmppConnectionManager {
         }    
     }  
 	*/
-	
+
 	private XMPPConnection connection;
 	private static ConnectionConfiguration connectionConfig;
 	private static XmppConnectionManager xmppConnectionManager;
@@ -122,7 +124,7 @@ public class XmppConnectionManager {
 	private XMPPConnection init(LoginConfig loginConfig) {
       
 		try {
-			Connection.DEBUG_ENABLED = false;
+			//Connection.DEBUG_ENABLED = true;
 			ProviderManager pm = ProviderManager.getInstance();
 			configure(pm);
 			
@@ -136,6 +138,7 @@ public class XmppConnectionManager {
 			
 			connectionConfig.setReconnectionAllowed(false);
 			connectionConfig.setSocketFactory(XmppSocketFactory.getInstance());
+			connectionConfig.setDebuggerEnabled(true);
 			
 			// 允许登陆成功后更新在线状态
 			connectionConfig.setSendPresence(false);
@@ -159,7 +162,6 @@ public class XmppConnectionManager {
 	 * 
 	 * @return
 	 * @author xuweinan
-	 * @update 2012-7-4 下午6:54:31
 	 */
 	public XMPPConnection getConnection() {
 		return connection;
@@ -174,16 +176,15 @@ public class XmppConnectionManager {
 		}
 	}
 	
-	public void connect(LoginConfig loginCfg) {
+	public void connect(LoginConfig loginCfg) throws Exception {
 		XMPPConnection conn;
 
         status = CONNECTING;
 
         if (connection == null || connection.isConnected() ) {
-            try {
-            	conn = init(loginCfg);
-            } catch (Exception e) {
-                Log.e(TAG, "Exception creating new XMPP Connection", e);
+            conn = init(loginCfg);
+            if(conn == null ) {
+            	Log.e(TAG, "Exception creating new XMPP Connection");
                 maybeStartReconnect();
                 return;
             }
@@ -200,18 +201,18 @@ public class XmppConnectionManager {
 	}
 	
 	
-	public void connectOnly(LoginConfig loginCfg) {
+	public void connectOnly(LoginConfig loginCfg) throws Exception {
 		XMPPConnection conn;
         status = CONNECTING;
 
         if (connection == null || connection.isConnected() ) {
-            try {
-            	conn = init(loginCfg);
-            } catch (Exception e) {
-                Log.e(TAG, "Exception creating new XMPP Connection", e);
+            conn = init(loginCfg);
+            if(conn == null ) {
+            	Log.e(TAG, "Exception creating new XMPP Connection");
                 maybeStartReconnect();
                 return;
             }
+            
             if (!connectAndAuth(conn, null)) {
                 return;
             }                  
@@ -229,7 +230,7 @@ public class XmppConnectionManager {
         sendConnStatusBroadcast(CONNECTING);
 	}
 	
-	private boolean connectAndAuth(XMPPConnection connection, LoginConfig cfg) {
+	private boolean connectAndAuth(XMPPConnection connection, LoginConfig cfg) throws Exception {
         try {
             connection.connect();
         } catch (Exception e) {
@@ -237,15 +238,14 @@ public class XmppConnectionManager {
             if (e instanceof XMPPException) {
                 Log.w(TAG, "XMPP connection failed because of stream error: " + e.getMessage());
             }
-            status = DISCONNECTED;
-
             maybeStartReconnect();
-            return false;
+            status = DISCONNECTED;
+            throw(e);
         }
         
         if(cfg != null) {
 	        try {
-	            connection.login(cfg.getUsername(), cfg.getPassword());
+	            connection.login(cfg.getUsername(), cfg.getPassword(), android.os.Build.DEVICE);
 	        } catch (Exception e) {
 	            Log.e(TAG, "Xmpp login failed", e);
 	            if (e.getMessage().contains("Already")) {
@@ -254,9 +254,9 @@ public class XmppConnectionManager {
 	            else {
 		            maybeStartReconnect();
 		            status = DISCONNECTED;
+		            throw(e);
 	            }
 
-	            return false;
 	        }
         }
         return true;
@@ -283,7 +283,7 @@ public class XmppConnectionManager {
         sendConnStatusBroadcast(DISCONNECTED);
 	}
 
-	public void reconnect(LoginConfig loginCfg) {
+	public void reconnect(LoginConfig loginCfg) throws Exception {
 		Log.i(TAG, "reconnect xmpp: conn status " + status + ", connection isConnected " + (connection == null ? null : connection.isConnected()));
 		
 		if (status.equals(CONNECTING) || (connection != null && connection.isConnected())) {
@@ -294,14 +294,12 @@ public class XmppConnectionManager {
 		connect(loginCfg);
 	}
 	
-	public void reconnectForcely(LoginConfig loginCfg) {
+	public void reconnectForcely(LoginConfig loginCfg) throws Exception {
 		Log.i(TAG, "reconnectForcely xmpp: conn status " + status + ", connection isConnected " + (connection == null ? null : connection.isConnected()));
 		
 		disconnect();
 		connect(loginCfg);
 	}
-
-
 	
 	private void onConnectionEstablished(XMPPConnection conn) {
 		connection = conn;
@@ -337,6 +335,10 @@ public class XmppConnectionManager {
         
         final DeliveryReceiptManager drm = DeliveryReceiptManager.getInstanceFor(connection);
         drm.enableAutoReceipts();
+        
+        PingManager.getInstanceFor(connection);
+
+        connection.sendPacket(new Presence(Presence.Type.available));
         
         Log.i(TAG, "connection established with parameters: con=" + connection.isConnected() + 
                 " auth=" + connection.isAuthenticated() + 

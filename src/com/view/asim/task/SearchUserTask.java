@@ -122,7 +122,6 @@ public class SearchUserTask extends AsyncTask<String, Integer, Integer> {
 		super.onPostExecute(result);
 	}
 
-	// µÇÂ¼
 	private Integer search() {
 		try {
 			List<User> resultsByCellphone = null;

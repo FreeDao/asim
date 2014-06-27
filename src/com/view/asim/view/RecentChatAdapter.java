@@ -103,7 +103,7 @@ public class RecentChatAdapter extends BaseAdapter {
 		}		
 		holder.nameTxt.setTag(notice);
 		
-		spannableString = FaceConversionUtil.getInstace().getExpressionString(context, notice.getContent(), 50);
+		spannableString = FaceConversionUtil.getInstace().getExpressionString(context, notice.getContent(), 40);
 		
 		holder.lastMsgTxt.setText(spannableString);
 		

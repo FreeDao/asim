@@ -33,6 +33,7 @@ import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
+import com.view.asim.manager.SMSVerifyManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatHisBean;
 import com.view.asim.model.GroupUser;

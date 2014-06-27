@@ -115,8 +115,9 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			loginConfig.setPassword(null);
 			loginConfig.setOnline(false);
 			activity.saveLoginConfig(loginConfig);
-
-			activity.finish();
+			
+			loginAnim.setVisible(false, false);
+			//activity.finish();
 
 			break;
 		case Constant.SERVER_UNAVAILABLE:// 服务器连接失败
@@ -125,6 +126,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 					activity.getResources().getString(
 							R.string.message_server_unavailable),
 					Toast.LENGTH_LONG).show();
+			
 			activity.finish();
 			break;
 		case Constant.UNKNOWN_ERROR:// 未知异常
@@ -143,7 +145,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	// 登录
 	private Integer login() {
 		String username = loginConfig.getUsername();
-		String password = loginConfig.getPassword();
+		//String password = loginConfig.getPassword();
 		try {
 			XmppConnectionManager manager = XmppConnectionManager.getInstance(activity);
 					//.getConnection();

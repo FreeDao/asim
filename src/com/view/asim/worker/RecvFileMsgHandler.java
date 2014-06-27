@@ -112,6 +112,7 @@ public class RecvFileMsgHandler implements BaseHandler {
 			e.printStackTrace();
 			newMessage.setStatus(IMMessage.ERROR);
 			mListener.onRecvResult(newMessage);
+			return;
 		}
         
 		newMessage.setStatus(IMMessage.SUCCESS);

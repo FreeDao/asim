@@ -109,6 +109,7 @@ public class MessageListAdapter extends BaseAdapter {
 		
 		imageLoader = loader;
 		options = new DisplayImageOptions.Builder()
+			.showImageForEmptyUri(R.drawable.image_download_fail_icon)
 			.showImageOnFail(R.drawable.image_download_fail_icon)
 			.cacheInMemory(true)
 			.cacheOnDisc(true)
@@ -482,8 +483,14 @@ public class MessageListAdapter extends BaseAdapter {
 				setAvatarImage(holderLeftImg.ivLeftIcon, user);
 				final ImageView leftImage = holderLeftImg.ivLeftImage;
 				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
-				
-				imageLoader.loadImage("file://" + msg.getAttachment().getThumbUri(), is, options, new SimpleImageLoadingListener() {
+				String imgPath;
+				try {
+					imgPath = msg.getAttachment().getThumbUri();
+				} catch (Exception e) {
+					e.printStackTrace();
+					imgPath = "";
+				}
+				imageLoader.loadImage("file://" + imgPath, is, options, new SimpleImageLoadingListener() {
 				    @Override
 				    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 						Log.d(TAG, "loader img bitmap width " + loadedImage.getWidth() + ", height " + loadedImage.getHeight());
@@ -514,7 +521,14 @@ public class MessageListAdapter extends BaseAdapter {
 				final ImageView leftVideoThumb = holderLeftVideo.btnLeftVideoThumb;
 				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
 				
-				imageLoader.loadImage("file://" + msg.getAttachment().getThumbUri(), is, options, new SimpleImageLoadingListener() {
+				String vPath;
+				try {
+					vPath = msg.getAttachment().getThumbUri();
+				} catch (Exception e) {
+					e.printStackTrace();
+					vPath = "";
+				}
+				imageLoader.loadImage("file://" + vPath, is, options, new SimpleImageLoadingListener() {
 				    @Override
 				    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 						Log.d(TAG, "loader img bitmap width " + loadedImage.getWidth() + ", height " + loadedImage.getHeight());

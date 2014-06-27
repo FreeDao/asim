@@ -52,7 +52,7 @@ public abstract class AChatActivity extends ActivitySupport {
 	private Map<String, ChatMessage> mMessagePool = null;
 	protected GroupUser mGroup = null; 
 	protected User mUser = null;
-	private static int pageSize = 50;
+	private static int pageSize = 500;
 	private ChatMessage mInitialMsg = null;
 	protected String mChatType = null;
 	protected Worker mWorker = null; 
@@ -199,9 +199,20 @@ public abstract class AChatActivity extends ActivitySupport {
 				.getMessageListByName(getWith(), 1, pageSize);
 		mMessagePool.clear();
 		for (ChatMessage msg: messages) {
+			
+			/* 清除收到的错误消息 */
+			if (msg.getDir().equals(IMMessage.RECV)) {
+				if (msg.getStatus().equals(IMMessage.ERROR) || 
+				   (msg.isMultiMediaMessage() && msg.getAttachment() == null)) {
+					Log.w(TAG, "message invalid in DB:" + msg);
+					MessageManager.getInstance().delChatHisById(msg.getId());
+					continue;
+				}
+			}
+			
 			mMessagePool.put(msg.getId(), msg);
 		}
-		Log.d(TAG, "refresh msg pool start on: " + DateUtil.getCurDateStr());
+		Log.d(TAG, "refresh msg pool end on: " + DateUtil.getCurDateStr());
 
 	}
 	
@@ -222,10 +233,6 @@ public abstract class AChatActivity extends ActivitySupport {
 				continue;
 			}
 			
-			/* 不显示接收中出现错误的消息 */
-			if (m.getDir().equals(IMMessage.RECV) && m.getStatus().equals(IMMessage.ERROR)) {
-				continue;
-			}
 			msgList.add(m);
 		}
 		Collections.sort(msgList);

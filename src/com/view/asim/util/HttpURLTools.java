@@ -33,7 +33,7 @@ import org.apache.http.params.CoreConnectionPNames;
 /**
  * java.net.URL工具类
  * 
- * @author shimiso
+ * @author xuweinan
  */
 public class HttpURLTools {
 
@@ -46,8 +46,7 @@ public class HttpURLTools {
 	 * @param urlPath
 	 *            请求路径
 	 * @return
-	 * @author shimiso
-	 * @update Feb 7, 2012 7:04:15 PM
+	 * @author xuweinan
 	 */
 	public static InputStream postXml(String xml, String urlPath) {
 		try {
@@ -89,8 +88,7 @@ public class HttpURLTools {
 	 *            请求参数编码
 	 * @return 返回InputStream
 	 * @throws Exception
-	 * @author shimiso
-	 * @update May 19, 2011 12:33:44 AM
+	 * @author xuweinan
 	 */
 	public static InputStream postForm(String urlPath,
 			Map<String, String> params, String encoding) {
@@ -138,8 +136,7 @@ public class HttpURLTools {
 	 *            文件路径
 	 * @param urlPath
 	 *            请求路径
-	 * @author shimiso
-	 * @update Feb 7, 2012 6:13:29 PM
+	 * @author xuweinan
 	 */
 	public static void postFile(String urlPath, String filePath) {
 		try {
@@ -177,8 +174,7 @@ public class HttpURLTools {
 	 * 
 	 * @param urlpath
 	 * @return
-	 * @author shimiso
-	 * @update 2012-6-29 上午11:58:14
+	 * @author xuweinan
 	 */
 	public static HttpResponse sendHttpGet(String urlpath) {
 		HttpClient httpclient = new DefaultHttpClient();
@@ -203,8 +199,7 @@ public class HttpURLTools {
 	 * @param url
 	 * @param params
 	 * @return
-	 * @author shimiso
-	 * @update 2012-6-29 上午11:58:30
+	 * @author xuweinan
 	 */
 	public static HttpResponse sendHttpPost(String url,
 			Map<String, String> params) {
@@ -243,8 +238,7 @@ public class HttpURLTools {
 	 * 获取返回信息.
 	 * 
 	 * @param conn
-	 * @author shimiso
-	 * @update Feb 7, 2012 6:18:42 PM
+	 * @author xuweinan
 	 */
 	public static String printResponse(HttpURLConnection conn) {
 		StringBuilder sb = new StringBuilder();

@@ -139,9 +139,9 @@ public class SignUpActivity extends ActivitySupport {
 			@Override
 			public void onClick(View v) {
 				if (checkUserInfo()) {
-					String nickname = mNickNameText.getText().toString();
-					String password = mPasswordText.getText().toString();
-					String username = StringUtil.getNameByCellphone(mCellphoneText.getText().toString());
+					String nickname = mNickNameText.getText().toString().trim();
+					String password = mPasswordText.getText().toString().trim();
+					String username = StringUtil.getNameByCellphone(mCellphoneText.getText().toString().trim());
 					
 					newUser = new User();
 					newUser.setName(username);

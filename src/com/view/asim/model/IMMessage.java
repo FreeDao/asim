@@ -211,6 +211,23 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 		this.time = time;
 	}
 
+	@Override
+	public String toString() {
+	
+		return "Message: id = " + id + 
+				", uniqueId = " + uniqueId +
+				", type = " + type + 
+				", dir = " + dir +
+				", status = " + status +
+				", time = " + time +
+				", with = " + with +
+				", from = " + from +
+				", content = " + content +
+				", chatType = " + chatType +
+				", destroy = " + destroy +
+				", security = " + security;
+	}
+
 	protected IMMessage(Parcel in) {  
 		this.id = in.readString();
 		this.uniqueId = in.readString();

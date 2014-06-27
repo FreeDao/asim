@@ -92,7 +92,7 @@ public class AddUserMainActivity extends ActivitySupport {
 					}
 					else {
 						SearchUserTask task = new SearchUserTask(AddUserMainActivity.this,
-								mSearchText.getText().toString());
+								mSearchText.getText().toString().trim());
 						task.execute();
 					}
 				}

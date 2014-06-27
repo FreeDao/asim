@@ -321,6 +321,9 @@ public class Constant {
 	
 	// 下载超时时间（10分钟）
 	public final static int FILE_DOWNLOAD_TIMEOUT = 1000 * 60 * 10;
+	
+	// 短信发送超时时间（30秒）
+	public final static int SMS_SEND_RESULT_TIMEOUT = 1000 * 30;
 
 	// 发送多媒体文件的大小上限（10M）
 	public final static int SEND_MEDIA_FILE_SIZE_LIMIT = 10 * 1024 * 1024;

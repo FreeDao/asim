@@ -107,7 +107,7 @@ public class ContacterManager {
 		        //得到手机号码  
 		        String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
 		        //当手机号码为空的或者为空字段 跳过当前循环  
-		        if (TextUtils.isEmpty(phoneNumber))  
+		        if (TextUtils.isEmpty(phoneNumber.trim()))  
 		            continue;  
 		          
 		        //得到联系人名称  
@@ -116,8 +116,14 @@ public class ContacterManager {
 		        if(phoneNumber.contains("-")) {
 		        	phoneNumber = phoneNumber.replace("-", "");
 		        }
-		        phoneContacters.put(phoneNumber, contactName);
 		        
+		        if(phoneNumber.contains(" ")) {
+		        	phoneNumber = phoneNumber.replace(" ", "");
+		        }
+		        
+		        phoneContacters.put(phoneNumber, contactName);
+				Log.d(TAG, "init phone contacter: " + phoneNumber + ", " + contactName);
+
 	        }  
 	  
 	        phoneCursor.close();
@@ -174,8 +180,8 @@ public class ContacterManager {
 		}
  
 		try {
-			grpName = CryptoUtil.getMD5(grpName);
-		} catch (NoSuchAlgorithmException e) {
+			grpName = CryptoUtil.md5(grpName);
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
