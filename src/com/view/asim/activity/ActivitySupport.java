@@ -158,7 +158,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		
 		// XMPP连接管理服务
 		Intent xmpp = new Intent(context, ConnectService.class);
-		context.stopService(chatServer);
+		context.stopService(xmpp);
 		
 		// 安司盾监控管理服务
 		Intent keyService = new Intent(context, AUKeyService.class);

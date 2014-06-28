@@ -219,9 +219,6 @@ public class MainActivity extends AContacterActivity implements
 		getEimApplication().addActivity(this);
         FaceConversionUtil.getInstace().getFileText(this);
 
-        NoticeManager.getInstance(context);
-        MessageManager.getInstance(context);
-
         // Ö÷½çÃæ
 		inflater = LayoutInflater.from(context);
 		mLayout = (ScrollLayout) findViewById(R.id.scrolllayout);

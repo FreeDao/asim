@@ -12,6 +12,8 @@
     <string name="save_checkbox">保存账户</string>
     <string name="login_btn">登录</string>
     <string name="signup_btn">注册</string>
+	<string name="verify_btn">验证</string>    
+<string name="resend_btn">重发</string>	
     <string name="cfm_btn">确认</string>
     <string name="signup_complete_btn">完成注册</string>
     <string name="search_btn">搜索</string>
@@ -28,6 +30,7 @@
     <string name="female"> 女</string>
     <string name="nickname">昵称</string>
     <string name="your_cellphone">你的手机号码</string>
+    <string name="your_verifycode">输入收到的验证码</string>
     <string name="remark_hint">个人签名</string>
     <string name="location_hint">你在哪里</string>
     <string name="search_hint">搜索手机号码</string>
@@ -122,6 +125,7 @@
     <string name="no">否</string>
     <string name="delete_user_confim">删除密友会将所有聊天记录一并删除，是否继续？</string>
     <string name="resend_msg_confim">是否重发该消息？</string>
+    <string name="send_sms_code_tips">密信即将发送短信验证码至：</string>
     <string name="remote_destroy_msg_confim">是否远程销毁好友那里的这条消息？</string>
     
     <string name="new_message">收到新短消息</string>

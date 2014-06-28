@@ -12,6 +12,8 @@ import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
+import com.view.asim.manager.MessageManager;
+import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.worker.Worker;
@@ -66,7 +68,9 @@ public class ConnectService extends Service {
 		mXmppManager = XmppConnectionManager.getInstance(mContext);
 		mSmackAndroid = SmackAndroid.init(mContext);
 
-		
+        NoticeManager.getInstance(mContext);
+        MessageManager.getInstance(mContext);
+
 		/*
 		connection = XmppConnectionManager.getInstance().getConnection();
 		if (connection.isConnected()) {

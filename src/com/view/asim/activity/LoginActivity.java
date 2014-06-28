@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,6 +39,7 @@ public class LoginActivity extends ActivitySupport {
 	private ClearEditText mUsernameText, mPasswdText;
 	private Button mLoginCfmBtn = null;
 	private ImageView loginImg = null;
+    private long mExitTime = 0;   
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -122,4 +124,29 @@ public class LoginActivity extends ActivitySupport {
 	public void onBackPressed() {
 		isExit();
 	}
+	
+	/**
+	 * 按键事件处理
+	 */
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+	/**
+	 * 2秒内联系按两次返回键退出APP
+	 */
+    public void exit() {
+        if ((System.currentTimeMillis() - mExitTime) > 2000) {
+            showToast("再按一次退出程序");
+            mExitTime = System.currentTimeMillis();
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
 }

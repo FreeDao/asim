@@ -1,31 +1,22 @@
 package com.view.asim.activity;
 
-
-import java.util.HashSet;
 import java.util.Random;
 
-import org.jivesoftware.smack.SmackAndroid;
-
 import com.view.asim.comm.Constant;
-import com.view.asim.dbg.CrashHandler;
 import com.view.asim.dbg.LogcatHelper;
-import com.view.asim.manager.XmppConnectionManager;
-import com.view.asim.model.LoginConfig;
-import com.view.asim.service.ConnectService;
 import com.view.asim.task.LoginTask;
 import com.view.asim.util.FileUtil;
 
 import android.graphics.drawable.AnimationDrawable;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -66,6 +57,7 @@ public class SplashActivity extends ActivitySupport {
 			R.drawable.smartisan_lockscreen_12,
 			R.drawable.background
 	};
+    private long mExitTime = 0;   
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -338,5 +330,30 @@ public class SplashActivity extends ActivitySupport {
 		}
 		
 	}
+	
+	/**
+	 * 按键事件处理
+	 */
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+	/**
+	 * 2秒内联系按两次返回键退出APP
+	 */
+    public void exit() {
+        if ((System.currentTimeMillis() - mExitTime) > 2000) {
+            showToast("再按一次退出程序");
+            mExitTime = System.currentTimeMillis();
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
 	
 }

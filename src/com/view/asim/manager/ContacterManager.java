@@ -69,34 +69,44 @@ public class ContacterManager {
 	/**
 	 * 初始化联系人列表
 	 */
-	public static void init(XMPPConnection connection, Context cntx, User me) {
+	public static void init(XmppConnectionManager man, Context cntx) {
 		contacters = new HashMap<String, User>();
 		groupUsers = new HashMap<String, GroupUser>();
 		phoneContacters = new HashMap<String, String>();
-		
-		userMe = me;
 		initPhoneContacts(cntx);
+		man.registerConnectionChangeListener(TAG + ":init roster task", new XmppConnectionChangeListener() {
 
-		Roster roster = connection.getRoster();
-		for (RosterEntry entry : roster.getEntries()) {
-			Log.d(TAG, "init roster entry:" + entry.getUser() + ", item status is " + entry.getStatus() +
-					", item type is " + entry.getType());
-			
-			// 如果是未添加成功的好友，不显示
-			if (entry.getType().equals(ItemType.none)) {
-				continue;
+			@Override
+			public void newConnection(XMPPConnection connection) {
+				Log.d(TAG, "new conn, init roster contacters");
+
+				Roster roster = connection.getRoster();
+				for (RosterEntry entry : roster.getEntries()) {
+					Log.d(TAG, "init roster entry:" + entry.getUser() + ", item status is " + entry.getStatus() +
+							", item type is " + entry.getType());
+					
+					// 如果是未添加成功的好友，不显示
+					if (entry.getType().equals(ItemType.none)) {
+						continue;
+					}
+					contacters.put(entry.getUser(), getUserByRosterEntry(connection, entry, roster));
+				}
+							
 			}
-			contacters.put(entry.getUser(), getUserByRosterEntry(connection, entry, roster));
-		}
-		
+			
+		});
+	}
+	
+	public static void setUserMe(User me) {
+		userMe = me;
 		for (GroupUser grp: userMe.getGroupList()) {
 			groupUsers.put(grp.getName(), grp);
-		}
-		Log.d(TAG, "init phone contacters");
-
+		}		
 	}
 
 	protected static void initPhoneContacts(Context cntx) {
+		Log.d(TAG, "init phone contacters");
+
 		ContentResolver resolver = cntx.getContentResolver();  
 		  
 	    // 获取手机联系人  
@@ -119,6 +129,10 @@ public class ContacterManager {
 		        
 		        if(phoneNumber.contains(" ")) {
 		        	phoneNumber = phoneNumber.replace(" ", "");
+		        }
+		        
+		        if(phoneNumber.contains("+86")) {
+		        	phoneNumber = phoneNumber.replace("+86", "");
 		        }
 		        
 		        phoneContacters.put(phoneNumber, contactName);
@@ -756,4 +770,5 @@ public class ContacterManager {
 
 		return results;
 	}
+
 }

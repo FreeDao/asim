@@ -17,17 +17,29 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Registration;
 
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
+import com.view.asim.manager.SMSVerifyManager;
 import com.view.asim.manager.XmppConnectionManager;
+import com.view.asim.model.ChatMessage;
+import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
 import com.view.asim.task.LoginTask;
 import com.view.asim.task.SignUpTask;
 import com.view.asim.util.StringUtil;
 import com.view.asim.util.ValidateUtil;
+import com.view.asim.worker.BaseHandler;
+import com.view.asim.worker.CommonResultListener;
+import com.view.asim.worker.ExpiryTimerListener;
+import com.view.asim.worker.SmsCodeSendHandler;
+import com.view.asim.worker.TimerHandler;
+import com.view.asim.worker.Worker;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -36,6 +48,7 @@ import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -46,6 +59,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+
 import com.view.asim.R;
 
 /**
@@ -58,23 +73,39 @@ public class SignUpActivity extends ActivitySupport {
 	
 	private final static String TAG = "SignUpActivity";
 	
+	private final static int SIGNUP_CONFLICT = -1;
+	private final static int SIGNUP_SUCC = 0;
+	private final static int SEND_SMSCODE_COMPLETE = 1;
+	private final static int RESEND_SMSCODE_OK = 2;
+	private final static int REFRESH_SMSCODE_TIMER = 3;
+	
+	private final static int SMS_CODE_RESEND_DURATION = 60;
+	// 用于连续按返回键退出的判定时间
+    private long mExitTime = 0;   
 	private String to = null;
 	private User newUser = null;
 	private ImageView loginImg = null;
 
 	private LinearLayout mCellphoneStepLayout = null;
+	private LinearLayout mCodeVerifyStepLayout = null;
 	private LinearLayout mUserInfoStepLayout = null;
 	
 	private Button mSignUpCfmBtn = null;
+	private Button mResendBtn = null;
+	private Button mVerifyBtn = null;
 	private Button mSignUpCmpBtn = null;
 	private EditText mCellphoneText = null;
+	private EditText mVerifyCodeText = null;
 	private EditText mNickNameText = null;
 	private EditText mPasswordText = null;
+	private TextView mSmsSendTipsTxt = null;
 	private RadioGroup mGenderRadioGrp = null;
 	private RadioButton mMaleRadio = null;
 	private RadioButton mFemaleRadio = null;
 	
 	private String mGender = "";
+	
+	private Worker mSmsCodeSendWorker = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,19 +117,31 @@ public class SignUpActivity extends ActivitySupport {
 		init();
 	}
 	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		mSmsCodeSendWorker.destroy();
+	}
+	
 	protected void init() {
 		getEimApplication().addActivity(this);
 
 		loginImg = (ImageView) findViewById(R.id.loading_img);
 
 		mCellphoneStepLayout = (LinearLayout) findViewById(R.id.signup_cellphone_layout);
+		mCodeVerifyStepLayout = (LinearLayout) findViewById(R.id.signup_verifycode_layout);
 		mUserInfoStepLayout = (LinearLayout) findViewById(R.id.signup_userinfo_layout);
 
 		mSignUpCfmBtn = (Button) findViewById(R.id.signup_cfm_btn);
 		mSignUpCmpBtn = (Button) findViewById(R.id.signup_cmp_btn);
+		
+		mResendBtn = (Button) findViewById(R.id.resend_btn);
+		mVerifyBtn = (Button) findViewById(R.id.verify_btn);
 
 		mCellphoneText = (EditText) findViewById(R.id.signup_cellphone_input);
-		
+		mVerifyCodeText = (EditText) findViewById(R.id.verify_code_input);
+		mSmsSendTipsTxt = (TextView) findViewById(R.id.verify_code_tips_txt);
+
 		mNickNameText = (EditText) findViewById(R.id.signup_name_input);
 		mNickNameText.setRawInputType(InputType.TYPE_CLASS_TEXT); 
 		
@@ -127,13 +170,42 @@ public class SignUpActivity extends ActivitySupport {
 			@Override
 			public void onClick(View v) {
 				if(checkCellphone()) {
-					mCellphoneStepLayout.setVisibility(View.GONE);
-					mUserInfoStepLayout.setVisibility(View.VISIBLE);
-					//new QueryUserExistThread(mCellphoneText.getText().toString()).start();
+					showSendVerificationCodeDialog(mCellphoneText.getText().toString().trim());
 				}
 				
 			}
 		});
+	    
+	    mResendBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(checkCellphone()) {
+					sendSmsVerificationCode(mCellphoneText.getText().toString().trim());
+				}
+				
+			}
+		});
+	    
+	    mVerifyBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "verify: " + mCellphoneText.getText().toString().trim() + ", " +
+						mVerifyCodeText.getText().toString().trim());
+				if(checkVerificationCode()) {
+					if (SMSVerifyManager.getInstance().verification(mCellphoneText.getText().toString().trim(), 
+							mVerifyCodeText.getText().toString().trim())) {
+						mCellphoneStepLayout.setVisibility(View.GONE);
+						mCodeVerifyStepLayout.setVisibility(View.GONE);
+						mUserInfoStepLayout.setVisibility(View.VISIBLE);
+					}
+					else {
+		    			showToast("验证码错误，请确认后重新输入");
+					}
+				}
+				
+			}
+		});
+	    
 		
 	    mSignUpCmpBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -161,7 +233,33 @@ public class SignUpActivity extends ActivitySupport {
 				}
 			}
 		});
+	    
+	    mSmsCodeSendWorker = new Worker();
+	    mSmsCodeSendWorker.initilize("SMS Code Sender");
 
+	}
+	
+	private void showSendVerificationCodeDialog(final String cellphone) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getResources().getString(R.string.send_sms_code_tips))
+				.setMessage(cellphone)
+				.setCancelable(false)
+				.setPositiveButton(getResources().getString(R.string.confirm),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								sendSmsVerificationCode(cellphone);
+							}
+						})
+				.setNegativeButton(getResources().getString(R.string.cancel),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.cancel();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 	
     
@@ -169,7 +267,7 @@ public class SignUpActivity extends ActivitySupport {
         @Override
         public void handleMessage(Message msg) {
         	switch(msg.what) {
-        	case 0:
+        	case SIGNUP_SUCC:
     			showToast("注册成功");
 
             	// 注册成功，直接登录
@@ -181,23 +279,94 @@ public class SignUpActivity extends ActivitySupport {
                 super.handleMessage(msg);
         		break;
         		
-        	case 1:
+        	case SIGNUP_CONFLICT:
     			showToast("该手机号码已注册密信，请直接登录，或者注册其他号码");
 				mUserInfoStepLayout.setVisibility(View.GONE);
     			mCellphoneStepLayout.setVisibility(View.VISIBLE);
         			
         		break;
+        		
+        	case SEND_SMSCODE_COMPLETE:
+				showToast("短信验证码发送成功");
+				showVerificationLayout(mCellphoneText.getText().toString().trim());
+				break;
+				
+        	case RESEND_SMSCODE_OK:
+				allowResendSmsCode();
+				break;
+				
+        	case REFRESH_SMSCODE_TIMER:
+            	mResendBtn.setText(msg.arg1 + "秒后重发");
         	}
 
         }
     };
     
+    public void sendSmsVerificationCode(String cellphone) {
+		BaseHandler smsSendHandler = new SmsCodeSendHandler(cellphone, new CommonResultListener() {
+			@Override
+			public void onResult(boolean result) {
+				if(result) {
+					notifySmsCodeSent();
+				}
+				else {
+					showToast("短信验证码发送失败，请稍等后重试");
+				}
+			}
+			
+		});
+		mSmsCodeSendWorker.addHandler(smsSendHandler);
+
+    }
+    
+    private void showVerificationLayout(String cellphone) {
+		mCellphoneStepLayout.setVisibility(View.GONE);
+		mUserInfoStepLayout.setVisibility(View.GONE);
+
+		mSmsSendTipsTxt.setText("包含验证码的短信已发送至 " + cellphone);
+		mResendBtn.setBackgroundResource(R.drawable.green_button_frame_pressed);
+		mResendBtn.setClickable(false);
+		BaseHandler timerHandler = new TimerHandler(SMS_CODE_RESEND_DURATION, new ExpiryTimerListener() {
+			@Override
+			public void onTick(int sec) {
+				notifyRefreshResendTimer(sec);
+			}
+
+			@Override
+			public void onEnd() {
+				notifyCanResendSmsCode();
+			}
+		});
+		mSmsCodeSendWorker.addHandler(timerHandler);
+
+		mCodeVerifyStepLayout.setVisibility(View.VISIBLE);
+    }
+    
+    private void allowResendSmsCode() {
+    	mResendBtn.setText("重发");
+		mResendBtn.setBackgroundResource(R.drawable.green_button);
+		mResendBtn.setClickable(true);
+
+    }
+    
     public void notifySignUpSucc() {
-    	handler.sendEmptyMessage(0);
+    	handler.sendEmptyMessage(SIGNUP_SUCC);
     }
     
     public void notifyUserIsExist() {
-    	handler.sendEmptyMessage(1);
+    	handler.sendEmptyMessage(SIGNUP_CONFLICT);
+    }
+    
+    public void notifySmsCodeSent() {
+    	handler.sendEmptyMessage(SEND_SMSCODE_COMPLETE);
+    }
+    
+    public void notifyCanResendSmsCode() {
+    	handler.sendEmptyMessage(RESEND_SMSCODE_OK);
+    }
+    
+    public void notifyRefreshResendTimer(int sec) {
+    	handler.sendMessage(handler.obtainMessage(REFRESH_SMSCODE_TIMER, sec, 0));
     }
     
 	/**
@@ -214,6 +383,17 @@ public class SignUpActivity extends ActivitySupport {
 	
 	/**
 	 * 
+	 * 注册校验（短信验证码）.
+	 * 
+	 * @return
+	 * @author xuweinan
+	 */
+	private boolean checkVerificationCode() {
+		return !ValidateUtil.isEmpty(mVerifyCodeText, "验证码");
+	}
+	
+	/**
+	 * 
 	 * 注册校验（昵称和密码）.
 	 * 
 	 * @return
@@ -226,5 +406,30 @@ public class SignUpActivity extends ActivitySupport {
 				.isEmpty(mPasswordText, "密码"));
 		return checked;
 	}
+	
+	/**
+	 * 按键事件处理
+	 */
+	@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+	/**
+	 * 2秒内联系按两次返回键退出APP
+	 */
+    public void exit() {
+        if ((System.currentTimeMillis() - mExitTime) > 2000) {
+            showToast("再按一次退出程序");
+            mExitTime = System.currentTimeMillis();
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
 
 }

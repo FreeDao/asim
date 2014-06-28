@@ -150,6 +150,9 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			XmppConnectionManager manager = XmppConnectionManager.getInstance(activity);
 					//.getConnection();
 			
+			// 登录成功后，初始化联系人列表
+			ContacterManager.init(manager, activity);
+
 			/*
 			if (mUser != null) {
 				manager.connect();
@@ -180,8 +183,9 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 				Log.d(TAG, "login user succ: " + mUser);
 			}
 			
-			// 登录成功后，初始化联系人列表
-			ContacterManager.init(manager.getConnection(), activity, mUser);
+			ContacterManager.setUserMe(mUser);
+			NoticeManager.getInstance().init();
+			MessageManager.getInstance().init();
 			loginConfig.setOnline(true);
 			initUserCacheFolder(mUser);
 			

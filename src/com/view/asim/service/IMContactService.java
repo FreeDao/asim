@@ -201,7 +201,7 @@ public class IMContactService extends Service {
 				userAddFriendConfirm(packet);
 			}
 			// 收到好友删除请求
-			else {
+			else if (presence.getType().equals(Presence.Type.unsubscribe)) {
 				Log.d(TAG, "receive unsubscribe packet from " + packet.getFrom());
 				
 				// TODO: 收到对方删除自己的消息，自己也删除与之有关的通知和 IM 消息，是否合理？

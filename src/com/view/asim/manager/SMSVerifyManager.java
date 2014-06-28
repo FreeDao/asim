@@ -42,7 +42,7 @@ public class SMSVerifyManager {
 		mVerificationCodeMap = new HashMap<String, String>();
 	}
 
-	public static SMSVerifyManager getInstance(Context context) {
+	public static SMSVerifyManager getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new SMSVerifyManager();
 		}

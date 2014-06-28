@@ -57,7 +57,7 @@ public class NoticeManager {
 
 		if (noticeManager == null) {
 			noticeManager = new NoticeManager(context);
-			noticeManager.init();
+			//noticeManager.init();
 		}
 
 		return noticeManager;
@@ -72,7 +72,7 @@ public class NoticeManager {
 		manager = null;
 	}
 
-	protected void init() {
+	public void init() {
 		if (ContacterManager.contacters == null) {
 			return;
 		}

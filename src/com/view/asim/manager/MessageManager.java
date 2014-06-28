@@ -48,7 +48,7 @@ public class MessageManager {
 			Log.d(TAG, "new MessageManager");
 
 			messageManager = new MessageManager(context);
-			messageManager.init();
+			//messageManager.init();
 		}
 
 		return messageManager;
@@ -63,7 +63,7 @@ public class MessageManager {
 		manager = null;
 	}
 	
-	protected void init() {
+	public void init() {
 		if (ContacterManager.contacters == null) {
 			return;
 		}

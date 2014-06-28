@@ -2,7 +2,9 @@ package com.view.asim.manager;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jivesoftware.smack.AndroidConnectionConfiguration;
@@ -84,13 +86,13 @@ public class XmppConnectionManager {
 	private XMPPConnection connection;
 	private static ConnectionConfiguration connectionConfig;
 	private static XmppConnectionManager xmppConnectionManager;
-    private final List<XmppConnectionChangeListener> mConnectionChangeListeners;
+    private final Map<String, XmppConnectionChangeListener> mConnectionChangeListeners;
     private ConnectionListener mConnectionListener = null;    
     private Context context;
     private String status = DISCONNECTED;
 
 	private XmppConnectionManager(Context cntx) {
-        mConnectionChangeListeners = new ArrayList<XmppConnectionChangeListener>();
+        mConnectionChangeListeners = new HashMap<String, XmppConnectionChangeListener>();
         context = cntx;
 	}
 
@@ -117,8 +119,8 @@ public class XmppConnectionManager {
 		xmppConnectionManager = null;
 	}
 	
-    public void registerConnectionChangeListener(XmppConnectionChangeListener listener) {
-        mConnectionChangeListeners.add(listener);
+    public void registerConnectionChangeListener(String desc, XmppConnectionChangeListener listener) {
+        mConnectionChangeListeners.put(desc, listener);
     }
     
 	private XMPPConnection init(LoginConfig loginConfig) {
@@ -245,7 +247,8 @@ public class XmppConnectionManager {
         
         if(cfg != null) {
 	        try {
-	            connection.login(cfg.getUsername(), cfg.getPassword(), android.os.Build.DEVICE);
+	        	String resource = android.os.Build.MANUFACTURER + "-" + android.os.Build.DEVICE;
+	            connection.login(cfg.getUsername(), cfg.getPassword(), resource);
 	        } catch (Exception e) {
 	            Log.e(TAG, "Xmpp login failed", e);
 	            if (e.getMessage().contains("Already")) {
@@ -337,6 +340,8 @@ public class XmppConnectionManager {
         drm.enableAutoReceipts();
         
         PingManager.getInstanceFor(connection);
+        
+        notifyConnChangerListener(connection);
 
         connection.sendPacket(new Presence(Presence.Type.available));
         
@@ -350,6 +355,12 @@ public class XmppConnectionManager {
         sendConnStatusBroadcast(CONNECTED);
     }
     
+	private void notifyConnChangerListener(XMPPConnection conn) {
+		for (String key : mConnectionChangeListeners.keySet()) {
+			Log.i(TAG, "notify conn change to listener: " + key);
+			mConnectionChangeListeners.get(key).newConnection(conn);
+		}
+	}
 	
 	private void sendConnStatusBroadcast(String status) {
 		Log.i(TAG, "send connect status " +  status + " broadcast to all");

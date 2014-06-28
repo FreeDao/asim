@@ -251,10 +251,6 @@ public class IMChatService extends Service {
 				else if(status.equals(XmppConnectionManager.CONNECTED)) {
 					Log.i(TAG, "connection succ, init chat listener");
 					initChatManager();
-					/*
-					XmppConnectionManager.getInstance().getConnection()
-					.sendPacket(new Presence(Presence.Type.available));
-					*/
 				}
 			}
 			
@@ -361,8 +357,8 @@ public class IMChatService extends Service {
 		try {
 			XMPPConnection conn = XmppConnectionManager.getInstance()
 					.getConnection();
-			
-			conn.removePacketListener(pListener);
+			if(conn != null)
+				conn.removePacketListener(pListener);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
