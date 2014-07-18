@@ -12,6 +12,8 @@ import java.util.Map;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.packet.Message;
 
+import com.csipsimple.api.ISipService;
+import com.csipsimple.api.SipManager;
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.manager.AUKeyManager;
@@ -31,13 +33,16 @@ import com.view.asim.worker.UISendVideoHandler;
 import com.view.asim.worker.Worker;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 
 /**
@@ -56,7 +61,23 @@ public abstract class AChatActivity extends ActivitySupport {
 	private ChatMessage mInitialMsg = null;
 	protected String mChatType = null;
 	protected Worker mWorker = null; 
+    protected ISipService service;
+    protected ServiceConnection connection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+            service = ISipService.Stub.asInterface(arg1);
+            /*
+             * timings.addSplit("Service connected"); if(configurationService !=
+             * null) { timings.dumpToLog(); }
+             */
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            service = null;
+        }
+    };
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -101,6 +122,11 @@ public abstract class AChatActivity extends ActivitySupport {
 		chat = XmppConnectionManager.getInstance().getConnection()
 				.getChatManager().createChat(mUser.getJID(), null);
 		*/
+		
+        Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
+        serviceIntent.setPackage(getPackageName());
+        bindService(serviceIntent, connection,
+                Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
@@ -129,6 +155,7 @@ public abstract class AChatActivity extends ActivitySupport {
 	public void onDestroy() {
 		super.onDestroy();
 		mWorker.destroy();
+		unbindService(connection);
 	}
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {

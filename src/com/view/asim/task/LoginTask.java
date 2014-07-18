@@ -9,7 +9,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.packet.VCard;
-import org.sipdroid.sipua.ui.Settings;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;

@@ -3,11 +3,7 @@ package com.view.asim.comm;
 import android.os.Environment;
 
 public class Constant {
-	/**
-	 * 所有的action的监听的必须要以"ACTION_"开头
-	 * 
-	 */
-
+	
 	/**
 	 * 在线检查更新 ACTION 
 	 */
@@ -126,6 +122,15 @@ public class Constant {
 	 */
 	public static final String SIP_SET_PREF = "asim_sip_settings_pref";// 登录设置
 
+	/**
+	 * 服务器地址
+	 */
+	public static final String IM_SERVICE_HOST = "112.124.32.193";
+	public static final int IM_SERVICE_PORT = 5222;
+	public static final String IM_SERVICE_NAME = "112.124.32.193";
+	public static final String VOIP_SERVICE_HOST = "121.40.69.120";
+	public static final int VOIP_SERVICE_PORT = 6060;
+	public static final String VOIP_STUN_SERVER = "121.40.69.120";
 	
 	/**
 	 * 连接服务器/账户登录/注册/搜索返回值
@@ -318,6 +323,8 @@ public class Constant {
 	public final static String THUMB_SUFFIX = ".thumb";
 	public final static String LOG_PREFIX = "normal-";
 	public final static String CRASH_PREFIX = "crash-";
+	public final static String SIPLOG_PREFIX = "sip-";
+
 	
 	// 下载超时时间（10分钟）
 	public final static int FILE_DOWNLOAD_TIMEOUT = 1000 * 60 * 10;

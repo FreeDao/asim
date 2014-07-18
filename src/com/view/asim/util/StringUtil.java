@@ -1,5 +1,8 @@
 package com.view.asim.util;
 
+import android.provider.SyncStateContract.Constants;
+
+import com.view.asim.comm.Constant;
 import com.view.asim.model.User;
 
 public class StringUtil {
@@ -124,7 +127,7 @@ public class StringUtil {
 	 * @return
 	 */
 	public static String getJidByName(String userName) {
-		String jidFor = "ahic.com.cn";
+		String jidFor = Constant.IM_SERVICE_NAME;
 		return getJidByName(userName, jidFor);
 	}
 
@@ -147,11 +150,33 @@ public class StringUtil {
 	 * @param userName
 	 * @return
 	 */
+	public static String getJidByCellphone(String cellphone) {
+		if (empty(cellphone)) {
+			return null;
+		}
+		String name = getNameByCellphone(cellphone);
+		
+		return getJidByName(name);
+	}
+	
+	/**
+	 * 根据手机号生成用户名
+	 * 
+	 * @param userName
+	 * @return
+	 */
 	public static String getNameByCellphone(String cellphone) {
 		if (empty(cellphone)) {
 			return null;
 		}
 		return User.NAME_PREFIX + cellphone;
+	}
+	
+	public static String getImUserNameByVoipUserName(String voipUserName) {
+		if (empty(voipUserName)) {
+			return null;
+		}
+		return User.NAME_PREFIX + voipUserName.split("@")[0] + Constant.IM_SERVICE_NAME;
 	}
 	/**
 	 * 根据给定的时间字符串，返回月 日 时 分 秒

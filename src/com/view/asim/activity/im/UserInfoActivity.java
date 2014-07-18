@@ -8,8 +8,10 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
-import org.sipdroid.sipua.ui.Receiver;
 
+import com.csipsimple.api.ISipService;
+import com.csipsimple.api.SipManager;
+import com.csipsimple.api.SipProfileState;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
@@ -25,12 +27,17 @@ import com.view.asim.util.DateUtil;
 import com.view.asim.util.StringUtil;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -73,7 +80,24 @@ public class UserInfoActivity extends ActivitySupport {
 	private Button mChatBtn;
 	private Button mVoiceBtn;
 	private ImageButton mRmvUserBtn;
+    protected ISipService service;
+    protected ServiceConnection connection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+            service = ISipService.Stub.asInterface(arg1);
+            /*
+             * timings.addSplit("Service connected"); if(configurationService !=
+             * null) { timings.dumpToLog(); }
+             */
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            service = null;
+        }
+    };
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -121,7 +145,7 @@ public class UserInfoActivity extends ActivitySupport {
 		mVoiceBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				call_menu(mUser.getJID());
+				call_menu(mUser.getName());
 			}
 		});
 
@@ -227,6 +251,18 @@ public class UserInfoActivity extends ActivitySupport {
 		});
 		
 		setUserInfoView();
+		
+        Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
+        serviceIntent.setPackage(getPackageName());
+        bindService(serviceIntent, connection,
+                Context.BIND_AUTO_CREATE);
+	}
+	
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		unbindService(connection);
 	}
 	
 	private class ContacterUpdateThread extends Thread {
@@ -368,6 +404,12 @@ public class UserInfoActivity extends ActivitySupport {
 	
 	void call_menu(String name)
 	{
-		Receiver.engine(this).call(StringUtil.getCellphoneByName(name), true);
+        try {
+        	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
+        	Log.i(TAG, "my sip state: " + state.isActive());
+			service.makeCall(StringUtil.getCellphoneByName(name), (int) ContacterManager.userMe.getSipAccountId());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 }

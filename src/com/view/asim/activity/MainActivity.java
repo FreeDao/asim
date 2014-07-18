@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.SmackAndroid;
@@ -14,13 +15,16 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.packet.VCard;
-import org.sipdroid.sipua.UserAgent;
-import org.sipdroid.sipua.ui.Checkin;
-import org.sipdroid.sipua.ui.Receiver;
-import org.sipdroid.sipua.ui.Settings;
-import org.zoolu.tools.Random;
 
+import com.csipsimple.api.SipConfigManager;
+import com.csipsimple.api.SipManager;
+import com.csipsimple.api.SipProfile;
+import com.csipsimple.api.SipUri;
+import com.csipsimple.utils.CustomDistribution;
+import com.csipsimple.utils.PreferencesProviderWrapper;
+import com.csipsimple.utils.PreferencesWrapper;
 import com.view.asim.comm.Constant;
+import com.view.asim.db.DBProvider;
 import com.view.asim.activity.im.AContacterActivity;
 import com.view.asim.activity.im.AddUserMainActivity;
 import com.view.asim.activity.im.ChatActivity;
@@ -57,7 +61,9 @@ import com.view.asim.view.SideBar.*;
 
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -76,6 +82,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.CallLog.Calls;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -171,6 +178,9 @@ public class MainActivity extends AContacterActivity implements
 	private TextView mMyInfoGroupChatTxt = null;
 	private TextView mMyInfoVoiceChatTxt = null;
 	private TextView mMyInfoVideoChatTxt = null;
+	
+    private PreferencesProviderWrapper prefProviderWrapper;
+
 		
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -180,44 +190,118 @@ public class MainActivity extends AContacterActivity implements
 		setContentView(com.view.asim.R.layout.contacter_main);
 		init();
 		initSip();
-		//SmackAndroid.init(context);
 	}
 	
-	public static boolean on(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_ON, Settings.DEFAULT_ON);
+	private void clearOldSipAccount() {
+		ArrayList<SipProfile> accounts = SipProfile.getAllProfiles(this, false);
+		for(SipProfile acc : accounts) {
+			Log.i(TAG, "clear sip account: " + acc.acc_id + ", " + acc.display_name);
+			getContentResolver().delete(ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, acc.id), null, null);
+        }
 	}
+	
+	private void addNewSipAccount() {
+		SipProfile newAcc = buildAccount();
+		Uri uri = getContentResolver().insert(SipProfile.ACCOUNT_URI, newAcc.getDbContentValues());
+		newAcc.id = ContentUris.parseId(uri);
 
-	public static void on(Context context,boolean on) {
-		Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		edit.putBoolean(Settings.PREF_ON, on);
-		edit.commit();
-        if (on) Receiver.engine(context).isRegistered();
+		ContacterManager.userMe.setSipAccountId(newAcc.id);
+	}
+	
+	private SipProfile buildAccount() {
+		SipProfile account = SipProfile.getProfileFromDbId(this, SipProfile.INVALID_ID, DBProvider.ACCOUNT_FULL_PROJECTION);
+		String sipNum = StringUtil.getCellphoneByName(mLoginCfg.getUsername());
+		String server = Constant.VOIP_SERVICE_HOST;
+		
+		account.display_name = mLoginCfg.getUsername();
+		account.acc_id = "<sip:" + sipNum + "@" + server + ">";
+		
+		String regUri = "sip:" + server + ":" + Constant.VOIP_SERVICE_PORT;
+		account.reg_uri = regUri;
+		account.proxies = new String[] { regUri } ;
+
+		account.realm = "*";
+		account.username = sipNum;
+		account.data = mLoginCfg.getPassword();
+
+		account.scheme = SipProfile.CRED_SCHEME_DIGEST;
+		account.datatype = SipProfile.CRED_DATA_PLAIN_PASSWD;
+		account.transport = SipProfile.TRANSPORT_TCP;
+		account.allow_via_rewrite = false;
+		account.allow_contact_rewrite = false;
+		account.mwi_enabled = false;
+		
+		if(account.use_rfc5626) {
+            if(TextUtils.isEmpty(account.rfc5626_instance_id)) {
+                String autoInstanceId = (UUID.randomUUID()).toString();
+                account.rfc5626_instance_id = "<urn:uuid:"+autoInstanceId+">";
+            }
+        }
+		return account;
 	}
 	
 	private void initSip() {
-		on(this, true);
-		Settings.getInstance(this);
-		// 保存 SIP 配置信息
-		Editor edit = PreferenceManager.getDefaultSharedPreferences(this).edit();
-		edit.putString(Settings.PREF_USERNAME, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()));
-		edit.putString(Settings.PREF_PASSWORD, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()));
-		edit.putString(Settings.PREF_SERVER, getLoginConfig().getXmppHost());
-		edit.commit();
-		
+        // 配置 SIP 用户
+        clearOldSipAccount();
+        addNewSipAccount();
+        
 	}
 	
 	private void resumeSip() {
-		if (Receiver.call_state != UserAgent.UA_STATE_IDLE) 
-			Receiver.moveTop();
+        Log.d(TAG, "WE CAN NOW start SIP service");
+        prefProviderWrapper.setPreferenceBooleanValue(PreferencesWrapper.HAS_BEEN_QUIT, false);
+        
+        startSipService();
 	}
+	
+	// Service monitoring stuff
+    private void startSipService() {
+        Thread t = new Thread("StartSip") {
+            public void run() {
+                Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
+                // Optional, but here we bundle so just ensure we are using csipsimple package
+                serviceIntent.setPackage(MainActivity.this.getPackageName());
+                serviceIntent.putExtra(SipManager.EXTRA_OUTGOING_ACTIVITY, new ComponentName(MainActivity.this, MainActivity.class));
+                startService(serviceIntent);
+                postStartSipService();
+            };
+        };
+        t.start();
 
-	private void startSip() {
-		Receiver.engine(this).registerMore();
-	}
+    }
+
+    private void postStartSipService() {
+        // If we have never set fast settings
+        if (CustomDistribution.showFirstSettingScreen()) {
+            if (!prefProviderWrapper.getPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, false)) {
+            	
+            }
+        } else {
+            boolean doFirstParams = !prefProviderWrapper.getPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, false);
+            prefProviderWrapper.setPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, true);
+            if (doFirstParams) {
+                prefProviderWrapper.resetAllDefaultValues();
+            }
+        }
+
+    }
+
+    private void sipDisconnect(boolean quit) {
+        Log.d(TAG, "True disconnection SIP service...");
+        Intent intent = new Intent(SipManager.ACTION_OUTGOING_UNREGISTER);
+        intent.putExtra(SipManager.EXTRA_OUTGOING_ACTIVITY, new ComponentName(this, MainActivity.class));
+        sendBroadcast(intent);
+        if(quit) {
+            finish();
+        }
+    }
+	
+	
 	private void init() {
 
 		getEimApplication().addActivity(this);
         FaceConversionUtil.getInstace().getFileText(this);
+        prefProviderWrapper = new PreferencesProviderWrapper(this);
 
         // 主界面
 		inflater = LayoutInflater.from(context);
@@ -227,7 +311,7 @@ public class MainActivity extends AContacterActivity implements
 		// 主界面三大子界面
 		mMainMessageView = inflater.inflate(R.layout.main_message, null);
 		mMainContactsView = inflater.inflate(R.layout.main_contacts, null);
-		mMainMeView = inflater.inflate(R.layout.main_me, null);
+		mMainMeView = inflater.inflate(R.layout.main_calllogs, null);
 		mLayout.addView(mMainMessageView);
 		mLayout.addView(mMainContactsView);
 		mLayout.addView(mMainMeView);
@@ -508,12 +592,6 @@ public class MainActivity extends AContacterActivity implements
         // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_CUT  
         startActivityForResult(intent, Constant.REQCODE_MOD_AVATAR_CROP);  
     }  
-    
-    @Override
-    protected void onStart() {
-    	super.onStart();
-    	startSip();
-    }
 	
 	@Override
 	protected void onResume() {
@@ -547,6 +625,8 @@ public class MainActivity extends AContacterActivity implements
 		
 		if (mMyInfoPopupWindow != null)
 			mMyInfoPopupWindow.dismiss();
+	
+		sipDisconnect(false);
 	}
 
 	@Override

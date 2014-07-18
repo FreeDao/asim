@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPException;
-import org.sipdroid.sipua.ui.Receiver;
 
+import com.csipsimple.api.ISipService;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.view.asim.util.SoundMeter;
 import com.view.asim.activity.LoginActivity;
@@ -36,9 +36,11 @@ import com.view.asim.view.MessageListAdapter;
 
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
@@ -54,6 +56,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.text.ClipboardManager;
@@ -444,7 +448,11 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-				Receiver.engine(context).call(StringUtil.getCellphoneByName(mUser.getJID()), true);
+                try {
+					service.makeCall(StringUtil.getCellphoneByName(mUser.getJID()), (int) ContacterManager.userMe.getSipAccountId());
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		

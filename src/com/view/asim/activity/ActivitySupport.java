@@ -101,7 +101,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	}
 
 	@Override
-	public void onDestroy() {
+	protected void onDestroy() {
 		super.onDestroy();
 		Log.d(this.toString(), "onDestroy on " + DateUtil.getCurDateStr());
 		mLoginCfg = null;
@@ -343,17 +343,15 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	@Override
 	public LoginConfig getLoginConfig() {
 		LoginConfig loginConfig = new LoginConfig();
-		String a = preferences.getString(Constant.XMPP_HOST, null);
-		String b = getResources().getString(R.string.xmpp_host);
 		loginConfig.setXmppHost(preferences.getString(Constant.XMPP_HOST,
-				getResources().getString(R.string.xmpp_host)));
+				Constant.IM_SERVICE_HOST));
 		loginConfig.setXmppPort(preferences.getInt(Constant.XMPP_PORT,
-				getResources().getInteger(R.integer.xmpp_port)));
+				Constant.IM_SERVICE_PORT));
 		loginConfig.setUsername(preferences.getString(Constant.USERNAME, null));
 		loginConfig.setPassword(preferences.getString(Constant.PASSWORD, null));
 		loginConfig.setXmppServiceName(preferences.getString(
 				Constant.XMPP_SERVICE_NAME,
-				getResources().getString(R.string.xmpp_service_name)));
+				Constant.IM_SERVICE_NAME));
 		loginConfig.setRootPath(preferences.getString(Constant.DATA_ROOT_PATH, null));
 		return loginConfig;
 	}

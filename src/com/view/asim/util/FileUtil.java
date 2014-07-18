@@ -594,6 +594,9 @@ public class FileUtil {
 	 *   发送和接收的普通文件：文件原名 
 	 *   
 	 */
+	public static String genSipLogFileName() {
+		return Constant.SIPLOG_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
+	}
 	
 	public static String genLogFileName() {
 		return Constant.LOG_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";

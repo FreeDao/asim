@@ -80,6 +80,8 @@ public class User implements Parcelable {
 	protected String publicKey = null;
 	protected String privateKey = null;
 	
+	protected long sipAccountId = 0; 
+
 	// 所属群聊组信息
 	protected ArrayList<GroupUser> groupList = null;
 
@@ -88,6 +90,16 @@ public class User implements Parcelable {
 		super();
 		groupList = new ArrayList<GroupUser>();
 	}
+	
+	
+	public long getSipAccountId() {
+		return sipAccountId;
+	}
+
+	public void setSipAccountId(long sipAccountId) {
+		this.sipAccountId = sipAccountId;
+	}
+
 
 	public void addGroup(GroupUser grp) {
 		if (grp != null) {
@@ -311,6 +323,7 @@ public class User implements Parcelable {
 	
 		return "User: name = " + name + 
 				", JID = " + JID +
+				", sip_account_id = " + sipAccountId + 
 				", nickname = " + nickName + 
 				", remark = " + remark +
 				", gender = " + gender +
@@ -331,6 +344,7 @@ public class User implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(name);
 		dest.writeString(JID);
+		dest.writeLong(sipAccountId);
 		dest.writeString(nickName);
 		dest.writeString(remark);
 		dest.writeString(gender);
@@ -355,6 +369,7 @@ public class User implements Parcelable {
 			User u = new User();
 			u.name = source.readString();
 			u.JID = source.readString();
+			u.sipAccountId = source.readLong();
 			u.nickName = source.readString();
 			u.remark = source.readString();
 			u.gender = source.readString();
@@ -385,6 +400,7 @@ public class User implements Parcelable {
 		User user = new User();
 		user.setName(User.this.name);
 		user.setJID(User.this.JID);
+		user.setSipAccountId(User.this.sipAccountId);
 		user.setNickName(User.this.nickName);
 		user.setRemark(User.this.remark);
 		user.setGender(User.this.gender);

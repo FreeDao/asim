@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="card_title_dialing">Dialing</string>
-<string name="card_title_in_progress">Call in progress</string>
-<string name="card_title_incoming_call">Incoming call</string>
-<string name="card_title_call_ended">Call ended</string>
-<string name="card_title_ended_no_codec">ERROR: Codecs Incompatible</string>
-<string name="card_title_on_hold">On hold</string>
-    
+
+    <string name="card_title_dialing">Dialing</string>
+    <string name="card_title_in_progress">Call in progress</string>
+    <string name="card_title_incoming_call">Incoming call</string>
+    <string name="card_title_call_ended">Call ended</string>
+    <string name="card_title_ended_no_codec">ERROR: Codecs Incompatible</string>
+    <string name="card_title_on_hold">On hold</string>
     <string name="app_name">密信</string>
     <string name="slogan">You are what you talk about</string>
     <string name="save_checkbox">保存账户</string>
     <string name="login_btn">登录</string>
     <string name="signup_btn">注册</string>
-	<string name="verify_btn">验证</string>    
-<string name="resend_btn">重发</string>	
+    <string name="verify_btn">验证</string>
+    <string name="resend_btn">重发</string>
     <string name="cfm_btn">确认</string>
     <string name="signup_complete_btn">完成注册</string>
     <string name="search_btn">搜索</string>
@@ -34,23 +34,20 @@
     <string name="remark_hint">个人签名</string>
     <string name="location_hint">你在哪里</string>
     <string name="search_hint">搜索手机号码</string>
-    
     <string name="end_call">结束</string>
     <string name="reject_call">拒绝</string>
     <string name="accept_call">接听</string>
-    
     <string name="my_info_title_nick">昵称和性别</string>
     <string name="my_info_title_remark">个人签名</string>
     <string name="my_info_title_loc">您在哪里</string>
-    
     <string name="name">姓名:</string>
     <string name="depart">部门:</string>
     <string name="mobile">手机号:</string>
     <string name="phone">固定电话:</string>
     <string name="email">邮箱:</string>
-    <string name="navi_message">密话</string>
+    <string name="navi_message">密信</string>
     <string name="navi_contacts">密友</string>
-    <string name="navi_me">密圈</string>
+    <string name="navi_call">密话</string>
     <string name="add_user">添加密友</string>
     <string name="select_user">选择联系人</string>
     <string name="settings">设置</string>
@@ -65,7 +62,6 @@
     <string name="menu_contacts_group_add">添加联系人分组</string>
     <string name="menu_contacts_group_rename">重命名联系人分组</string>
     <string name="menu_contacts_group_move">移动联系人分组</string>
-    
     <string name="settings_notifcation">通知设置</string>
     <string name="settings_privacy">隐私设置</string>
     <string name="settings_chat">聊天设置</string>
@@ -73,11 +69,13 @@
     <string name="settings_feedback">意见反馈</string>
     <string name="settings_about">关于密信</string>
     <string name="settings_logout_btn">退出登录</string>
-    <string name="settings_exit_btn">退出密信</string>    
+    <string name="settings_exit_btn">退出密信</string>
     <string name="no_chat_message_tips">快去通讯录，找个密友聊聊吧！</string>
     <string name="no_notice_tips">每次和密友间相互添加，这里都会记录下来。</string>
     <string name="no_contacts_tips">一个人好孤独，快去添加密友吧！</string>
     <string name="no_friends_message_tips">密友圈空空如也，快去分享好玩的事情吧！</string>
+    <string name="no_calllogs_tips">试试用密话，和密友通个电话吧！</string>
+    
     <string name="add">添加</string>
     <string name="save">保存</string>
     <string name="group">分组</string>
@@ -127,7 +125,6 @@
     <string name="resend_msg_confim">是否重发该消息？</string>
     <string name="send_sms_code_tips">密信即将发送短信验证码至：</string>
     <string name="remote_destroy_msg_confim">是否远程销毁好友那里的这条消息？</string>
-    
     <string name="new_message">收到新短消息</string>
     <!-- 添加好友 -->
     <string name="input_username">输入用户名</string>
@@ -137,22 +134,92 @@
     <string name="username_exist">好友已存在</string>
     <!-- 系统消息列表 -->
     <string name="at_the_last">已经到达最后一页</string>
-    <!-- 首次登录向导 -->
-    <string name="text1">随着Windows Phone逐步渗入中国智能手机市场，Windows Phone作为移动操作平台的新锐，自然不会失宠。Windows Phone 7在中国没有流行的原因，很大程度上是因为在中国并没有上市。现在，诺基亚和微软宣布达成紧密战略合作之后，沉寂许久的Windows Phone操作系统再次走入了人们关注的视野，成了移动应用开发者继iOS和Android之外的另一选择。</string>
-    <string name="text2">好友曾向我展示了最新的iPhone和iPad版《极品飞车》。游戏的渲染效果令人印象深刻，是款蓄势待发的优秀游戏。但是，游戏的前端是典型的UI设计偏差案例。但界面中有大量的属性数据等内容，它在玩家没有时间做决定时提供了过多的内容。这些内容能够显著改变他们的游戏体验，但却在玩家往往感受不到变化的时候呈现。</string>
-    <string name="text3">3月31日，第四届CocoaChina游戏开发者大会暨Cocos2D-X技术研讨会在北京举行。来自全世界的移动互联网精英在此交流经验、相互学习。同时这次我们有幸也采访到了CocoaChina的CEO陈昊芝先生。他将为我们揭秘苹果新榜单的算法秘密，并未我们带来捕鱼达人成功的推广经验，对微软Windows Phone平台的吐槽和对未来3D技术趋势的前瞻。</string>
-    <string name="text4">北京时间4月1日消息，谷歌虽然一直以来都在地图产品上提供和完善各种各样的系统接口，但是迄今为止却一直忽略了广受欢迎的NES游戏。然而也就是今天搜索巨头谷歌利用愚人节的机会，“调皮”地推出流行的NES八位地图产品。</string>
-    <string name="text5">在NASA和美国国家地理的参与下，这群小鸟摆脱了地球引力，跑到了太空，这就是即将在2012年3月22日公测的《愤怒的小鸟：太空版》。为了让小鸟们成功解救出它们珍贵的“无价之蛋”，美国国家地理为此出版了一本书，来提供完成任务所需的关于行星、卫星、银河系等关于外太空的知识，并将于3月20日开始发售。</string>
-    <string name="text6">Google搜索引擎已经赢得全球范围的赞誉，而这一切都要归功于Google开创性的MapReduce。Google搜索引擎算法只是其搜索引擎的一部分，在后台支持Google算法的基础设施才是真正的幕后英雄，其基础设施可快速的索引链接成千上万台普通服务器。MapReduce的成功也直接推动了Hadoop的发展。</string>
-
-    <!-- 缺省的服务器配置 -->
-    <integer name="xmpp_port">5222</integer>
-
-    <string name="xmpp_host">112.124.32.193</string>
-    <string name="xmpp_service_name">112.124.32.193</string>
-
-    <bool name="is_remember">true</bool>
-    <bool name="is_autologin">false</bool>
-    <bool name="is_novisible">false</bool>
+    
+    <!-- VoIP 相关 -->
+        <string name="next">下一步</string>
+    <string name="init">正在初始化……</string>
+    <string name="unable_to_download_file">无法下载文件</string>
+    <string name="connection_not_valid">语音业务网络注册失败</string>
+    <string name="invalid_sip_uri">呼叫地址不正确</string>
+    <string name="accounts">账号</string>
+    <string name="other_accounts">其他账号</string>
+    <string name="activate_account">启用账号</string>
+    <string name="deactivate_account">禁用账号</string>
+    <string name="delete_account">删除账号</string>
+    <string name="modify_account">修改账号</string>
+    <string name="add_account">增加账号</string>
+    <string name="choose_wizard">选择向导</string>
+    <string name="use">使用：</string>
+    <string name="use_pstn">使用手机</string>
+    <string name="ongoing_call">正在通话</string>
+    <string name="missed_call">未接来电</string>
+    <string name="recentCalls_empty">无通话记录</string>
+    <string name="filters">过滤器</string>
+    <string name="filters_desc">当整合进Android时生效</string>
+    <string name="filters_for">过滤</string>
+    <string name="add_filter">增加过滤/重写规则</string>
+    <string name="delete_filter">删除过滤器</string>
+    <string name="callLog_delete_entry">删除此通话</string>
+    <string name="callLog_delete_all">删除所有通话</string>
+    <string name="callLog_delDialog_title">删除通话记录</string>
+    <string name="callLog_delDialog_message">确认要删除所有通话记录？</string>
+    <string name="callLog_delDialog_yes">是</string>
+    <string name="callLog_delDialog_no">否</string>
+    <string name="gsm">手机</string>
+    <string name="dial_tab_name_text">拨号</string>
+    <string name="calllog_tab_name_text">通话记录</string>
+    <string name="messages_tab_name_text">信息</string>
+    <string name="favorites_tab_name_text">收藏</string>
+    <string name="menu_disconnect">断开</string>
+    <string name="service_ticker_registered_text">SIP 已注册</string>
+    <string name="outgoing_call_chooser_call_text">呼叫</string>
+    <string name="reorder">重新排序</string>
+    <string name="backup_restore">备份/恢复</string>
+    <string name="backup">备份</string>
+    <string name="faq">常见问题</string>
+    <string name="help">帮助</string>
+    <string name="record_logs">记录日志并发送到开发小组报告错误</string>
+    <string name="send_logs">停止记录日志(发送可选)</string>
+    <string name="view_existing_issues">在已存在问题中查找</string>
+    <string name="ok">确定</string>
+    <string name="misc">其他</string>
+    <string name="warning">警告</string>
+    <string name="disconnect_and_incoming_explaination">你已设置在此网络中可用!!!点击OK确认直到下次程序重启前你不想使用此网络</string>
+    <string name="gadget_title">SIP 账号切换</string>
+    <string name="pickup_sip_uri">选择SIP联系人</string>
+    <string name="display_icon_in_status_bar_desc">当注册成功在状态栏显示图标</string>
+    <string name="display_icon_in_status_bar">在状态栏显示图标</string>
+    <string name="another_application_use_sip_port">另一程序正在使用SIP端口!无法启动!</string>
+    <string name="no_phone_found">无法找到此联系人电话</string>
+    <string name="show_password">显示密码</string>
+    <string name="this_codec_is_not_free">**此编解码器不是免费!!!**\n请确认某人 (不管是你的网络电话提供商或您本人) 已购买使用许可, 您才可以使用这个编解码器! 我们 (软件提供者) 不对您非法使用这个编解码器负任何責任.\n再次提醒您确认您拥有这个编解码器的使用权.\n购买链接 :</string>
+    <string name="voice_mail">语音邮件</string>
+    <string name="type_sip_uri_or_autocomplete">SIP地址或者自动补全</string>
+    <string name="not_configured_multiple_calls">当前通话尚未结束，不允许多次呼叫</string>
+    <string name="legal_information">合法信息</string>
+    <string name="loading">加载中</string>
+    <string name="reconnect">重新连接</string>
+    <string name="switch_to_text">切换到文本模式</string>
+    <string name="switch_to_digit">切换到数字模式</string>
+    <string name="no_voice_mail_configured">未配置Voicemail</string>
+    <string name="no_accounts">无帐号</string>
+    <string name="activate">活跃</string>
+    <string name="deactivate">不活跃</string>
+    <string name="audio">音频</string>
+    <string name="video">视频</string>
+    <string name="cant_write_file">写文件错误</string>
+    <string name="info">信息</string>
+    <string name="csipsimple_shortcut">SIP-快捷方式</string>
+    <!-- Presence stuff -->
+    <string name="online">在线</string>
+    <string name="offline">离线</string>
+    <string name="away">离开</string>
+    <string name="busy">忙碌</string>
+    <string name="configure">配置</string>
+    <string name="set_android_group">选择Android组</string>
+    <string name="set_sip_data">选择SIP URL数据</string>
+    <string name="uri_nbr">电话号码</string>
+    <string name="uri_im">自定义SIP协议的即时通讯</string>
+    <string name="uri_sip">网络呼叫</string>
 
 </resources>
