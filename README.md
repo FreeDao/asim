@@ -2,7 +2,7 @@
 ====
 
 一个基于 XMPP 协议框架的 Android 即时通信 App。
-服务端采用 Openfire，客户端采用 asmack 库。
+服务端采用 Openfire，客户端采用 aSmack, pjsip。
 
  - 用户注册/登录/好友管理基于 Openfire/Smack
  - 用户一对一文本聊天基于 Openfire/Smack
