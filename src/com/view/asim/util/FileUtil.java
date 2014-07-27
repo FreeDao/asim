@@ -595,19 +595,19 @@ public class FileUtil {
 	 *   
 	 */
 	public static String genSipLogFileName() {
-		return Constant.SIPLOG_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
+		return Constant.SIPLOG_PREFIX + "-" + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
 	}
 	
 	public static String genLogFileName() {
-		return Constant.LOG_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
+		return Constant.LOG_PREFIX + "-" + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
 	}
 
 	public static String genCrashFileName() {
-		return Constant.CRASH_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
+		return Constant.CRASH_PREFIX + "-" + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".log";
 	}	
 	
 	public static String genAvatarTempImageName() {
-		return Constant.IMAGE_PREFIX + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".jpg";
+		return Constant.IMAGE_PREFIX + "-" + DateUtil.getCurDateStr("yyyy-MM-dd-HH-mm-ss") + ".jpg";
 	}
 	
 	public static String genCaptureImageName(String with) {
@@ -618,22 +618,12 @@ public class FileUtil {
 				+ Constant.FILE_SUFFIX;
 	}
 	
-	public static String genCaptureVideoName(String with) {
+	public static String genCaptureMicroVideoName() {
 		return ContacterManager.userMe.getName() + "-" + 
-				StringUtil.getUserNameByJid(with) + "-" + 
 				Constant.VIDEO_PREFIX + "-" +
-				String.valueOf(Calendar.getInstance().getTimeInMillis())
-				+ Constant.FILE_SUFFIX;
+				String.valueOf(Calendar.getInstance().getTimeInMillis());
 	}
 	
-	public static String genCaptureVideoThumbName(String with) {
-		return ContacterManager.userMe.getName() + "-" + 
-				StringUtil.getUserNameByJid(with) + "-" + 
-				Constant.VIDEO_PREFIX + "-" +
-				String.valueOf(Calendar.getInstance().getTimeInMillis())
-				+ Constant.THUMB_SUFFIX;
-	}
-
 	public static String genRecvImageName(String with) {
 		return StringUtil.getUserNameByJid(with) + "-" +
 				ContacterManager.userMe.getName() + "-" + 

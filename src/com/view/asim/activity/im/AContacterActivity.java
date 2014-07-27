@@ -17,6 +17,7 @@ import org.jivesoftware.smack.packet.Registration;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
+import com.view.asim.activity.voip.UserCallLogsActivity;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatMessage;
@@ -278,6 +279,22 @@ public abstract class AContacterActivity extends ActivitySupport {
 		}
 	}
 
+	
+	/**
+	 * 显示一个好友的所有通话记录
+	 * 
+	 * @param user
+	 */
+	protected void showUserCallLogs(String with) {
+		if (ContacterManager.contacters.containsKey(with)) {
+			Intent intent = new Intent(context, UserCallLogsActivity.class);
+			intent.putExtra(User.userKey, ContacterManager.contacters.get(with));
+			startActivity(intent);
+		}
+		else {
+			Log.e(TAG, "create chat with unknow name " + with);
+		}
+	}
 	
 	/**
 	 * 冲连接返回

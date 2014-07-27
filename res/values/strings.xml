@@ -53,6 +53,7 @@
     <string name="settings">设置</string>
     <string name="contacter">手机通讯录</string>
     <string name="user_info">密友资料</string>
+	<string name="user_calllog_info">通话记录</string>    
     <string name="user_notify">密友推荐</string>
     <string name="user_group">密友群聊</string>
     <string name="add_user_by_contacs">从通讯录添加</string>
@@ -94,6 +95,7 @@
     <string name="forgotpwd">忘记密码？</string>
     <!-- 登录提示 -->
     <string name="message_invalid_username_password">错误的用户名或密码</string>
+	<string name="message_login_conflicted">该用户在其他设备上已登录，不允许重复登录</string>    
     <string name="message_existed_username">该手机号已注册</string>
     <string name="message_server_unavailable">密信无法连接到服务器</string>
     <string name="message_user_disabled">用户被禁用</string>
@@ -221,5 +223,41 @@
     <string name="uri_nbr">电话号码</string>
     <string name="uri_im">自定义SIP协议的即时通讯</string>
     <string name="uri_sip">网络呼叫</string>
+    
+    <string name="imageview_content_description"></string>
+    <string name="record_camera_title">录影</string>
+    <string name="record_camera_back">返回</string>
+    <string name="record_camera_next">下一步</string>
+    <string name="record_camera_back_delete">回退</string>
+    <string name="record_camera_delay">延迟</string>
+    <string name="record_camera_filter">滤镜</string>
+    <string name="record_camera_init_faild">初始化视频存储路径失败</string>
+    <string name="record_camera_progress_message">正在视频压缩...</string>
+    <string name="record_camera_check_available_faild">手机满了！至少需要200M存储空间才能继续拍摄！</string>
+    <string name="record_camera_open_audio_faild">无法打开录音设备！</string>
+    <string name="record_camera_save_faild">视频保存失败</string>
+    <string name="record_camera_exit_dialog_message">是否放弃这段视频？</string>
+    <string name="record_camera_import">导入</string>
+    <string name="record_camera_import_image">照片</string>
+    <string name="record_camera_import_image_choose">从本地照片选择</string>
+    <string name="record_camera_import_image_faild">导入照片失败</string>
+    <string name="record_camera_import_video">视频</string>
+    <string name="record_camera_import_video_title">截\t取</string>
+    <string name="record_camera_import_video_choose">从本地视频选择</string>
+    <string name="record_camera_import_video_faild">导入视频失败</string>
+    <string name="record_camera_tools_focus">焦点</string>
+    <string name="record_camera_tools_led">闪光</string>
+    <string name="record_camera_ghost">幽灵</string>
+    <string name="record_video_transcoding_faild">视频转码失败</string>
+	<string name="record_video_too_short">录制的视频太短咯，请继续录制:)</string>    
+    <string name="record_video_transcoding_success">视频保存在:%s</string>
+    <string name="record_read_object_faild">拍摄信息读取失败！请检查SD卡，稍后重试！</string>
+    <string name="record_preview_theme">主题</string>
+    <string name="record_preview_title">预览</string>
+    <string name="record_preview_theme_original">原始</string>
+    <string name="record_preview_theme_news">新闻</string>
+    <string name="record_preview_theme_goddess">女神</string>
+    <string name="record_preview_theme_recording">录制</string>
+    <string name="record_preview_theme_bsmall">小黄人</string>
 
 </resources>

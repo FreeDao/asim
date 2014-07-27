@@ -25,7 +25,37 @@ public class ChatHisBean implements Comparable<ChatHisBean> {
 	private String from; 
 	private String with; 
 	private String time; // 最后通知时间
+	private String destroy;
+	private String type;
+	private String dir;
 	private int unreadCount;// 收到未读消息总数、
+	
+	public String getDir() {
+		return dir;
+	}
+
+	public void setDir(String dir) {
+		this.dir = dir;
+	}
+
+
+	public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getDestroy() {
+		return destroy;
+	}
+
+
+	public void setDestroy(String destroy) {
+		this.destroy = destroy;
+	}
 
 
 	public String getId() {

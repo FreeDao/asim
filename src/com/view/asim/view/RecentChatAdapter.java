@@ -5,6 +5,7 @@ import java.util.List;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatHisBean;
+import com.view.asim.model.ChatMessage;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
@@ -80,9 +81,11 @@ public class RecentChatAdapter extends BaseAdapter {
 		String jid = notice.getWith();
 		Log.d(TAG, "view pos " + position + ", jid " + jid);
 		
+		String nickname = null;
 		if (notice.getChatType().equals(IMMessage.SINGLE)) {
 			User u = ContacterManager.contacters.get(jid);
-			holder.nameTxt.setText(u.getNickName());
+			nickname = u.getNickName();
+			holder.nameTxt.setText(nickname);
 			if (u.getHeadImg() != null) {
 				holder.avatarImg.setImageBitmap(u.getHeadImg());
 			} else {
@@ -97,15 +100,25 @@ public class RecentChatAdapter extends BaseAdapter {
 		}
 		else {
 			GroupUser g = ContacterManager.groupUsers.get(jid);
-			holder.nameTxt.setText(g.getNickName());
+			nickname = g.getNickName();
+			holder.nameTxt.setText(nickname);
 			holder.avatarImg.setImageResource(R.drawable.ic_contact_list_picture_group);
 
 		}		
 		holder.nameTxt.setTag(notice);
 		
-		spannableString = FaceConversionUtil.getInstace().getExpressionString(context, notice.getContent(), 40);
-		
-		holder.lastMsgTxt.setText(spannableString);
+		if(notice.getDestroy().equals(IMMessage.BURN_AFTER_READ) && notice.getType().equals(ChatMessage.CHAT_TEXT)) {
+			if (notice.getDir().equals(IMMessage.SEND)) {
+				holder.lastMsgTxt.setText("你发了一条文字消息");
+			}
+			else {
+				holder.lastMsgTxt.setText(nickname + "发来了一条文字消息");
+			}
+		}
+		else {
+			spannableString = FaceConversionUtil.getInstace().getExpressionString(context, notice.getContent(), 40);
+			holder.lastMsgTxt.setText(spannableString);
+		}
 		
 		String dispTime = DateUtil.getMDHM(DateUtil.str2Calendar(notice.getTime()).getTimeInMillis());
 		holder.lastMsgTimeTxt.setText(dispTime);

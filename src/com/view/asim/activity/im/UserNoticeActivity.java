@@ -9,6 +9,7 @@ import org.jivesoftware.smack.packet.Presence;
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.LoginActivity;
+import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
@@ -78,6 +79,8 @@ public class UserNoticeActivity extends ActivitySupport {
 		// ∫√”—«Î«Û
 		filter.addAction(Constant.ROSTER_SUBSCRIPTION);
 		filter.addAction(Constant.ACTION_SYS_MSG);
+		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+		
 		registerReceiver(receiver, filter);
 		super.onResume();
 		
@@ -183,5 +186,24 @@ public class UserNoticeActivity extends ActivitySupport {
 			noNoticeLayout.setVisibility(View.VISIBLE);
 			noticeList.setVisibility(View.GONE);
 		}
+		
+		refreshViewOnAUKeyStatusChange();
+	}
+	
+	private void refreshViewOnAUKeyStatusChange() {
+		View titleBar = findViewById(R.id.main_head);
+		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
+			mBackTxt.setTextColor(getResources().getColor(R.color.white));
+			mBackTxt.setBackgroundResource(R.drawable.title_clickable_background_black);
+			mClearBtn.setBackgroundResource(R.drawable.title_clickable_background_black);
+		}
+		else {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
+			mBackTxt.setTextColor(getResources().getColor(R.color.darkgray));
+			mBackTxt.setBackgroundResource(R.drawable.title_clickable_background);
+			mClearBtn.setBackgroundResource(R.drawable.title_clickable_background);
+		}
+			
 	}
 }

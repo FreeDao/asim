@@ -142,8 +142,8 @@ public class DataBaseHelper extends SDCardSQLiteOpenHelper {
 			+ CallLog.Calls.TYPE				+ " INTEGER,"
 	        + SipManager.CALLLOG_PROFILE_ID_FIELD     + " INTEGER,"
 	        + SipManager.CALLLOG_STATUS_CODE_FIELD    + " INTEGER,"
-	        + SipManager.CALLLOG_STATUS_TEXT_FIELD    + " TEXT"
-			+ " [security] NVARCHAR"
+	        + SipManager.CALLLOG_STATUS_TEXT_FIELD    + " TEXT,"
+			+ "security" + " TEXT"
 		+");";
 
 	public DataBaseHelper(Context context, String name, CursorFactory factory,
@@ -174,9 +174,9 @@ public class DataBaseHelper extends SDCardSQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS [im_msg_his]");
 			db.execSQL("DROP TABLE IF EXISTS " + SipProfile.ACCOUNTS_TABLE_NAME);
 			db.execSQL("DROP TABLE IF EXISTS " + SipManager.CALLLOGS_TABLE_NAME);
-	
-			onCreate(db);
 		}
+		onCreate(db);
+
 	}
 
 	@Override

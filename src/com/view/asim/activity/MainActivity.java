@@ -34,11 +34,13 @@ import com.view.asim.activity.im.UserInfoActivity;
 import com.view.asim.activity.im.UserInfoModActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.SMSVerifyManager;
 import com.view.asim.manager.XmppConnectionManager;
+import com.view.asim.model.CallLogs;
 import com.view.asim.model.ChatHisBean;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.CtrlMessage;
@@ -52,6 +54,7 @@ import com.view.asim.util.FaceConversionUtil;
 import com.view.asim.util.FileUtil;
 import com.view.asim.util.PinyinComparator;
 import com.view.asim.util.StringUtil;
+import com.view.asim.view.CallLogsAdapter;
 import com.view.asim.view.ContactsAdapter;
 import com.view.asim.view.LayoutChangeListener;
 import com.view.asim.view.RecentChatAdapter;
@@ -127,10 +130,10 @@ public class MainActivity extends AContacterActivity implements
 	private ImageView imageView;
 	private View mTabMessage;
 	private View mTabContacts;
-	private View mTabMe;
+	private View mTabCalllogs;
 	private TextView mTabMsgTxt;
 	private TextView mTabConTxt;
-	private TextView mTabMeTxt;
+	private TextView mTabCallTxt;
 	
 	private ListView mContacterList = null;
 	private ContactsAdapter mContactsAdapter = null;
@@ -139,18 +142,23 @@ public class MainActivity extends AContacterActivity implements
 
 	View mMainMessageView = null;
 	View mMainContactsView = null;
-	View mMainMeView = null;
+	View mMainCalllogsView = null;
 	
 	View mContactsHead = null;
 	
 	private ListView mMessageThreadList = null;
 	private RecentChatAdapter mNoticeAdapter = null;
-	
+
+	private ListView mCalllogsListView = null;
+	private CallLogsAdapter mCalllogsAdapter = null;
+
 	private List<ChatHisBean> mInviteNotices = new ArrayList<ChatHisBean>();
 	private List<User> mContacters = new ArrayList<User>();
+	private List<CallLogs> mCalllogsList = new ArrayList<CallLogs>();
 	
 	private LinearLayout mNoChatMessageLayout = null;
 	private LinearLayout mNoContactsLayout = null;
+	private LinearLayout mNoCalllogsLayout = null;
 	private TextView mMsgUnreadTxt;
 	private TextView mNetworkFailedTxt;
 	private TextView mAlphabeticText;
@@ -167,7 +175,8 @@ public class MainActivity extends AContacterActivity implements
 	
 	private ImageView mNewUserNotifyImg = null;
 	private ImageView mUnreadNewUserImg = null;
-	
+	private ImageView mCallMissedImg = null;
+
 	// 我的个人信息
 	private ImageView mMyAvatarImg = null;
 	private TextView mMyNicknameTxt = null;
@@ -215,7 +224,6 @@ public class MainActivity extends AContacterActivity implements
 		
 		account.display_name = mLoginCfg.getUsername();
 		account.acc_id = "<sip:" + sipNum + "@" + server + ">";
-		
 		String regUri = "sip:" + server + ":" + Constant.VOIP_SERVICE_PORT;
 		account.reg_uri = regUri;
 		account.proxies = new String[] { regUri } ;
@@ -285,17 +293,6 @@ public class MainActivity extends AContacterActivity implements
         }
 
     }
-
-    private void sipDisconnect(boolean quit) {
-        Log.d(TAG, "True disconnection SIP service...");
-        Intent intent = new Intent(SipManager.ACTION_OUTGOING_UNREGISTER);
-        intent.putExtra(SipManager.EXTRA_OUTGOING_ACTIVITY, new ComponentName(this, MainActivity.class));
-        sendBroadcast(intent);
-        if(quit) {
-            finish();
-        }
-    }
-	
 	
 	private void init() {
 
@@ -311,21 +308,22 @@ public class MainActivity extends AContacterActivity implements
 		// 主界面三大子界面
 		mMainMessageView = inflater.inflate(R.layout.main_message, null);
 		mMainContactsView = inflater.inflate(R.layout.main_contacts, null);
-		mMainMeView = inflater.inflate(R.layout.main_calllogs, null);
+		mMainCalllogsView = inflater.inflate(R.layout.main_calllogs, null);
 		mLayout.addView(mMainMessageView);
 		mLayout.addView(mMainContactsView);
-		mLayout.addView(mMainMeView);
+		mLayout.addView(mMainCalllogsView);
 		mLayout.setToScreen(0);
 		
 		// 主界面导航栏
 		mTabMessage = findViewById(R.id.tab_message_layout);
 		mTabContacts = findViewById(R.id.tab_contacts_layout);
-		mTabMe = findViewById(R.id.tab_me_layout);
+		mTabCalllogs = findViewById(R.id.tab_calllogs_layout);
 		mTabMsgTxt = (TextView)findViewById(R.id.tab_message);
 		mTabConTxt = (TextView)findViewById(R.id.tab_contacts);
-		mTabMeTxt = (TextView)findViewById(R.id.tab_me);
+		mTabCallTxt = (TextView)findViewById(R.id.tab_calllogs);
 
 		mMsgUnreadTxt = (TextView) findViewById(R.id.message_paopao_txt);
+		mCallMissedImg = (ImageView) findViewById(R.id.calllogs_paopao_img);
 		imageView = (ImageView) findViewById(R.id.top_bar_select);
 		mTabHeadView = findViewById(R.id.tab_layout);
 		mHeadTabDivideLineView = findViewById(R.id.head_body_divide_img);
@@ -529,6 +527,24 @@ public class MainActivity extends AContacterActivity implements
 		
 		mMessageThreadList.setOnCreateContextMenuListener(mMsgThreadsOnCreateContextMenuListener);  
 		
+
+		// 通话记录子界面
+		mCalllogsListView = (ListView) mMainCalllogsView.findViewById(R.id.calllogs_list);
+		mNoCalllogsLayout = (LinearLayout) mMainCalllogsView.findViewById(R.id.no_calllogs_layout);
+
+		mCalllogsAdapter = new CallLogsAdapter(context, mCalllogsList);
+		mCalllogsListView.setAdapter(mCalllogsAdapter);
+		mCalllogsListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				CallLogs logs = (CallLogs) view.findViewById(R.id.contact_name_txt).getTag();
+				showUserCallLogs(logs.getWith());
+			}
+		});
+		mCalllogsListView.setOnCreateContextMenuListener(mCalllogsOnCreateContextMenuListener);  
+
+		
 		// 用户登录后处理离线消息
 		Intent intent = new Intent(Constant.RECV_OFFLINE_MSG_ACTION);
 		sendBroadcast(intent);
@@ -537,10 +553,24 @@ public class MainActivity extends AContacterActivity implements
 	private final OnCreateContextMenuListener mMsgThreadsOnCreateContextMenuListener = new OnCreateContextMenuListener() {  
         @Override  
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-			ChatHisBean bean = (ChatHisBean) v.findViewById(R.id.contact_name_txt).getTag();
+	        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;  
+        	
+			ChatHisBean bean = (ChatHisBean) mi.targetView.findViewById(R.id.contact_name_txt).getTag();
         	
         	menu.setHeaderTitle(ContacterManager.contacters.get(bean.getWith()).getNickName());
         	menu.add(0, 1, 0, "删除会话");
+        }  
+    };
+    
+	private final OnCreateContextMenuListener mCalllogsOnCreateContextMenuListener = new OnCreateContextMenuListener() {  
+        @Override  
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;  
+
+			CallLogs logs = (CallLogs) mi.targetView.findViewById(R.id.contact_name_txt).getTag();
+        	
+        	menu.setHeaderTitle(ContacterManager.contacters.get(logs.getWith()).getNickName());
+        	menu.add(1, 1, 0, "删除通话记录");
         }  
     };
     
@@ -548,26 +578,43 @@ public class MainActivity extends AContacterActivity implements
     public boolean onContextItemSelected(MenuItem item) {  
 	        // 得到当前被选中的item信息  
 	        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();  
-	         
-        	ChatHisBean b = (ChatHisBean) menuInfo.targetView.findViewById(R.id.contact_name_txt).getTag();
-        	
-	        switch(item.getItemId()) {  
-	        case 1:  
-				NoticeManager.getInstance().setCurrentChatUser(null);
-				NoticeManager.getInstance().clearIMMessageNotify(ContacterManager.contacters.get(b.getWith()));
+	        
+	        // 聊天记录的上下文菜单
+        	if (item.getGroupId() == 0) {
+            	ChatHisBean b = (ChatHisBean) menuInfo.targetView.findViewById(R.id.contact_name_txt).getTag();
 
-				// 删除数据库
-				NoticeManager.getInstance()
-						.delNoticeByWith(b.getWith());
-				MessageManager.getInstance()
-						.delChatHisByName(b.getWith());
-				
-				refreshMessageListView();
-	        	break;  
+        		switch(item.getItemId()) {  
+		        case 1:  
+					NoticeManager.getInstance().setCurrentChatUser(null);
+					NoticeManager.getInstance().clearIMMessageNotify(ContacterManager.contacters.get(b.getWith()));
+	
+					// 删除数据库
+					NoticeManager.getInstance()
+							.delNoticeByWith(b.getWith());
+					MessageManager.getInstance()
+							.delChatHisByName(b.getWith());
+					
+					refreshMessageListView();
+		        	break;  
+	
+		        default:  
+		            return super.onContextItemSelected(item);  
+		        }
+        	} else 
+        	// 通话记录的上下文菜单
+        	if (item.getGroupId() == 1) {
+        		CallLogs b = (CallLogs) menuInfo.targetView.findViewById(R.id.contact_name_txt).getTag();
 
-	        default:  
-	            return super.onContextItemSelected(item);  
-	        }  
+        		switch(item.getItemId()) {  
+		        case 1:  
+		        	CallLogManager.getInstance().delCallLogsByName(StringUtil.getUserNameByJid(b.getWith()));
+		        	refreshCalllogsListView();
+		        	break;  
+	
+		        default:  
+		            return super.onContextItemSelected(item);  
+		        }
+        	}
 	        return true;
     }
 
@@ -622,6 +669,7 @@ public class MainActivity extends AContacterActivity implements
 		MessageManager.getInstance().destroy();
 		NoticeManager.getInstance().destroy();
 		AUKeyManager.getInstance().destroy();
+		CallLogManager.getInstance().destroy();
 		
 		if (mMyInfoPopupWindow != null)
 			mMyInfoPopupWindow.dismiss();
@@ -649,12 +697,16 @@ public class MainActivity extends AContacterActivity implements
 	        	if (!gender.equals("")) {
 	        		ContacterManager.userMe.setGender(gender);
 	        	}
+	        	Log.d(TAG, "mod nick:" + ContacterManager.userMe);
+
 	        	break;
 	        case Constant.REQCODE_MOD_LOCATION:
 	        	String loc = data.getStringExtra(UserInfoModActivity.LOCATION);
 	        	if (!loc.equals("")) {
 	        		ContacterManager.userMe.setLocation(loc);
 	        	}
+	        	Log.d(TAG, "mod location:" + ContacterManager.userMe);
+
 	        	
 	        	break;
 	        case Constant.REQCODE_MOD_REMARK:
@@ -755,6 +807,8 @@ public class MainActivity extends AContacterActivity implements
 			mMyNicknameTxt.setText(ContacterManager.userMe.getNickName());
 		}
 		
+		Drawable leftIcon = null;
+		Drawable rightIcon = null;
 		if (ContacterManager.userMe.getGender() == null) {
 			mMyNicknameTxt.setCompoundDrawables(null, null, null, null);
 			
@@ -763,14 +817,25 @@ public class MainActivity extends AContacterActivity implements
 			maleIcon.setBounds(0, 0, maleIcon.getMinimumWidth(), maleIcon.getMinimumHeight());
 			Drawable femaleIcon = getResources().getDrawable(R.drawable.business_card_female_icon);
 			femaleIcon.setBounds(0, 0, femaleIcon.getMinimumWidth(), femaleIcon.getMinimumHeight());
+			
 			if (ContacterManager.userMe.getGender().equals(User.MALE)) {
-				
-				mMyNicknameTxt.setCompoundDrawables(null, null, maleIcon, null);
+				rightIcon = maleIcon;
+//				mMyNicknameTxt.setCompoundDrawables(null, null, maleIcon, null);
 			}
 			else {
-				mMyNicknameTxt.setCompoundDrawables(null, null, femaleIcon, null);
+				rightIcon = femaleIcon;
+//				mMyNicknameTxt.setCompoundDrawables(null, null, femaleIcon, null);
 			}
 		}
+		
+
+		if (ContacterManager.userMe.getSecurity()!= null && ContacterManager.userMe.getSecurity().equals(AUKeyManager.ATTACHED)) {
+			leftIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
+			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
+		}
+		
+		mMyNicknameTxt.setCompoundDrawables(leftIcon, null, rightIcon, null);
+    
 		
 		mMyRemarkTxt.setText(ContacterManager.userMe.getRemark());
 		mMyLocationTxt.setText(ContacterManager.userMe.getLocation());
@@ -847,6 +912,9 @@ public class MainActivity extends AContacterActivity implements
 		// 更新联系人界面
 		refreshContactListView();
 		
+		// 更新通话记录界面
+		refreshCalllogsListView();
+		
 		// 更新个人信息界面
 		refreshMyInfoView();
 
@@ -863,16 +931,15 @@ public class MainActivity extends AContacterActivity implements
 	protected void refreshTitleView() {
 		View titleBar = findViewById(R.id.main_head);
 		TextView title = (TextView) findViewById(R.id.ivTitleName);
-		ImageView aukeyOnlineImg = (ImageView) findViewById(R.id.aukey_online_img);
 		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
 			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
 			title.setTextColor(getResources().getColor(R.color.white));
-			aukeyOnlineImg.setVisibility(View.VISIBLE);
+			//aukeyOnlineImg.setVisibility(View.VISIBLE);
 		}
 		else {
 			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
 			title.setTextColor(getResources().getColor(R.color.darkgray));
-			aukeyOnlineImg.setVisibility(View.GONE);
+			//aukeyOnlineImg.setVisibility(View.GONE);
 		}
 			
 	}
@@ -882,13 +949,17 @@ public class MainActivity extends AContacterActivity implements
 
 		mInviteNotices = MessageManager.getInstance()
 				.getRecentContactsWithLastMsg();
+		for(ChatHisBean c: mInviteNotices) {
+			Log.i(TAG, "chat his bean: " + c.getWith() + ", content: " + c.getContent());
+		}
+		
 		Collections.sort(mInviteNotices);
 		mNoticeAdapter.refreshList(mInviteNotices);
 		
 		/**
 		 * 有新消息进来的气泡设置
 		 */
-		setPaoPao();
+		setMessagePaoPao();
 		
 		if(mInviteNotices.size() == 0) {
 			mMessageThreadList.setVisibility(View.GONE);
@@ -897,6 +968,32 @@ public class MainActivity extends AContacterActivity implements
 		else {
 			mNoChatMessageLayout.setVisibility(View.GONE);
 			mMessageThreadList.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	// 刷新通话记录列表子界面
+	protected void refreshCalllogsListView() {
+
+		mCalllogsList = CallLogManager.getInstance().getRecentCallLogs();
+		for(CallLogs c: mCalllogsList) {
+			Log.i(TAG, "chat logs: " + c.getWith() + ", time: " + c.getTime());
+		}
+
+		Collections.sort(mCalllogsList);
+		mCalllogsAdapter.refreshList(mCalllogsList);
+		
+		/**
+		 * 有新消息进来的气泡设置
+		 */
+		//setCalllogPaoPao();
+		
+		if(mCalllogsList.size() == 0) {
+			mCalllogsListView.setVisibility(View.GONE);
+			mNoCalllogsLayout.setVisibility(View.VISIBLE);
+		}
+		else {
+			mNoCalllogsLayout.setVisibility(View.GONE);
+			mCalllogsListView.setVisibility(View.VISIBLE);
 		}
 	}
 	
@@ -909,7 +1006,7 @@ public class MainActivity extends AContacterActivity implements
 		/**
 		 * 有新消息进来的气泡设置
 		 */
-		setPaoPao();
+		setMessagePaoPao();
 		
 		if(mInviteNotices.size() == 0) {
 			mMessageThreadList.setVisibility(View.GONE);
@@ -1042,7 +1139,7 @@ public class MainActivity extends AContacterActivity implements
 					}
 					mTabMsgTxt.setTextColor(getResources().getColor(R.color.green));
 					mTabConTxt.setTextColor(getResources().getColor(R.color.darkgray));
-					mTabMeTxt.setTextColor(getResources().getColor(R.color.darkgray));
+					mTabCallTxt.setTextColor(getResources().getColor(R.color.darkgray));
 					
 					break;
 				case 1:
@@ -1053,7 +1150,7 @@ public class MainActivity extends AContacterActivity implements
 					}
 					mTabMsgTxt.setTextColor(getResources().getColor(R.color.darkgray));
 					mTabConTxt.setTextColor(getResources().getColor(R.color.green));
-					mTabMeTxt.setTextColor(getResources().getColor(R.color.darkgray));					
+					mTabCallTxt.setTextColor(getResources().getColor(R.color.darkgray));					
 					break;
 				case 2:
 					if (lastIndex == 1) {
@@ -1063,7 +1160,7 @@ public class MainActivity extends AContacterActivity implements
 					}
 					mTabMsgTxt.setTextColor(getResources().getColor(R.color.darkgray));
 					mTabConTxt.setTextColor(getResources().getColor(R.color.darkgray));
-					mTabMeTxt.setTextColor(getResources().getColor(R.color.green));					
+					mTabCallTxt.setTextColor(getResources().getColor(R.color.green));					
 					break;
 			}
 			animation.setDuration(300);
@@ -1082,7 +1179,7 @@ public class MainActivity extends AContacterActivity implements
 		} else if (v == mTabContacts) {
 			mLayout.snapToScreen(1);
 
-		} else if (v == mTabMe) {
+		} else if (v == mTabCalllogs) {
 			mLayout.snapToScreen(2);
 
 		}
@@ -1090,7 +1187,7 @@ public class MainActivity extends AContacterActivity implements
 
 
 	 // 通知气泡更新
-	private void setPaoPao() {
+	private void setMessagePaoPao() {
 		if (null != mInviteNotices && mInviteNotices.size() > 0) {
 			int paoCount = 0;
 			for (ChatHisBean c : mInviteNotices) {
@@ -1109,6 +1206,15 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 
+	private void setCalllogPaoPao() {
+		if (null != mCalllogsList && mCalllogsList.size() > 0) {
+			mCallMissedImg.setVisibility(View.VISIBLE);
+		} else {
+			mCallMissedImg.setVisibility(View.GONE);
+		}
+	}
+	
+	
 	// 延迟刷新界面
 	public void delayRefresh() {
 		new Thread(new Runnable() {

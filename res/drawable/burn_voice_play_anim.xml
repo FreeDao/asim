@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:drawable="@drawable/voicesearch_btn_normal"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_silence_check001"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_silence_check002"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_silence_check003"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback005"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback006"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback007"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback008"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback009"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback010"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback011"
+        android:duration="100"/>
+    <item
+        android:drawable="@drawable/voicesearch_feedback012"
+        android:duration="100"/>
+
+
+</animation-list>

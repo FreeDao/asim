@@ -310,7 +310,7 @@ public class SplashActivity extends ActivitySupport {
 		LogcatHelper.getInstance(context).start();
 
 		stopService();
-		startService();
+		startConnService();
 		
 		bottomBackgroundImg.setVisibility(View.GONE);
 		errorOperLayout.setVisibility(View.GONE);

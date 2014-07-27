@@ -85,7 +85,7 @@ public class IMChatService extends Service {
 		mSendMsgWorker = new Worker();
 		mSendMsgWorker.initilize("IM Send Message Worker");
 		
-		//initChatManager();
+		initChatManager();
 		initBroadcastReceiver();
 	}
 
@@ -224,10 +224,9 @@ public class IMChatService extends Service {
 
 			}
 			else if (action.equals(Constant.RECV_OFFLINE_MSG_ACTION)) {
-				/* dealOfflineMsg();
+				//dealOfflineMsg();
 				XmppConnectionManager.getInstance().getConnection()
 					.sendPacket(new Presence(Presence.Type.available));
-					*/
 			}
 			else if (action.equals(Constant.GROUP_INVITE_ACTION)) {
 				GroupUser grp = (GroupUser) intent.getParcelableExtra(Constant.GROUP_ACTION_KEY_INFO);
@@ -251,6 +250,9 @@ public class IMChatService extends Service {
 				else if(status.equals(XmppConnectionManager.CONNECTED)) {
 					Log.i(TAG, "connection succ, init chat listener");
 					initChatManager();
+					XmppConnectionManager.getInstance().getConnection()
+						.sendPacket(new Presence(Presence.Type.available));
+
 				}
 			}
 			
@@ -374,7 +376,7 @@ public class IMChatService extends Service {
 			
 		} catch(Exception e) {
 			e.printStackTrace();
-			stopSelf();
+			//stopSelf();
 		}
 	}
 	
@@ -404,7 +406,7 @@ public class IMChatService extends Service {
 		@Override
 		public void processPacket(Packet arg0) {
 			
-			Log.d(TAG, "packet: " + arg0);
+			Log.d(TAG, "packet: " + arg0 + ", id: " + arg0.getPacketID());
 
 			Message message = (Message) arg0;
 			BaseHandler handler = null;

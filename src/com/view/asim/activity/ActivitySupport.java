@@ -2,8 +2,12 @@ package com.view.asim.activity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 
+import com.csipsimple.api.SipManager;
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
@@ -16,6 +20,11 @@ import com.view.asim.service.OTAService;
 import com.view.asim.service.ConnectService;
 import com.view.asim.util.DateUtil;
 import com.view.asim.util.FileUtil;
+import com.view.asim.util.StringUtil;
+import com.yixia.camera.model.MediaObject;
+import com.yixia.camera.model.MediaObject.MediaPart;
+import com.yixia.camera.util.FileUtils;
+import com.yixia.camera.util.StringUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,6 +32,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,11 +46,12 @@ import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 /**
- * Actity ¹¤¾ßÖ§³ÖÀà
+ * Actity å·¥å…·æ”¯æŒç±»
  * 
  * @author xuweinan
  * 
@@ -97,7 +108,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	protected void onStop() {
 		super.onStop();
 		Log.d(this.toString(), "onStop on " + DateUtil.getCurDateStr());
-
+		hideProgress();
 	}
 
 	@Override
@@ -105,6 +116,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		super.onDestroy();
 		Log.d(this.toString(), "onDestroy on " + DateUtil.getCurDateStr());
 		mLoginCfg = null;
+		pg = null;
 	}
 
 	@Override
@@ -112,63 +124,97 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		return pg;
 	}
 
+	public ProgressDialog showProgress(String title, String message) {
+		return showProgress(title, message, -1);
+	}
+
+	public ProgressDialog showProgress(String title, String message, int theme) {
+		if (pg == null) {
+			if (theme > 0)
+				pg = new ProgressDialog(this, theme);
+			else
+				pg = new ProgressDialog(this);
+			pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			pg.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			pg.setCanceledOnTouchOutside(false);
+			pg.setIndeterminate(true);
+		}
+
+		if (!StringUtils.isEmpty(title))
+			pg.setTitle(title);
+		pg.setMessage(message);
+		pg.show();
+		return pg;
+	}
+
+	public void hideProgress() {
+		if (pg != null) {
+			pg.dismiss();
+		}
+	}
+	
 	@Override
-	public void startService() {
-		// XMPPÁ¬½Ó¹ÜÀí·şÎñ
+	public void startConnService() {
+		// XMPPè¿æ¥ç®¡ç†æœåŠ¡
 		Intent xmpp = new Intent(context, ConnectService.class);
 		context.startService(xmpp);
-		
-		// OTAÔÚÏßÉı¼¶·şÎñ
+
+	}
+
+	@Override
+	public void startGeneralService() {
+		// OTAåœ¨çº¿å‡çº§æœåŠ¡
 		Intent ota = new Intent(context, OTAService.class);
 		context.startService(ota);
 		
-		// ºÃÓÑÁªÏµÈË·şÎñ
+		// å¥½å‹è”ç³»äººæœåŠ¡
 		Intent server = new Intent(context, IMContactService.class);
 		context.startService(server);
 		
-		// ÁÄÌì·şÎñ
+		// èŠå¤©æœåŠ¡
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.startService(chatServer);
 		
-		// °²Ë¾¶Ü¼à¿Ø¹ÜÀí·şÎñ
+		// å®‰å¸ç›¾ç›‘æ§ç®¡ç†æœåŠ¡
 		Intent keyService = new Intent(context, AUKeyService.class);
 		context.startService(keyService);
 
 	}
+	
 
 	/**
 	 * 
-	 * Ïú»Ù·şÎñ.
+	 * é”€æ¯æœåŠ¡.
 	 * 
 	 * @author xuweinan
 	 */
 	@Override
 	public void stopService() {
-		// OTAÔÚÏßÉı¼¶·şÎñ
+		// OTAåœ¨çº¿å‡çº§æœåŠ¡
 		Intent ota = new Intent(context, OTAService.class);
 		context.stopService(ota);
 		
-		// ºÃÓÑÁªÏµÈË·şÎñ
+		// å¥½å‹è”ç³»äººæœåŠ¡
 		Intent server = new Intent(context, IMContactService.class);
 		context.stopService(server);
 		
-		// ÁÄÌì·şÎñ
+		// èŠå¤©æœåŠ¡
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.stopService(chatServer);
 		
-		// XMPPÁ¬½Ó¹ÜÀí·şÎñ
+		// XMPPè¿æ¥ç®¡ç†æœåŠ¡
 		Intent xmpp = new Intent(context, ConnectService.class);
 		context.stopService(xmpp);
 		
-		// °²Ë¾¶Ü¼à¿Ø¹ÜÀí·şÎñ
+		// å®‰å¸ç›¾ç›‘æ§ç®¡ç†æœåŠ¡
 		Intent keyService = new Intent(context, AUKeyService.class);
 		context.stopService(keyService);
 	}
 
 	@Override
 	public void isExit() {
-		new AlertDialog.Builder(context).setTitle("È·¶¨ÍË³öÂğ?")
-				.setNeutralButton("È·¶¨", new DialogInterface.OnClickListener() {
+		new AlertDialog.Builder(context).setTitle("ç¡®å®šé€€å‡ºå—?")
+				.setNeutralButton("ç¡®å®š", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						stopService();
@@ -176,7 +222,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 						eimApplication.exit();
 					}
 				})
-				.setNegativeButton("È¡Ïû", new DialogInterface.OnClickListener() {
+				.setNegativeButton("å–æ¶ˆ", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();
@@ -272,12 +318,12 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	/**
 	 * 
-	 * ÏÔÊ¾toast
+	 * æ˜¾ç¤ºtoast
 	 * 
 	 * @param text
 	 * @param longint
 	 * @author shimiso
-	 * @update 2012-6-28 ÏÂÎç3:46:18
+	 * @update 2012-6-28 ä¸‹åˆ3:46:18
 	 */
 	@Override
 	public void showToast(String text, int longint) {
@@ -292,10 +338,10 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	
 	/**
 	 * 
-	 * ¹Ø±Õ¼üÅÌÊÂ¼ş
+	 * å…³é—­é”®ç›˜äº‹ä»¶
 	 * 
 	 * @author xuweinan
-	 * @update 2012-7-4 ÏÂÎç2:34:34
+	 * @update 2012-7-4 ä¸‹åˆ2:34:34
 	 */
 	public void closeInput() {
 		InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -401,5 +447,59 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		} catch(NameNotFoundException ex) {}
 		
 		return unknown;		
+	}
+	
+    protected void sipDisconnect(boolean quit) {
+        Log.d(TAG, "True disconnection SIP service...");
+        Intent intent = new Intent(SipManager.ACTION_OUTGOING_UNREGISTER);
+        intent.putExtra(SipManager.EXTRA_OUTGOING_ACTIVITY, new ComponentName(this, MainActivity.class));
+        sendBroadcast(intent);
+        if(quit) {
+            finish();
+        }
+    }
+    
+	protected static MediaObject restoreMediaObject(String obj) {
+		try {
+			String str = FileUtils.readFile(new File(obj));
+			Gson gson = new Gson();
+			MediaObject result = gson.fromJson(str.toString(), MediaObject.class);
+			result.getCurrentPart();
+			preparedMediaObject(result);
+			return result;
+		} catch (Exception e) {
+			if (e != null)
+				Log.e("VCamera", "readFile", e);
+		}
+		return null;
+	}
+
+	public static void preparedMediaObject(MediaObject mMediaObject) {
+		if (mMediaObject != null && mMediaObject.getMedaParts() != null) {
+			int duration = 0;
+			for (MediaPart part : mMediaObject.getMedaParts()) {
+				part.startTime = duration;
+				part.endTime = part.startTime + part.duration;
+				duration += part.duration;
+			}
+		}
+	}
+	
+	public static  boolean saveMediaObject(MediaObject mMediaObject) {
+		if (mMediaObject != null) {
+			try {
+				if (!StringUtils.isNotEmpty(mMediaObject.getObjectFilePath())) {
+					FileOutputStream out = new FileOutputStream(mMediaObject.getObjectFilePath());
+					Gson gson = new Gson();
+					out.write(gson.toJson(mMediaObject).getBytes());
+					out.flush();
+					out.close();
+					return true;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
 	}
 }

@@ -69,8 +69,6 @@ public class AUKeyService extends Service {
 					return;
 				}
 				try {
-					Thread.sleep(5000);
-
 					HashMap<String, UsbDevice> map = mUsbManager.getDeviceList();
 					for(UsbDevice dev : map.values()){
 						if(VID == dev.getVendorId() && PID == dev.getProductId()){
@@ -84,6 +82,7 @@ public class AUKeyService extends Service {
 						AUKeyManager.getInstance().setAUKeyStatus(context, AUKeyManager.DETACHED);
 					}
 
+					Thread.sleep(5000);
 					
 				} catch (Exception e) {
 					e.printStackTrace();

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.view.asim"
     android:versionCode="1"
-    android:versionName="0.7.18" >
+    android:versionName="0.7.26" >
 
     <uses-sdk
         android:minSdkVersion="12"
@@ -91,6 +91,9 @@
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="true" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:name="com.view.asim.activity.AsimApplication"
@@ -154,13 +157,13 @@
         <!-- 个人信息修改界面 -->
         <activity
             android:name="com.view.asim.activity.im.UserInfoModActivity"
-            android:launchMode="standard"
+            android:launchMode="singleInstance"
             android:screenOrientation="unspecified" >
         </activity>
         <!-- 头像查看界面 -->
         <activity
             android:name="com.view.asim.activity.im.UserAvatarActivity"
-            android:launchMode="standard"
+            android:launchMode="singleInstance"
             android:screenOrientation="unspecified" >
         </activity>
 
@@ -177,11 +180,18 @@
             android:launchMode="standard"
             android:screenOrientation="unspecified" >
         </activity>
+        
+        <!-- 用户信息 -->
+        <activity
+            android:name="com.view.asim.activity.voip.UserCallLogsActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="unspecified" >
+        </activity>
 
         <!-- 用户信息 -->
         <activity
             android:name="com.view.asim.activity.im.UserInfoActivity"
-            android:launchMode="standard"
+            android:launchMode="singleInstance"
             android:screenOrientation="unspecified" >
         </activity>
         <!-- 聊天 -->
@@ -196,7 +206,13 @@
             android:launchMode="standard"
             android:screenOrientation="unspecified" >
         </activity>
-
+        <!-- 预览界面 -->
+        <activity
+            android:name="com.view.asim.activity.im.VideoPreviewActivity"
+            android:launchMode="standard"
+            android:screenOrientation="unspecified" >
+        </activity>
+        
         <!-- 阅后即焚预览界面 -->
         <activity
             android:name="com.view.asim.activity.im.BurnMsgViewActivity"
@@ -211,6 +227,8 @@
             android:launchMode="singleTask"
             android:screenOrientation="unspecified" >
         </activity>
+        
+        <!-- 语音通话界面 -->
         <activity
             android:name="com.view.asim.activity.voip.InCallScreen"
             android:allowTaskReparenting="true"
@@ -226,6 +244,14 @@
             </intent-filter>
         </activity>
 
+        <!-- 短视频拍摄采集界面 -->
+        <activity
+            android:name="com.view.asim.activity.im.MediaRecorderActivity"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/CameraTheme" >
+        </activity>
 
         <!-- 联系人服务 -->
         <service android:name="com.view.asim.service.IMContactService" >
@@ -265,6 +291,7 @@
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="aukey.status.update" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />

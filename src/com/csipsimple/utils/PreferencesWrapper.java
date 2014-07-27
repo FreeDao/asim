@@ -148,8 +148,8 @@ public class PreferencesWrapper {
 		//Network
 		put(SipConfigManager.LOCK_WIFI, true);
 		put(SipConfigManager.LOCK_WIFI_PERFS, false);
-		put(SipConfigManager.ENABLE_TCP, true);			// Modified
-		put(SipConfigManager.ENABLE_UDP, false);		// Modified
+		put(SipConfigManager.ENABLE_TCP, true);		// Modified
+		put(SipConfigManager.ENABLE_UDP, true);			// Modified
 		put(SipConfigManager.ENABLE_TLS, false);
 		put(SipConfigManager.USE_IPV6, false);
 		put(SipConfigManager.ENABLE_DNS_SRV, false);
@@ -176,7 +176,7 @@ public class PreferencesWrapper {
         put(SipConfigManager.USE_ROAMING_OUT, true);	// Modified
 		put(SipConfigManager.FORCE_NO_UPDATE, true);
         put(SipConfigManager.DISABLE_TCP_SWITCH, false);
-        put(SipConfigManager.DISABLE_RPORT, false);
+        put(SipConfigManager.DISABLE_RPORT, true);		// Modified
         put(SipConfigManager.ADD_BANDWIDTH_TIAS_IN_SDP, false);
 		
 		//Media
@@ -211,7 +211,7 @@ public class PreferencesWrapper {
 		put(SipConfigManager.INTEGRATE_TEL_PRIVILEGED, false);
 		put(HAS_BEEN_QUIT, false);
 		put(HAS_ALREADY_SETUP_SERVICE, false);
-		put(SipConfigManager.LOG_USE_DIRECT_FILE, false);
+		put(SipConfigManager.LOG_USE_DIRECT_FILE, true);
 		put(SipConfigManager.START_WITH_TEXT_DIALER, false);
         put(SipConfigManager.REWRITE_RULES_DIALER, false);
 		
@@ -230,8 +230,8 @@ public class PreferencesWrapper {
 	private final static HashMap<String, Float> FLOAT_PREFS = new HashMap<String, Float>(){
 		private static final long serialVersionUID = 1L;
 	{
-		put(SipConfigManager.SND_MIC_LEVEL, (float)1.0);
-		put(SipConfigManager.SND_SPEAKER_LEVEL, (float)1.0);
+		put(SipConfigManager.SND_MIC_LEVEL, (float)2.0);
+		put(SipConfigManager.SND_SPEAKER_LEVEL, (float)2.0);
 		put(SipConfigManager.SND_BT_MIC_LEVEL, (float)1.0);
 		put(SipConfigManager.SND_BT_SPEAKER_LEVEL, (float)1.0);
 		put(SipConfigManager.SND_STREAM_LEVEL, (float)8.0);

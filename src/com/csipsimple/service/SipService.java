@@ -78,6 +78,7 @@ import com.csipsimple.utils.PreferencesWrapper;
 import com.view.asim.R;
 import com.view.asim.activity.voip.InCallMediaControl;
 import com.view.asim.db.DBProvider;
+import com.view.asim.manager.AUKeyManager;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -97,6 +98,7 @@ public class SipService extends Service {
 	private SipWakeLock sipWakeLock;
 	private boolean autoAcceptCurrent = false;
 	public boolean supportMultipleCalls = false;
+	public static String aukeyStatus = AUKeyManager.DETACHED;
 	
 	// For video testing -- TODO : remove
 	private static SipService singleton = null;
@@ -1033,10 +1035,10 @@ public class SipService extends Service {
 		//presenceMgr = new PresenceManager();
         registerServiceBroadcasts();
 		
-		if(!hasSetup) {
-			Log.e(THIS_FILE, "RESET SETTINGS !!!!");
+//		if(!hasSetup) {
+			Log.i(THIS_FILE, "RESET SETTINGS !!!!");
 			prefsWrapper.resetAllDefaultValues();
-		}
+//		}
 
 
 

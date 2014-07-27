@@ -247,8 +247,8 @@ public class XmppConnectionManager {
         
         if(cfg != null) {
 	        try {
-	        	String resource = android.os.Build.MANUFACTURER + "-" + android.os.Build.DEVICE;
-	            connection.login(cfg.getUsername(), cfg.getPassword(), resource);
+	        	//String resource = android.os.Build.MANUFACTURER + "-" + android.os.Build.DEVICE;
+	            connection.login(cfg.getUsername(), cfg.getPassword(), Constant.XMPP_RESOURCE_NAME);
 	        } catch (Exception e) {
 	            Log.e(TAG, "Xmpp login failed", e);
 	            if (e.getMessage().contains("Already")) {
@@ -343,7 +343,7 @@ public class XmppConnectionManager {
         
         notifyConnChangerListener(connection);
 
-        connection.sendPacket(new Presence(Presence.Type.available));
+        //connection.sendPacket(new Presence(Presence.Type.available));
         
         Log.i(TAG, "connection established with parameters: con=" + connection.isConnected() + 
                 " auth=" + connection.isAuthenticated() + 

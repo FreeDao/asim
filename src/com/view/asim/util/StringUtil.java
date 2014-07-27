@@ -172,12 +172,13 @@ public class StringUtil {
 		return User.NAME_PREFIX + cellphone;
 	}
 	
-	public static String getImUserNameByVoipUserName(String voipUserName) {
+	public static String getImJidByVoipUserName(String voipUserName) {
 		if (empty(voipUserName)) {
 			return null;
 		}
 		return User.NAME_PREFIX + voipUserName.split("@")[0] + Constant.IM_SERVICE_NAME;
 	}
+	
 	/**
 	 * 根据给定的时间字符串，返回月 日 时 分 秒
 	 * 

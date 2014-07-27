@@ -426,16 +426,23 @@ public class PreferencesProviderWrapper {
     }
 
     public String getUserAgent(Context ctx) {
-        String userAgent = getPreferenceStringValue(SipConfigManager.USER_AGENT);
-        if (userAgent.equalsIgnoreCase(CustomDistribution.getUserAgent())) {
+        String userAgent = android.os.Build.BRAND;//getPreferenceStringValue(SipConfigManager.USER_AGENT);
+        String devname;
+        //if (userAgent.equalsIgnoreCase(CustomDistribution.getUserAgent())) {
             // If that's the official -not custom- user agent, send the release,
             // the device and the api level
             PackageInfo pinfo = getCurrentPackageInfos(ctx);
             if (pinfo != null) {
-                userAgent += "_" + android.os.Build.DEVICE + "-" + Compatibility.getApiLevel()
+            	if (android.os.Build.DEVICE.length() > 5) {
+            		devname = android.os.Build.DEVICE.substring(0, 4);
+            	}
+            	else {
+            		devname = android.os.Build.DEVICE;
+            	}
+                userAgent += "_" + devname + "-" + Compatibility.getApiLevel()
                         + "/r" + pinfo.versionCode;
             }
-        }
+        //}
         return userAgent;
     }
 

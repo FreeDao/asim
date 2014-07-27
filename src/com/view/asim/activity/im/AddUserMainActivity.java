@@ -11,6 +11,8 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Registration;
 
 import com.view.asim.activity.ActivitySupport;
+import com.view.asim.comm.Constant;
+import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
@@ -20,8 +22,10 @@ import com.view.asim.task.SignUpTask;
 import com.view.asim.util.StringUtil;
 import com.view.asim.util.ValidateUtil;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -112,6 +116,50 @@ public class AddUserMainActivity extends ActivitySupport {
 
 	}
 	
+	@Override 
+    public void onResume() {
+    	super.onResume();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+
+		registerReceiver(receiver, filter);
+		refreshViewOnAUKeyStatusChange();
+    }
+	
+    @Override
+    public void onPause() {
+    	super.onPause();
+		unregisterReceiver(receiver);
+    }
+	
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			
+			if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
+				
+				refreshViewOnAUKeyStatusChange();
+			}
+		}
+    };
+    
+	
+	private void refreshViewOnAUKeyStatusChange() {
+		View titleBar = findViewById(R.id.main_head);
+		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
+			mBackTxtBtn.setTextColor(getResources().getColor(R.color.white));
+			mBackTxtBtn.setBackgroundResource(R.drawable.title_clickable_background_black);
+		}
+		else {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
+			mBackTxtBtn.setTextColor(getResources().getColor(R.color.darkgray));
+			mBackTxtBtn.setBackgroundResource(R.drawable.title_clickable_background);
+		}
+			
+	}
     
 	/**
 	 * 

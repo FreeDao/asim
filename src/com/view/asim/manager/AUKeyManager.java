@@ -40,6 +40,7 @@ public class AUKeyManager {
 
 	public final static String ATTACHED = "attached";
 	public final static String DETACHED = "detached";
+	public final static String UNKNOWN = "unknown";
 	
 	public final static String CIP_ALGO = "RSA";
 	public final static String PASS_ALGO = "AES";
@@ -51,7 +52,7 @@ public class AUKeyManager {
 	private PublicKey mMyPubKey = null;
 		
 	private AUKeyManager() {
-		mStatus = DETACHED;
+		mStatus = UNKNOWN;
 	}
 
 	public static AUKeyManager getInstance() {
@@ -69,10 +70,11 @@ public class AUKeyManager {
 
 		if(!this.mStatus.equals(status)) {
 			Log.d(TAG, "AUKey status " + this.mStatus + " changed to " + status);
+			this.mStatus = status;
 
 			Intent intent = new Intent(Constant.AUKEY_STATUS_UPDATE);
+			intent.putExtra(Constant.AUKEY_STATUS_KEY, status);
 			cntx.sendBroadcast(intent);
-			this.mStatus = status;
 		}
 	}
 	

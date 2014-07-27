@@ -14,6 +14,8 @@ import com.csipsimple.api.SipManager;
 import com.csipsimple.api.SipProfileState;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -27,10 +29,12 @@ import com.view.asim.util.DateUtil;
 import com.view.asim.util.StringUtil;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -145,7 +149,7 @@ public class UserInfoActivity extends ActivitySupport {
 		mVoiceBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				call_menu(mUser.getName());
+				makeCall(mUser.getName());
 			}
 		});
 
@@ -258,6 +262,46 @@ public class UserInfoActivity extends ActivitySupport {
                 Context.BIND_AUTO_CREATE);
 	}
 	
+    @Override 
+    public void onResume() {
+    	super.onResume();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+		filter.addAction(Constant.ROSTER_PRESENCE_CHANGED);
+		filter.addAction(Constant.ROSTER_UPDATED);
+
+		registerReceiver(receiver, filter);
+		refreshViewOnAUKeyStatusChange();
+		refreshUserSecurityStatus();
+    }
+	
+    @Override
+    public void onPause() {
+    	super.onPause();
+		unregisterReceiver(receiver);
+    }
+    
+    private void refreshUserSecurityStatus() {
+    	Drawable leftIcon = null;
+    	
+    	Drawable[] icons = mNicknameTxt.getCompoundDrawables();
+		if (mUser.getSecurity()!= null && mUser.getSecurity().equals(AUKeyManager.ATTACHED)) {
+			leftIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
+			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
+		}
+		
+		mNicknameTxt.setCompoundDrawables(leftIcon, null, icons[2], null);
+    }
+	
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			//String action = intent.getAction();
+			refreshViewOnAUKeyStatusChange();
+			refreshUserSecurityStatus();
+		}
+    };
 	
 	@Override
 	public void onDestroy() {
@@ -326,6 +370,8 @@ public class UserInfoActivity extends ActivitySupport {
 										.delNoticeByWith(mUser.getJID());
 								MessageManager.getInstance()
 										.delChatHisByName(mUser.getJID());
+								CallLogManager.getInstance()
+										.delCallLogsByName(mUser.getJID());
 								finish();
 
 							}
@@ -340,6 +386,23 @@ public class UserInfoActivity extends ActivitySupport {
 		AlertDialog alert = builder.create();
 		alert.show();
 
+	}
+	
+	private void refreshViewOnAUKeyStatusChange() {
+		View titleBar = findViewById(R.id.main_head);
+		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
+			mBackTxtBtn.setTextColor(getResources().getColor(R.color.white));
+			mBackTxtBtn.setBackgroundResource(R.drawable.title_clickable_background_black);
+			mRmvUserBtn.setBackgroundResource(R.drawable.title_clickable_background_black);
+		}
+		else {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
+			mBackTxtBtn.setTextColor(getResources().getColor(R.color.darkgray));
+			mBackTxtBtn.setBackgroundResource(R.drawable.title_clickable_background);
+			mRmvUserBtn.setBackgroundResource(R.drawable.title_clickable_background);
+		}
+			
 	}
 	
 	protected void setUserInfoView() {
@@ -402,10 +465,13 @@ public class UserInfoActivity extends ActivitySupport {
 		
 	}
 	
-	void call_menu(String name)
-	{
+	private void makeCall(String name) {
         try {
         	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
+        	if (state == null || !state.isActive()) {
+        		showToast("ÍøÂç×´Ì¬Òì³££¬ÎÞ·¨½øÐÐÓïÒôºô½Ð¡£");
+        		return;
+        	}
         	Log.i(TAG, "my sip state: " + state.isActive());
 			service.makeCall(StringUtil.getCellphoneByName(name), (int) ContacterManager.userMe.getSipAccountId());
 		} catch (RemoteException e) {

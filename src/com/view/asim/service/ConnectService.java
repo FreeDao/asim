@@ -11,6 +11,7 @@ import org.jivesoftware.smack.packet.Presence;
 import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -67,9 +68,6 @@ public class ConnectService extends Service {
 
 		mXmppManager = XmppConnectionManager.getInstance(mContext);
 		mSmackAndroid = SmackAndroid.init(mContext);
-
-        NoticeManager.getInstance(mContext);
-        MessageManager.getInstance(mContext);
 
 		/*
 		connection = XmppConnectionManager.getInstance().getConnection();

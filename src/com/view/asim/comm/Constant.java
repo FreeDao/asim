@@ -99,6 +99,8 @@ public class Constant {
 	 * 安司盾状态更新
 	 */
 	public static final String AUKEY_STATUS_UPDATE = "aukey.status.update";
+	public static final String AUKEY_STATUS_KEY = "aukey.status.key";
+	
 
 	/**
 	 * 我的消息
@@ -116,6 +118,7 @@ public class Constant {
 	public static final String XMPP_PORT = "xmpp_port";// 端口
 	public static final String XMPP_SERVICE_NAME = "xmpp_service_name";// 服务名
 	public static final String DATA_ROOT_PATH = "data_root_path"; // 数据存放路径的根目录
+	public static final String XMPP_RESOURCE_NAME = "asim";
 
 	/**
 	 * SIP 配置
@@ -132,6 +135,7 @@ public class Constant {
 	public static final int VOIP_SERVICE_PORT = 6060;
 	public static final String VOIP_STUN_SERVER = "121.40.69.120";
 	
+	
 	/**
 	 * 连接服务器/账户登录/注册/搜索返回值
 	 */
@@ -139,10 +143,11 @@ public class Constant {
 	public static final int HAS_NEW_VERSION = 1;// 发现新版本
 	public static final int IS_NEW_VERSION = 2;// 当前版本为最新
 	public static final int LOGIN_ERROR_ACCOUNT_PASS = 3;// 账号或者密码错误
-	public static final int SIGNUP_ERROR_ACCOUNT_PASS = 4;// 账号或者密码错误
-	public static final int SERVER_UNAVAILABLE = 5;// 无法连接到服务器
-	public static final int UNKNOWN_ERROR = 6;// 未知错误
-	public static final int NONE_RESULTS = 7;// 搜索失败错误
+	public static final int LOGIN_ERROR_DUPLICATED = 4;// 重复登录
+	public static final int SIGNUP_ERROR_ACCOUNT_PASS = 5;// 账号或者密码错误
+	public static final int SERVER_UNAVAILABLE = 6;// 无法连接到服务器
+	public static final int UNKNOWN_ERROR = 7;// 未知错误
+	public static final int NONE_RESULTS = 8;// 搜索失败错误
 
 	public static final String XMPP_CONNECTION_CLOSED = "xmpp_connection_closed";// 连接中断
 
@@ -231,6 +236,7 @@ public class Constant {
 	public final static int REQCODE_VIDEO_PICK = 11;
 	public final static int REQCODE_TAKE_PICTURE = 12;
 	public final static int REQCODE_FILE_PICK = 13;
+	public final static int REQCODE_CAPTURE_VIDEO = 14;
 
 	// 主界面与选择联系人界面
 	public final static int REQCODE_SELECT_USERS = 20;
@@ -253,7 +259,7 @@ public class Constant {
 	 * 数据缓存目录结构
 	 *       asim
 	 *         |
-	 *         |--- cache
+	 *         |--- cache (短视频也暂存在此)
 	 *         |--- log
 	 *         |--- data
 	 *                |--- 用户 A
@@ -303,8 +309,8 @@ public class Constant {
 	 *   崩溃日志文件：crash-时间戳.log（上传到服务器时加上机型和版本信息作为前缀，机型-版本-(用户名)-crash-时间戳.log）
 	 *   发送本地相册的已有文件：文件原名
 	 *   在密信中拍照发送的照片：自身用户名-对方用户名-image-时间戳.src
-	 *   在密信中录影发送的视频：自身用户名-对方用户名-video-时间戳.src
-	 *   在密信中录影发送的视频缩略图：自身用户名-对方用户名-video-时间戳.thumb
+	 *   在密信中录影发送的短视频：自身用户名-video-时间戳.mp4(后缀由 VCamera 组件指定)
+	 *   在密信中录影发送的短视频缩略图：自身用户名-video-时间戳.jpg(后缀由 VCamera 组件指定)
 	 *   接收到好友发来的照片：对方用户名-自身用户名-image-时间戳.src
 	 *   接收到好友发来的照片缩略图：对方用户名-自身用户名-image-时间戳.thumb
 	 *   接收到好友发来的视频：对方用户名-自身用户名-video-时间戳.src
@@ -315,15 +321,15 @@ public class Constant {
 	 *   
 	 */
 	
-	public final static String IMAGE_PREFIX = "image-";
-	public final static String VIDEO_PREFIX = "video-";
-	public final static String AUDIO_PREFIX = "audio-";
+	public final static String IMAGE_PREFIX = "image";
+	public final static String VIDEO_PREFIX = "video";
+	public final static String AUDIO_PREFIX = "audio";
 
 	public final static String FILE_SUFFIX = ".src";
 	public final static String THUMB_SUFFIX = ".thumb";
-	public final static String LOG_PREFIX = "normal-";
-	public final static String CRASH_PREFIX = "crash-";
-	public final static String SIPLOG_PREFIX = "sip-";
+	public final static String LOG_PREFIX = "normal";
+	public final static String CRASH_PREFIX = "crash";
+	public final static String SIPLOG_PREFIX = "siplog";
 
 	
 	// 下载超时时间（10分钟）

@@ -35,8 +35,8 @@ public interface IActivitySupport {
 	 * 
 	 * @author xuweinan
 	 */
-	public abstract void startService();
-
+	public abstract void startConnService();
+	public abstract void startGeneralService();
 	/**
 	 * 
 	 * 校验网络-如果没有网络就弹出设置,并返回true.

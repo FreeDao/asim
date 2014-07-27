@@ -119,7 +119,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	private View addVideoView = null;
 	private View takePictureView = null;
 	private View voiceCallView = null;
-	private View voiceInputView = null;
+	private View addFileView = null;
 	private View addVCardView = null;
 	
 	private FaceRelativeLayout faceLayout;
@@ -285,12 +285,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 				ChatMessage msg = (ChatMessage) v.getTag();
-
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-		        String type = "video/*";
-		        Uri uri = Uri.parse("file://" + msg.getAttachment().getSrcUri());
-		        intent.setDataAndType(uri, type);
-		        startActivity(intent);
+				Intent intent = new Intent();
+				intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+				intent.setClass(context, VideoPreviewActivity.class);
+				startActivity(intent);
 			}
 		});  
 		
@@ -304,8 +302,12 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				if (msg.getType().equals(ChatMessage.CHAT_IMAGE)) {
 					intent.setClass(context, ImagePreviewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
-					
-				} else {
+				} 
+				else if (msg.getType().equals(ChatMessage.CHAT_VIDEO)) {
+					intent.setClass(context, VideoPreviewActivity.class);
+					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+				}
+				else {
 					intent.setClass(context, BurnMsgViewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
 				}
@@ -322,6 +324,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 				if (msg.getType().equals(ChatMessage.CHAT_IMAGE)) {
 					intent.setClass(context, ImagePreviewActivity.class);
+					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+					
+				} else if (msg.getType().equals(ChatMessage.CHAT_VIDEO)) {
+					intent.setClass(context, VideoPreviewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
 					
 				} else {
@@ -424,9 +430,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-	            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);  
-	            intent.setType("video/*");  
-	            startActivityForResult(intent, Constant.REQCODE_VIDEO_PICK);
+	        	// 调用 VCamera 采集短视频（10s）  
+				Intent intent = new Intent();
+				intent.setClass(context, MediaRecorderActivity.class);
+				startActivityForResult(intent, Constant.REQCODE_CAPTURE_VIDEO);			
 			}
 		});
 		
@@ -435,9 +442,6 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-				//Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-				//intent.setType("*/*");   
-	            //startActivityForResult(intent, Constant.REQCODE_FILE_PICK);
 				showToast("本功能将在下一版本发布，敬请期待:)");
 
 			}
@@ -456,14 +460,11 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			}
 		});
 		
-		voiceInputView = findViewById(R.id.ll_voice_input_btn);
-		voiceInputView.setOnClickListener(new View.OnClickListener() {
+		addFileView = findViewById(R.id.ll_send_file_btn);
+		addFileView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				//Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-				//intent.setType("*/*");   
-	            //startActivityForResult(intent, Constant.REQCODE_FILE_PICK);
 				showToast("本功能将在下一版本发布，敬请期待:)");
 
 			}
@@ -527,23 +528,19 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		            }   
 		            
 		            break;
-		            
-		        case Constant.REQCODE_VIDEO_PICK:
-		        	if (data != null) {  
-		                // 得到图片的全路径  
-		                uri = data.getData();
-		                Log.d(TAG, "send video from local: " + uri.toString());
+		        	
+		        case Constant.REQCODE_CAPTURE_VIDEO:
+		        	String videoPath = data.getStringExtra(MediaRecorderActivity.VIDEO_PATH);
+		        	String thumbPath = data.getStringExtra(MediaRecorderActivity.VIDEO_THUMB_PATH);
+		        	
+	                Log.d(TAG, "capture micro video from local: " + videoPath + ", thumb: " + thumbPath);
 
-		                if(judgeMediaFileSize(uri)) {
-
-			                try {
-								sendVideo(uri, mDestroy);
-							} catch (Exception e) {
-								e.printStackTrace();
-								return;
-							}  
-		                }
-		            }  
+		        	try {
+						sendVideo(videoPath, thumbPath, mDestroy);
+					} catch (Exception e) {
+						e.printStackTrace();
+						return;
+					} 
 		        	break;
 		        	
 		        case Constant.REQCODE_TAKE_PICTURE:
@@ -836,22 +833,35 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	protected void refreshMessage() {
 		super.refreshMessage();
 		
-		Log.d(TAG, "refresh chat msg list start on: " + DateUtil.getCurDateStr());
+//		Log.d(TAG, "refresh chat msg list start on: " + DateUtil.getCurDateStr());
+//
+//		refreshChatMessageList();
+//		
+//		Log.d(TAG, "refresh chat msg list end on: " + DateUtil.getCurDateStr());
+//
+//		adapter.refreshList(mChatItems);
 
-		refreshChatMessageList();
+		refreshMessageView();
 		
-		Log.d(TAG, "refresh chat msg list end on: " + DateUtil.getCurDateStr());
-
 		// 更新某人所有通知
 		MessageManager.getInstance().updateReadStatus(mUser.getJID(), IMMessage.READ);
-
-		adapter.refreshList(mChatItems);
 		
 		refreshViewOnAUKeyStatusChange();
 		
 		// 更新网络状态界面
 		refreshConnStatusView();
 
+	}
+	
+	@Override
+	protected void refreshMessageView() {
+		Log.d(TAG, "refresh chat msg list start on: " + DateUtil.getCurDateStr());
+
+		refreshChatMessageList();
+		
+		Log.d(TAG, "refresh chat msg list end on: " + DateUtil.getCurDateStr());
+
+		adapter.refreshList(mChatItems);
 	}
 	
 	protected void refreshConnStatusView() {
@@ -930,6 +940,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	@Override
 	protected void sendFileProgressUpdate(ChatMessage message, int ratio) {
 		ChatMessageItem newItem = createChatMessageItem(message);
+		newItem.setProgress(ratio);
 		adapter.refreshItem(newItem);
 	}
 	

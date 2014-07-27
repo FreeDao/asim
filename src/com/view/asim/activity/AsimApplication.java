@@ -17,17 +17,20 @@ import com.view.asim.comm.Constant;
 import com.view.asim.dbg.CrashHandler;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.util.FileUtil;
+import com.yixia.camera.VCamera;
+import com.yixia.camera.util.DeviceUtils;
 
 import android.app.Activity;
 import android.app.Application;
 import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.util.Log;
 
 /**
  * 
- * ÍêÕûµÄÍË³öÓ¦ÓÃ.
+ * å®Œæ•´çš„é€€å‡ºåº”ç”¨.
  * 
  * @author xuweinan
  */
@@ -42,7 +45,26 @@ public class AsimApplication extends Application {
         
         initCrashHandler();
         initImageLoader();
+        initVCamera();
     }  
+	
+	private void initVCamera() {
+		/*
+		File dcim = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+		if (DeviceUtils.isZte()) {
+			if (dcim.exists()) {
+				VCamera.setVideoCachePath(dcim + "/Camera/VCameraDemo/");
+			} else {
+				VCamera.setVideoCachePath(dcim.getPath().replace("/sdcard/", "/sdcard-ext/") + "/Camera/VCameraDemo/");
+			}
+		} else {
+			VCamera.setVideoCachePath(dcim + "/Camera/VCameraDemo/");
+		}
+		*/
+		VCamera.setVideoCachePath(FileUtil.getGlobalCachePath());
+		VCamera.setDebugMode(true);
+		VCamera.initialize(this);
+	}
 	
 	private void initImageLoader() {
 		
@@ -60,7 +82,7 @@ public class AsimApplication extends Application {
         initRootPath();
         
         CrashHandler crashHandler = CrashHandler.getInstance();  
-        //crashHandler.init(this);
+        crashHandler.init(this);
 	}
 	
 	private void initRootPath() {
@@ -73,7 +95,7 @@ public class AsimApplication extends Application {
 		else {
 			String oldPath = preferences.getString(Constant.DATA_ROOT_PATH, null);
 			
-			/* Èç¹ûÊÇµÚÒ»´ÎÔËĞĞ App£¬½«¿ÉÓÃµÄ SD ¿¨Â·¾¶±£´æÔÚÅäÖÃÖĞ */
+			/* å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡è¿è¡Œ Appï¼Œå°†å¯ç”¨çš„ SD å¡è·¯å¾„ä¿å­˜åœ¨é…ç½®ä¸­ */
 			if (oldPath == null) {
 				Log.d(TAG, "save sdcard path: " + sdcardPath);
 
@@ -86,7 +108,7 @@ public class AsimApplication extends Application {
 				if(!oldPath.equals(sdcardPath)) {
 					Log.d(TAG, "sdcard path " + sdcardPath + " has changed, the saved path is " + oldPath);
 
-					/* Èç¹û±¾´ÎÔËĞĞ·¢ÏÖ SD ¿¨Â·¾¶ºÍÖ®Ç°¼ÇÂ¼µÄ²»Í¬£¬ÅĞ¶ÏÖ®Ç°µÄÂ·¾¶ÊÇ·ñ¿ÉÓÃ£¬Èç¹û²»¿ÉÓÃ£¬ÍË³ö App */
+					/* å¦‚æœæœ¬æ¬¡è¿è¡Œå‘ç° SD å¡è·¯å¾„å’Œä¹‹å‰è®°å½•çš„ä¸åŒï¼Œåˆ¤æ–­ä¹‹å‰çš„è·¯å¾„æ˜¯å¦å¯ç”¨ï¼Œå¦‚æœä¸å¯ç”¨ï¼Œé€€å‡º App */
 					if(!FileUtil.checkPathValid(oldPath)) {
 						Constant.SDCARD_ROOT_PATH = sdcardPath;
 					}
@@ -106,17 +128,17 @@ public class AsimApplication extends Application {
 
 	}
 	
-	// Ìí¼ÓActivityµ½ÈİÆ÷ÖĞ
+	// æ·»åŠ Activityåˆ°å®¹å™¨ä¸­
 	public void addActivity(Activity activity) {
 		activityList.add(activity);
 	}
 	
-	// Ìí¼ÓServiceµ½ÈİÆ÷ÖĞ
+	// æ·»åŠ Serviceåˆ°å®¹å™¨ä¸­
 	public void addService(Service service) {
 		serviceList.add(service);
 	}
 
-	// °²È«³¹µ×µÄÍË³öÕû¸ö App
+	// å®‰å…¨å½»åº•çš„é€€å‡ºæ•´ä¸ª App
 	public void exit() {
 		if (XmppConnectionManager.getInstance() != null) {
 			XmppConnectionManager.getInstance().disconnect();

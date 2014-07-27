@@ -37,6 +37,17 @@
             android:textSize="14dp" 
             android:text="6''"
             android:textColor="@color/puregreen"/>
+        
+            <ImageView 
+	            android:id="@+id/security_img"
+	            android:layout_width="20dp"
+	            android:layout_height="20dp"
+	            android:layout_marginLeft="10dp"
+	            android:src="@drawable/notificationbar_icon_logo_intercept_sms"
+	            android:layout_gravity="center_vertical"
+	            android:visibility="gone"
+	            />
+        
 
     </LinearLayout>
 

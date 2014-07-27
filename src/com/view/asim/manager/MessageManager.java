@@ -12,6 +12,7 @@ import com.view.asim.model.Attachment;
 import com.view.asim.model.ChatHisBean;
 import com.view.asim.model.ChatMessage;
 import com.view.asim.model.IMMessage;
+import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.StringUtil;
@@ -33,21 +34,21 @@ public class MessageManager {
 	private static MessageManager messageManager = null;
 	private static DBManager manager = null;
 
-	private MessageManager(Context context) {
-		SharedPreferences sharedPre = context.getSharedPreferences(
-				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
-		String databaseName = sharedPre.getString(Constant.USERNAME, null);
+	private MessageManager(Context context, LoginConfig cfg) {
+//		SharedPreferences sharedPre = context.getSharedPreferences(
+//				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
+		String databaseName = cfg.getUsername();//sharedPre.getString(Constant.USERNAME, null);
 		Log.d(TAG, "init database " + databaseName);
 
 		manager = DBManager.getInstance(context, databaseName);
 	}
 
-	public static MessageManager getInstance(Context context) {
+	public static MessageManager getInstance(Context context, LoginConfig cfg) {
 
 		if (messageManager == null) {
 			Log.d(TAG, "new MessageManager");
 
-			messageManager = new MessageManager(context);
+			messageManager = new MessageManager(context, cfg);
 			//messageManager.init();
 		}
 
@@ -343,11 +344,11 @@ public class MessageManager {
 	public List<ChatHisBean> getRecentContactsWithLastMsg() {
 		String sql = null;
 		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
-			sql = "select max(_id) as maxid, content, time, with, src, chatType, security from im_msg_his group by with";
+			sql = "select max(_id) as maxid, type, content, time, with, src, chatType, security, destroy, dir from im_msg_his group by with";
 			//"select m.[_id],m.[content],m.[time],m.[with],m.[src],m.[chatType] from im_msg_his m join (select with, max(_id) as mt from im_msg_his group by with) as tem on tem.mt=m._id and tem.with=m.with ";
 		}
 		else {
-			sql = "select max(_id) as maxid, content, time, with, src, chatType, security from im_msg_his where security=\"plain\" group by with";
+			sql = "select max(_id) as maxid, type, content, time, with, src, chatType, security, destroy, dir from im_msg_his where security=\"plain\" group by with";
 			//"select m.[_id],m.[content],m.[time],m.[with],m.[src],m.[chatType] from im_msg_his m join (select with, max(_id) as mt from im_msg_his group by with) as tem on tem.mt=m._id and tem.with=m.with where security=\"plain\" ";
 		}
 		
@@ -367,7 +368,9 @@ public class MessageManager {
 								notice.setWith(cursor.getString(cursor.getColumnIndex("with")));
 								notice.setTime(cursor.getString(cursor.getColumnIndex("time")));
 								notice.setChatType(cursor.getString(cursor.getColumnIndex("chatType")));
-
+								notice.setDir(cursor.getString(cursor.getColumnIndex("dir")));
+								notice.setDestroy(cursor.getString(cursor.getColumnIndex("destroy")));
+								notice.setType(cursor.getString(cursor.getColumnIndex("type")));
 								String chatType = cursor.getString(cursor.getColumnIndex("chatType"));
 								if (chatType.equals(IMMessage.SINGLE)) {
 									notice.setContent(cursor.getString(cursor.getColumnIndex("content")));

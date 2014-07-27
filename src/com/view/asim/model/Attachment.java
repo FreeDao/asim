@@ -26,7 +26,7 @@ public class Attachment implements Parcelable{
 	/** 
 	 * 缩略图 URI：(仅限于图片和视频）
 	 * 对于发送的图片，此参数忽略
-	 * 对于发送的视频，此参数为视频缩略图 URI，视频缩略图是根据原视频文件新生成的图片保存的位置（对应好友的 video 目录中）
+	 * 对于发送的视频，此参数为视频缩略图 URI，视频缩略图是根据原视频文件新生成的图片保存的位置（cache 目录中）
 	 * 对于接收的图片，此参数为从服务器下载的缩略图保存在本地的 URI（对应好友的 image 目录中）
 	 * 对于接收的视频，此参数为从服务器下载的缩略图保存在本地的 URI（对应好友的 video 目录中）
 	 */
@@ -37,9 +37,15 @@ public class Attachment implements Parcelable{
 
 	// 服务器 Hash
 	private String hash;
+	
+	// 服务器 缩略图 Hash（目前在采集视频时，会将视频文件和缩略图一起上传服务器）
+	private String thumbHash;
 
 	// 服务器 Key
 	private String key;
+	
+	// 服务器 缩略图 Key （目前在采集视频时，会将视频文件和缩略图一起上传服务器）
+	private String thumbKey;	
 
 	// 文件类型(MIME)
 	private String mimeType;
@@ -59,11 +65,30 @@ public class Attachment implements Parcelable{
 		thumbUri = "";
 		audioLength = 0;
 		hash = "";
+		thumbHash = "";
 		key = "";
+		thumbKey = "";
 		mimeType = "";
 		width = "";
 		height = "";
 		size = "";
+	}
+	
+
+	public String getThumbHash() {
+		return thumbHash;
+	}
+
+	public void setThumbHash(String thumbHash) {
+		this.thumbHash = thumbHash;
+	}
+
+	public String getThumbKey() {
+		return thumbKey;
+	}
+
+	public void setThumbKey(String thumbKey) {
+		this.thumbKey = thumbKey;
 	}
 
 	public String getSrcUri() {
@@ -143,7 +168,9 @@ public class Attachment implements Parcelable{
 		JSONObject obj = new JSONObject();
 		try {
 			obj.put("hash", hash);
+			obj.put("thumbHash", thumbHash);
 			obj.put("key", key);
+			obj.put("thumbKey", thumbKey);
 			obj.put("mimeType", mimeType);
 			obj.put("width", width);
 			obj.put("height", height);
@@ -171,7 +198,9 @@ public class Attachment implements Parcelable{
 		    JSONObject resp = (JSONObject) jsonParser.nextValue();
 		    
 		    att.setHash(resp.getString("hash"));
+		    att.setThumbHash(resp.getString("thumbHash"));
 		    att.setKey(resp.getString("key"));
+		    att.setThumbKey(resp.getString("thumbKey"));
 		    att.setMimeType(resp.getString("mimeType"));
 		    att.setWidth(resp.getString("width"));
 		    att.setHeight(resp.getString("height"));
@@ -216,7 +245,9 @@ public class Attachment implements Parcelable{
 		this.srcUri = in.readString();
 		this.thumbUri = in.readString();
 		this.hash = in.readString();
+		this.thumbHash = in.readString();
 		this.key = in.readString();
+		this.thumbKey = in.readString();
 		this.mimeType = in.readString();
 		this.width = in.readString();
 		this.height = in.readString();
@@ -234,7 +265,9 @@ public class Attachment implements Parcelable{
 		dest.writeString(srcUri);
 		dest.writeString(thumbUri);
 		dest.writeString(hash);
+		dest.writeString(thumbHash);
 		dest.writeString(key);
+		dest.writeString(thumbKey);
 		dest.writeString(mimeType);
 		dest.writeString(width);
 		dest.writeString(height);

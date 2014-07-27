@@ -36,6 +36,7 @@ import com.csipsimple.utils.Log;
 import com.csipsimple.utils.PhoneCapabilityTester;
 import com.csipsimple.utils.PreferencesProviderWrapper;
 import com.csipsimple.utils.RewriterPlugin;
+import com.view.asim.comm.Constant;
 
 public class DeviceStateReceiver extends BroadcastReceiver {
 
@@ -106,6 +107,10 @@ public class DeviceStateReceiver extends BroadcastReceiver {
             RewriterPlugin.clearAvailableRewriters();
             ExtraPlugins.clearDynPlugins();
             PhoneCapabilityTester.deinit();
+        } else if (Constant.AUKEY_STATUS_UPDATE.equalsIgnoreCase(intentAction)) {
+        	String status = intent.getStringExtra(Constant.AUKEY_STATUS_KEY);
+        	Log.i(THIS_FILE,  "sip service update aukey status to " + status);
+        	SipService.aukeyStatus = status;
         }
     }
 

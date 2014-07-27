@@ -59,7 +59,6 @@ public class RecvFileMsgHandler implements BaseHandler {
 		String recvType = (String) mRawMsg.getProperty(CtrlMessage.PROP_CTRL_MSGTYPE);
 		String uniqueId = (String) mRawMsg.getProperty(IMMessage.PROP_ID);
 
-		
 		String content = null;
 		
 		if (security.equals(IMMessage.ENCRYPTION)) {
@@ -88,12 +87,11 @@ public class RecvFileMsgHandler implements BaseHandler {
 		newMessage.setWith(with);
 		newMessage.setDestroy(destroy);
 		newMessage.setChatType(chatType);
-		//newMessage.setContent(mNickName + "发来了一张图片");
 		newMessage.setSecurity(security);
-		if(time == null || time.length() == 0) {
-			time = DateUtil.getCurDateStr();
-		}
-		newMessage.setTime(time);
+//		if(time == null || time.length() == 0) {
+//			time = DateUtil.getCurDateStr();
+//		}
+		newMessage.setTime(DateUtil.getCurDateStr());
 		newMessage.setType(recvType);
 
 		Log.d(TAG, "recv file handler content " + content);
@@ -121,28 +119,30 @@ public class RecvFileMsgHandler implements BaseHandler {
     
     private void downloadVideo(Attachment att, ChatMessage msg) {
 		String downloadUrl = "http://" + Constant.FILE_STORAGE_HOST + "/" + att.getKey();
+		String downloadThumbUrl = "http://" + Constant.FILE_STORAGE_HOST + "/" + att.getThumbKey();
+
 		msg.setContent(mNickName + "发来了一段视频");
 		
-		// 通过七牛 API 分析视频的显示尺寸
-		String avInfoUrl = downloadUrl + "?avinfo";
-		byte[] fileBytes = ImageUtil.getBytesFromUrl(avInfoUrl, Constant.FILE_DOWNLOAD_TIMEOUT);
-		if (fileBytes == null) {
-	        throw new RuntimeException("get video info failed");
-		}
-		String videoInfo = new String(fileBytes);
-		ImageSize is = ImageUtil.getVideoDisplaySizeByAvInfo(videoInfo);
-		if (is == null) {
-	        throw new RuntimeException("parse video info for display size failed: " + videoInfo);
-		}
-		
-		// 根据显示尺寸去获取视频截图
-		String thumbUrl = downloadUrl + "?vframe/jpg/offset/0/w/" + is.getWidth() + "/h/" + is.getHeight();
+//		// 通过七牛 API 分析视频的显示尺寸
+//		String avInfoUrl = downloadUrl + "?avinfo";
+//		byte[] fileBytes = ImageUtil.getBytesFromUrl(avInfoUrl, Constant.FILE_DOWNLOAD_TIMEOUT);
+//		if (fileBytes == null) {
+//	        throw new RuntimeException("get video info failed");
+//		}
+//		String videoInfo = new String(fileBytes);
+//		ImageSize is = ImageUtil.getVideoDisplaySizeByAvInfo(videoInfo);
+//		if (is == null) {
+//	        throw new RuntimeException("parse video info for display size failed: " + videoInfo);
+//		}
+//		
+//		// 根据显示尺寸去获取视频截图
+//		String thumbUrl = downloadUrl + "?vframe/jpg/offset/0/w/" + is.getWidth() + "/h/" + is.getHeight();
 		
 		String fileSavePath = FileUtil.getVideoPathByWith(msg.getWith());
 		File dir = new File(fileSavePath);
 		FileUtil.createDir(dir);
 		
-		String thumbSaveName = fileSavePath+ FileUtil.genRecvVideoThumbName(msg.getWith());
+		String thumbSaveName = fileSavePath + att.getThumbKey();//FileUtil.genRecvVideoThumbName(msg.getWith());
 		
 		/*
 		// 下载并保存原视频
@@ -162,9 +162,9 @@ public class RecvFileMsgHandler implements BaseHandler {
 				
 		// 默认只下载并缓存缩略图，原视频待点击预览时再下载并缓存
 		try {
-			Bitmap thumbBm = ImageUtil.getBitmapFromUrl(thumbUrl, Constant.FILE_DOWNLOAD_TIMEOUT);
+			Bitmap thumbBm = ImageUtil.getBitmapFromUrl(downloadThumbUrl, Constant.FILE_DOWNLOAD_TIMEOUT);
 			if (thumbBm == null) {
-		        throw new RuntimeException("download image thumb file failed");
+		        throw new RuntimeException("download video thumb file failed");
 			}
 			
 			ImageUtil.saveImage(thumbBm, thumbSaveName);
@@ -172,7 +172,9 @@ public class RecvFileMsgHandler implements BaseHandler {
 			e.printStackTrace();
 			msg.setStatus(IMMessage.ERROR);
 		}
-		//att.setSrcUri(fileSaveName);
+		
+		// srcUri 里保存的是发送方的本地路径，对于接收方无意义，将其置空，待后续下载视频原文件到本地后更新
+		att.setSrcUri("");
 		att.setThumbUri(thumbSaveName);
 		
 		msg.setAttachment(att);

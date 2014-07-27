@@ -5,10 +5,12 @@ import java.util.List;
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.im.ChatActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
+import com.view.asim.activity.voip.UserCallLogsActivity;
 import com.view.asim.db.DBManager;
 import com.view.asim.db.SQLiteTemplate;
 import com.view.asim.db.SQLiteTemplate.RowMapper;
 import com.view.asim.model.IMMessage;
+import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.ImageUtil;
@@ -41,10 +43,11 @@ public class NoticeManager {
 	private Context mCntx = null;
 	private NotificationManager mNotificationManager = null;
 
-	private NoticeManager(Context context) {
-		SharedPreferences sharedPre = context.getSharedPreferences(
-				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
-		String databaseName = sharedPre.getString(Constant.USERNAME, null);
+	private NoticeManager(Context context, LoginConfig cfg) {
+//		SharedPreferences sharedPre = context.getSharedPreferences(
+//				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
+//		String databaseName = sharedPre.getString(Constant.USERNAME, null);
+		String databaseName = cfg.getUsername();
 		Log.d(TAG, "init database " + databaseName);
 		manager = DBManager.getInstance(context, databaseName);
 
@@ -53,10 +56,10 @@ public class NoticeManager {
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 
-	public static NoticeManager getInstance(Context context) {
+	public static NoticeManager getInstance(Context context, LoginConfig cfg) {
 
 		if (noticeManager == null) {
-			noticeManager = new NoticeManager(context);
+			noticeManager = new NoticeManager(context, cfg);
 			//noticeManager.init();
 		}
 
@@ -631,15 +634,16 @@ public class NoticeManager {
 		int userId = user.getName().hashCode();
 		int unreadCount = MessageManager.getInstance().getMsgCountByWithAndReadStatus(user.getJID(), IMMessage.UNREAD);
 
+		User fromUser = user.clone();
+		Log.i(TAG, "notify new message from user:" + user + ", notify user info:" + fromUser);
+
 		Intent notifyIntent = new Intent(mCntx, ChatActivity.class);
-		notifyIntent.putExtra(User.userKey, user.clone());
+		notifyIntent.putExtra(User.userKey, fromUser);
 		notifyIntent.putExtra(IMMessage.PROP_CHATTYPE, IMMessage.SINGLE);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		String ticker = user.getNickName() + "发来1条新消息";
 		String content = "发来" + (unreadCount + 1) + "条新消息";
-
-		Log.i(TAG, "notify new message from user:" + user);
 		
 		Bitmap avatar = null;
 		if (user.getHeadImg() != null) {
@@ -716,6 +720,50 @@ public class NoticeManager {
 		dispatchSystemNotify(0, avatar, title, content, ticker, notifyIntent);
 	}
 
+	/**
+	 * 未接来电通知
+	 * 
+	 * @param user
+	 * @param msg
+	 */
+
+	public void dispatchMissedCallNotify(User user) {
+		int userId = user.getName().hashCode();
+
+		Intent notifyIntent = new Intent(mCntx, UserCallLogsActivity.class);
+		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		notifyIntent.putExtra(User.userKey, user);
+
+		Bitmap avatar = null;
+		if (user.getHeadImg() != null) {
+			avatar = user.getHeadImg();
+		} else {
+			if (user.getGender() == null) {
+				avatar = BitmapFactory.decodeResource(mCntx.getResources(),
+						R.drawable.default_avatar_male);
+			} else {
+				avatar = BitmapFactory
+						.decodeResource(
+								mCntx.getResources(),
+								user.getGender().equals(User.MALE) ? R.drawable.default_avatar_male
+										: R.drawable.default_avatar_female);
+			}
+
+		}
+
+		String ticker = "有来自" + user.getNickName() + "的未接来电";
+		String content = null;
+		String title = null;
+		title = user.getNickName();
+		content = "语音呼叫您，您没有接听";
+
+		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
+
+		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent);
+	}
+	
+	
+	
 	/**
 	 * 清除指定好友的消息通知
 	 * 

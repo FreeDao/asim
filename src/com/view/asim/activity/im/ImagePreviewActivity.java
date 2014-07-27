@@ -221,13 +221,13 @@ public class ImagePreviewActivity extends ActivitySupport{
 		public void run() {
 			Log.d(TAG, "BurnTimerThread");
 			while(expiry > 0) {
+				listener.onTick(expiry);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				expiry = expiry - 1;
-				listener.onTick(expiry);
 			}
 			listener.onEnd();
 		}

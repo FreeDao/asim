@@ -218,6 +218,8 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftText.btnLeftText = (Button) convertView
 							.findViewById(R.id.btn_left_text);
+					holderLeftText.ivSecurityImg = (ImageView) convertView
+							.findViewById(R.id.security_img);
 					convertView.setTag(holderLeftText);
 					if (mMessageContentLongClickListener != null) {
 						holderLeftText.btnLeftText.setOnLongClickListener(mMessageContentLongClickListener);
@@ -233,6 +235,9 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftImg.ivLeftImage = (ImageView) convertView
 							.findViewById(R.id.iv_left_image_thumb);
+					holderLeftImg.ivSecurityImg = (ImageView) convertView
+							.findViewById(R.id.security_img);
+					
 					if (mImageClickListener != null) {
 						holderLeftImg.ivLeftImage.setOnClickListener(mImageClickListener);
 					}
@@ -250,7 +255,10 @@ public class MessageListAdapter extends BaseAdapter {
 					holderLeftVideo.ivLeftIcon = (ImageView) convertView
 							.findViewById(R.id.iv_icon);
 					holderLeftVideo.btnLeftVideoThumb = (ImageView) convertView
-							.findViewById(R.id.iv_left_video_thumb);					
+							.findViewById(R.id.iv_left_video_thumb);	
+					holderLeftVideo.ivSecurityImg = (ImageView) convertView
+							.findViewById(R.id.security_img);
+
 					if (mVideoClickListener != null) {
 						holderLeftVideo.btnLeftVideoThumb.setOnClickListener(mVideoClickListener);
 					}
@@ -269,6 +277,9 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftAudio.btnLeftAudio = (Button) convertView
 							.findViewById(R.id.btn_left_audio);
+					holderLeftAudio.ivSecurityImg = (ImageView) convertView
+							.findViewById(R.id.security_img);
+					
 					if (mLeftAudioClickListener != null) {
 						holderLeftAudio.btnLeftAudio.setOnClickListener(mLeftAudioClickListener);
 					}
@@ -286,6 +297,9 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.iv_icon);
 					holderLeftBurn.btnLeftBurn = (ImageView) convertView
 							.findViewById(R.id.btn_left_burn);
+					holderLeftBurn.ivSecurityImg = (ImageView) convertView
+							.findViewById(R.id.security_img);
+					
 					if (mLeftBurnClickListener != null) {
 						holderLeftBurn.btnLeftBurn.setOnClickListener(mLeftBurnClickListener);
 					}
@@ -305,6 +319,7 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.btn_right_text);
 					holderRightText.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
 					holderRightText.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
+					holderRightText.ivSecurityImg = (ImageView) convertView.findViewById(R.id.security_img);
 
 					if (mSentFailedClickListener != null) {
 						holderRightText.ivFailedImg.setOnClickListener(mSentFailedClickListener);
@@ -326,6 +341,7 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightImg.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
 					holderRightImg.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
 					holderRightImg.tvProgressTxt = (TextView) convertView.findViewById(R.id.progress_txt);
+					holderRightImg.ivSecurityImg = (ImageView) convertView.findViewById(R.id.security_img);
 
 					if (mSentFailedClickListener != null) {
 						holderRightImg.ivFailedImg.setOnClickListener(mSentFailedClickListener);
@@ -349,6 +365,8 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.btn_right_audio);
 					holderRightAudio.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
 					holderRightAudio.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
+					holderRightAudio.ivSecurityImg = (ImageView) convertView.findViewById(R.id.security_img);
+					holderRightAudio.ivSecurityImg = (ImageView) convertView.findViewById(R.id.security_img);
 
 					if (mSentFailedClickListener != null) {
 						holderRightAudio.ivFailedImg.setOnClickListener(mSentFailedClickListener);
@@ -373,6 +391,7 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightVideo.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
 					holderRightVideo.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
 					holderRightVideo.tvProgressTxt = (TextView) convertView.findViewById(R.id.progress_txt);
+					holderRightVideo.ivSecurityImg = (ImageView) convertView.findViewById(R.id.security_img);
 
 					if (mSentFailedClickListener != null) {
 						holderRightVideo.ivFailedImg.setOnClickListener(mSentFailedClickListener);
@@ -396,7 +415,7 @@ public class MessageListAdapter extends BaseAdapter {
 							.findViewById(R.id.btn_right_burn);
 					holderRightBurn.ivFailedImg = (ImageView) convertView.findViewById(R.id.sent_failed_img);
 					holderRightBurn.ivProgressImg = (ImageView) convertView.findViewById(R.id.sending_progress_img);
-					//holderRightBurn.tvProgressTxt = (TextView) convertView.findViewById(R.id.progress_txt);
+					holderRightBurn.ivSecurityImg = (ImageView) convertView.findViewById(R.id.security_img);
 
 					if (mSentFailedClickListener != null) {
 						holderRightBurn.ivFailedImg.setOnClickListener(mSentFailedClickListener);
@@ -475,6 +494,13 @@ public class MessageListAdapter extends BaseAdapter {
 						getExpressionString(mCntx, msg.getContent(), 60);
 				setAvatarImage(holderLeftText.ivLeftIcon, user);
 				holderLeftText.btnLeftText.setText(spannableString);
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderLeftText.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderLeftText.ivSecurityImg.setVisibility(View.GONE);
+				}
+
 				holderLeftText.btnLeftText.setTag(msg);
 				break;
 				
@@ -503,6 +529,14 @@ public class MessageListAdapter extends BaseAdapter {
 						
 				    }
 				});
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderLeftImg.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderLeftImg.ivSecurityImg.setVisibility(View.GONE);
+				}
+
+				
 				holderLeftImg.ivLeftImage.setTag(msg);
 				break;
 				
@@ -510,6 +544,14 @@ public class MessageListAdapter extends BaseAdapter {
 				msg = (ChatMessage)item.getValue();
 				setAvatarImage(holderLeftAudio.ivLeftIcon, user);
 				holderLeftAudio.btnLeftAudio.setText(msg.getAttachment().getAudioLength() + "''");
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderLeftAudio.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderLeftAudio.ivSecurityImg.setVisibility(View.GONE);
+				}
+
+				
 				holderLeftAudio.btnLeftAudio.setTag(msg);
 				
 				break;
@@ -541,12 +583,27 @@ public class MessageListAdapter extends BaseAdapter {
 						
 				    }
 				});
+				
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderLeftVideo.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderLeftVideo.ivSecurityImg.setVisibility(View.GONE);
+				}
+
 				holderLeftVideo.btnLeftVideoThumb.setTag(msg);
 				break;
 				
 			case VALUE_LEFT_BURN:
 				msg = (ChatMessage)item.getValue();
-				setAvatarImage(holderLeftBurn.ivLeftIcon, user);					
+				setAvatarImage(holderLeftBurn.ivLeftIcon, user);
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderLeftBurn.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderLeftBurn.ivSecurityImg.setVisibility(View.GONE);
+				}
+
 				holderLeftBurn.btnLeftBurn.setTag(msg);
 				break;
 				
@@ -574,7 +631,13 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightText.ivFailedImg.setVisibility(View.GONE);
 					holderRightText.ivProgressImg.setVisibility(View.GONE);
 				}
-				
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderRightText.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderRightText.ivSecurityImg.setVisibility(View.GONE);
+				}
+
 				spannableString = FaceConversionUtil.getInstace().
 						getExpressionString(mCntx, msg.getContent(), 60);
 				setAvatarImage(holderRightText.ivRightIcon, ContacterManager.userMe);
@@ -612,6 +675,14 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightImg.ivProgressImg.setVisibility(View.GONE);
 					holderRightImg.tvProgressTxt.setVisibility(View.GONE);
 				}
+				
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderRightImg.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderRightImg.ivSecurityImg.setVisibility(View.GONE);
+				}
+
 				
 				setAvatarImage(holderRightImg.ivRightIcon, ContacterManager.userMe);
 				Log.d(TAG, "msg list view pos " + position + ", path " + msg.getAttachment().getSrcUri());
@@ -660,6 +731,13 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightAudio.ivFailedImg.setVisibility(View.GONE);
 					holderRightAudio.ivProgressImg.setVisibility(View.GONE);
 				}
+				
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderRightAudio.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderRightAudio.ivSecurityImg.setVisibility(View.GONE);
+				}
 				setAvatarImage(holderRightAudio.ivRightIcon, ContacterManager.userMe);
 				holderRightAudio.btnRightAudio.setText(msg.getAttachment().getAudioLength() + "''");
 				holderRightAudio.btnRightAudio.setTag(msg);		
@@ -695,6 +773,14 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightVideo.ivProgressImg.setVisibility(View.GONE);
 					holderRightVideo.tvProgressTxt.setVisibility(View.GONE);
 				}
+				
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderRightVideo.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderRightVideo.ivSecurityImg.setVisibility(View.GONE);
+				}
+
 				setAvatarImage(holderRightVideo.ivRightIcon, ContacterManager.userMe);
 				final ImageView rightVideoThumb = holderRightVideo.btnRightVideoThumb;
 				is = new ImageSize(MAX_IMAGE_THUMBNAIL_WIDTH, MAX_IMAGE_THUMBNAIL_HEIGHT);
@@ -744,6 +830,14 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightBurn.ivProgressImg.setVisibility(View.GONE);
 					//holderRightBurn.tvProgressTxt.setVisibility(View.GONE);
 				}
+				
+				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
+					holderRightBurn.ivSecurityImg.setVisibility(View.VISIBLE);
+				}
+				else {
+					holderRightBurn.ivSecurityImg.setVisibility(View.GONE);
+				}
+				
 				setAvatarImage(holderRightBurn.ivRightIcon, ContacterManager.userMe);					
 				holderRightBurn.btnRightBurn.setTag(msg);
 				holderRightBurn.ivFailedImg.setTag(msg);
@@ -911,6 +1005,7 @@ public class MessageListAdapter extends BaseAdapter {
 		private Button btnRightText;
 		private ImageView ivFailedImg;
 		private ImageView ivProgressImg;
+		private ImageView ivSecurityImg;
 	}
 	
 	class ViewHolderRightBurn {
@@ -919,6 +1014,7 @@ public class MessageListAdapter extends BaseAdapter {
 		private ImageView ivFailedImg;
 		private ImageView ivProgressImg;
 		private TextView tvProgressTxt;
+		private ImageView ivSecurityImg;
 	}
 
 	class ViewHolderRightImg {
@@ -927,6 +1023,7 @@ public class MessageListAdapter extends BaseAdapter {
 		private ImageView ivFailedImg;
 		private ImageView ivProgressImg;
 		private TextView tvProgressTxt;
+		private ImageView ivSecurityImg;
 	}
 
 	class ViewHolderRightAudio {
@@ -934,6 +1031,7 @@ public class MessageListAdapter extends BaseAdapter {
 		private Button btnRightAudio;
 		private ImageView ivFailedImg;
 		private ImageView ivProgressImg;
+		private ImageView ivSecurityImg;
 	}
 	
 	class ViewHolderRightVideo {
@@ -942,6 +1040,7 @@ public class MessageListAdapter extends BaseAdapter {
 		private ImageView ivFailedImg;
 		private ImageView ivProgressImg;
 		private TextView tvProgressTxt;
+		private ImageView ivSecurityImg;
 	}	
 	
 	class ViewHolderRightFile {
@@ -950,36 +1049,43 @@ public class MessageListAdapter extends BaseAdapter {
 		private ImageView ivFailedImg;
 		private ImageView ivProgressImg;
 		private TextView tvProgressTxt;
+		private ImageView ivSecurityImg;
 	}
 
 	class ViewHolderLeftText {
 		private ImageView ivLeftIcon;
 		private Button btnLeftText;
+		private ImageView ivSecurityImg;
 	}
 	
 	class ViewHolderLeftBurn {
 		private ImageView ivLeftIcon;
 		private ImageView btnLeftBurn;
+		private ImageView ivSecurityImg;
 	}
 	
 	class ViewHolderLeftImg {
 		private ImageView ivLeftIcon;
 		private ImageView ivLeftImage;
+		private ImageView ivSecurityImg;
 	}
 
 	class ViewHolderLeftAudio {
 		private ImageView ivLeftIcon;
 		private Button btnLeftAudio;
+		private ImageView ivSecurityImg;
 	}
 	
 	class ViewHolderLeftVideo {
 		private ImageView ivLeftIcon;
 		private ImageView btnLeftVideoThumb;
+		private ImageView ivSecurityImg;
 	}	
 	
 	class ViewHolderLeftFile {
 		private ImageView ivLeftIcon;
 		private Button btnLeftFileName;
+		private ImageView ivSecurityImg;
 	}
 	
 

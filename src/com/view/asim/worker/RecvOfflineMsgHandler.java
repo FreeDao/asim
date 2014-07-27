@@ -43,9 +43,10 @@ public class RecvOfflineMsgHandler implements BaseHandler {
     	Iterator<Message> it = null;
     	List<Message> msgs = new ArrayList<Message>();
 		try {
-			Log.i(TAG, "offline message num: " + offlineManager.getMessageCount());
+			int count = offlineManager.getMessageCount();
+			Log.i(TAG, "offline message num: " + count);
 
-			if(offlineManager.getMessageCount() > 0) {
+			if(count > 0) {
 				it = offlineManager.getMessages();
 				
 				while (it.hasNext()) {

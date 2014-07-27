@@ -26,7 +26,9 @@ import com.view.asim.activity.voip.CallProximityManager.ProximityDirector;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
+import com.view.asim.manager.NoticeManager;
 import com.view.asim.model.User;
+import com.view.asim.util.CallUtil;
 import com.view.asim.util.StringUtil;
 
 import android.content.BroadcastReceiver;
@@ -44,6 +46,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
+import android.provider.CallLog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -59,10 +62,14 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	
 	private final static String TAG = "InCallScreen";
 	
+	private User mUser;
 	final int SCREEN_OFF_TIMEOUT = 12000;
-    private static final int QUIT_DELAY = 1500;
+    private static final int QUIT_DELAY = 3000;
     private String mUKeyState = AUKeyManager.DETACHED;
-
+    
+    private boolean isIncoming = false;
+    private long callStart = 0;
+    private long callDuration = 0;
 	private TextView mCallingTxt;
 	private Chronometer mSessionDuration;
 	private ImageView mAvatar;
@@ -80,7 +87,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
     int oldTimeout;
     boolean first;
     
-    private SipCallSession callsInfo[];
+    private SipCallSession callInfo = null;
     private PreferencesProviderWrapper prefsWrapper;
     private PowerManager powerManager;
     private WakeLock wakeLock;
@@ -114,28 +121,22 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         @Override
         public void onServiceConnected(ComponentName arg0, IBinder arg1) {
             service = ISipService.Stub.asInterface(arg1);
-            try {
-                // Log.d(THIS_FILE,
-                // "Service started get real call info "+callInfo.getCallId());
-                callsInfo = service.getCalls();
-                serviceConnected = true;
+            //callsInfo = service.getCalls();
+            serviceConnected = true;
 
-                runOnUiThread(new UpdateUIFromCallRunnable());
-                runOnUiThread(new UpdateUIFromMediaRunnable());
-            } catch (RemoteException e) {
-                Log.e(TAG, "Can't get back the call", e);
-            }
+            runOnUiThread(new UpdateUIFromCallRunnable());
+            runOnUiThread(new UpdateUIFromMediaRunnable());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             serviceConnected = false;
-            callsInfo = null;
+            //callsInfo = null;
         }
     };
 	
 	private void init() {
-		SipCallSession initialSession = getIntent().getParcelableExtra(SipManager.EXTRA_CALL_INFO);
+		callInfo = getIntent().getParcelableExtra(SipManager.EXTRA_CALL_INFO);
         prefsWrapper = new PreferencesProviderWrapper(this);
         bindService(new Intent(this, SipService.class), connection, Context.BIND_AUTO_CREATE);
 
@@ -156,10 +157,11 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
             quitTimer = new Timer("Quit-timer");
         }
         
-        synchronized (callMutex) {
-            callsInfo = new SipCallSession[1];
-            callsInfo[0] = initialSession;
-        }
+//        synchronized (callMutex) {
+//            callsInfo = new SipCallSession[1];
+//            callsInfo[0] = initialSession;
+//        }
+        
         
         useAutoDetectSpeaker = prefsWrapper.getPreferenceBooleanValue(SipConfigManager.AUTO_DETECT_SPEAKER);
         proximityManager.startTracking();
@@ -167,6 +169,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+		filter.addAction(Constant.ROSTER_UPDATED);
+		filter.addAction(Constant.ROSTER_PRESENCE_CHANGED);
 		filter.addAction(SipManager.ACTION_SIP_CALL_CHANGED);
 		filter.addAction(SipManager.ACTION_SIP_MEDIA_CHANGED);
 
@@ -238,10 +242,10 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			}
 		});
 		
-		User u = getUser(getActiveCallInfo());
-		if (u != null) {
-			setAvatarImage(mAvatar, u);
-			mNickname.setText(u.getNickName());
+		mUser = getUser(callInfo);
+		if (mUser != null) {
+			setAvatarImage(mAvatar, mUser);
+			mNickname.setText(mUser.getNickName());
 		}
 		
 		mInCallLayout = findViewById(R.id.incall_layout);
@@ -249,7 +253,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 		
 		mUKeyState = AUKeyManager.getInstance().getAUKeyStatus();
 
-		setCallState(initialSession);
+		setCallState(callInfo);
 	}
 	
     @Override
@@ -355,7 +359,6 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			break;
 			
 		case SipCallSession.InvState.CALLING:
-			
 			mInCallLayout.setVisibility(View.GONE);
 			mCallingCancelBtn.setVisibility(View.VISIBLE);
 			mCalledLayout.setVisibility(View.GONE);
@@ -371,7 +374,10 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			
 		case SipCallSession.InvState.NULL:
 		case SipCallSession.InvState.DISCONNECTED:
+			mCallingTxt.setText(CallUtil.getStringByStatusCode(callInfo.getLastStatusCode()));
 			mSessionEndBtn.setVisibility(View.INVISIBLE);
+			mMuteBtn.setVisibility(View.INVISIBLE);
+			mSpeakerBtn.setVisibility(View.INVISIBLE);
 			break;
 			
 		case SipCallSession.InvState.EARLY:
@@ -386,6 +392,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         if (callInfo == null) {
         	mSessionDuration.stop();
         	mSessionDuration.setVisibility(View.VISIBLE);
+        	callDuration = System.currentTimeMillis() - callStart;
             return;
         }
 
@@ -403,16 +410,21 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                 Log.v(TAG, "we start the timer now ");
                 if(callInfo.isLocalHeld()) {
                 	mSessionDuration.stop();
+                	callDuration = System.currentTimeMillis() - callStart;
                 	mSessionDuration.setVisibility(View.GONE);
                 }else {
                 	mSessionDuration.start();
                 	mSessionDuration.setVisibility(View.VISIBLE);
+                	callStart = System.currentTimeMillis();
                 }
                 break;
             case SipCallSession.InvState.NULL:
             case SipCallSession.InvState.DISCONNECTED:
             	mSessionDuration.stop();
-            	mSessionDuration.setVisibility(View.VISIBLE);
+            	if (callStart > 0) {
+            		callDuration = System.currentTimeMillis() - callStart;
+            	}
+            	mSessionDuration.setVisibility(View.INVISIBLE);
                 break;
             default:
                 break;
@@ -425,11 +437,12 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         @Override
         public void run() {
             // Current call is the call emphasis by the UI.
-            SipCallSession mainCallInfo = null;
+            SipCallSession mainCallInfo = callInfo;
     
             int mainsCalls = 0;
             int heldsCalls = 0;
-    
+            /*
+
             synchronized (callMutex) {
                 if (callsInfo != null) {
                     for (SipCallSession callInfo : callsInfo) {
@@ -454,11 +467,16 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
             } else {
                 setCallState(null);
             }
+            */
+
+            //mainCallInfo = callsInfo[0];
+            setCallState(mainCallInfo);
             
             if (mainCallInfo != null) {
                 Log.w(TAG, "Active call is " + mainCallInfo.getCallId());
                 Log.w(TAG, "Update ui from call " + mainCallInfo.getCallId() + " state "
-                        + CallsUtils.getStringCallState(mainCallInfo, InCallScreen.this));
+                        + CallsUtils.getStringCallState(mainCallInfo, InCallScreen.this)
+                        + ", incoming " + mainCallInfo.isIncoming());
                 int state = mainCallInfo.getCallState();
     
                 switch (state) {
@@ -466,7 +484,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                     case SipCallSession.InvState.EARLY:
                     case SipCallSession.InvState.CALLING:
                     case SipCallSession.InvState.CONNECTING:
-    
+                    	isIncoming = mainCallInfo.isIncoming();
+                    	
                         Log.d(TAG, "Acquire wake up lock");
                         if (wakeLock != null && !wakeLock.isHeld()) {
                             wakeLock.acquire();
@@ -476,8 +495,13 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                         break;
                     case SipCallSession.InvState.NULL:
                     case SipCallSession.InvState.DISCONNECTED:
-                        Log.d(TAG, "Active call session is disconnected or null wait for quit...");
+                        Log.d(TAG, "Active call " + mainCallInfo.getCallId() + " session is disconnected or null wait for quit..." + mainCallInfo.getLastStatusCode()
+                        		+ ", incoming:" + isIncoming);
                         printCallLog();
+                        
+                        if(judgeMissedCall(mainCallInfo, isIncoming)) {
+    	        			NoticeManager.getInstance().dispatchMissedCallNotify(mUser);
+                		}
                         
                         delayedQuit();
                         return;
@@ -488,13 +512,30 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
             }
             
             proximityManager.updateProximitySensorMode();
-            
+            /*
             if (heldsCalls + mainsCalls == 0) {
                 delayedQuit();
             }
+            */
         }
     }
 
+    private boolean judgeMissedCall(SipCallSession call, boolean isIncoming) {
+    	Log.w(TAG, "call id " + call.getCallId() + ", incoming " + isIncoming + ", duration " + callDuration + ", status " + call.getLastStatusCode() + ", reason " + call.getLastReasonCode());
+    	boolean isMissedCall = false;
+    	if(isIncoming) {
+    		isMissedCall = true;
+			if(callDuration > 0) {
+				isMissedCall = false;
+			}else if(call.getLastStatusCode() == SipCallSession.StatusCode.DECLINE ||
+			        call.getLastStatusCode() == SipCallSession.StatusCode.BUSY_HERE ||
+			        call.getLastReasonCode() == 200) {
+				isMissedCall = false;
+			}
+		}
+    	
+    	return isMissedCall;
+    }
 
 	private class UpdateUIFromMediaRunnable implements Runnable {
 	    @Override
@@ -504,6 +545,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	    }
 	}
 	
+	
+	/*
     private SipCallSession getPrioritaryCall(SipCallSession call1, SipCallSession call2) {
         // We prefer the not null
         if (call1 == null) {
@@ -538,7 +581,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         }
         return currentCallInfo;
     }
-    
+    */
+	
     private synchronized void delayedQuit() {
 
         if (wakeLock != null && wakeLock.isHeld()) {
@@ -573,23 +617,31 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			
-			if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
-				if (!mUKeyState.equals(AUKeyManager.getInstance().getAUKeyStatus())) {
-					Log.w(TAG, "askey state changed (" + mUKeyState + " -> " + AUKeyManager.getInstance().getAUKeyStatus() + ").");
-					onTrigger(TERMINATE_CALL);
-				}
+			if (Constant.AUKEY_STATUS_UPDATE.equals(action) || Constant.ROSTER_PRESENCE_CHANGED.equals(action) || Constant.ROSTER_UPDATED.equals(action)) {
+//				if (!mUKeyState.equals(AUKeyManager.getInstance().getAUKeyStatus())) {
+//					Log.w(TAG, "askey state changed (" + mUKeyState + " -> " + AUKeyManager.getInstance().getAUKeyStatus() + ").");
+//					onTrigger(TERMINATE_CALL);
+//				}
+				refreshViewOnAUKeyStatusChange();
 			}
 			else if (action.equals(SipManager.ACTION_SIP_CALL_CHANGED)) {
-                if (service != null) {
-                    try {
+//                if (service != null) {
+//                    try {
                         synchronized (callMutex) {
-                            callsInfo = service.getCalls();
-                            runOnUiThread(new UpdateUIFromCallRunnable());
+                            //callsInfo = service.getCalls();
+                        	SipCallSession call = intent.getParcelableExtra(SipManager.EXTRA_CALL_INFO);
+                        	
+                    		if(callInfo != null && call.getCallId() != callInfo.getCallId()) {
+                    			return;
+                    		}
+                			callInfo = call;
+                			runOnUiThread(new UpdateUIFromCallRunnable());
+
+//                        }
+//                    } catch (RemoteException e) {
+//                        Log.e(TAG, "Not able to retrieve calls");
+//                    }
                         }
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Not able to retrieve calls");
-                    }
-                }
             } else if (action.equals(SipManager.ACTION_SIP_MEDIA_CHANGED)) {
                 if (service != null) {
                     MediaState mediaState;
@@ -612,7 +664,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	
 	private void refreshViewOnAUKeyStatusChange() {
 		View screen = findViewById(R.id.call_screen_layout);
-		if (mUKeyState.equals(AUKeyManager.ATTACHED)) {
+		if (mUKeyState.equals(AUKeyManager.ATTACHED) && mUser.getSecurity().equals(AUKeyManager.ATTACHED)) {
 			screen.setBackgroundResource(R.drawable.account_guidance_bg);
 			mCallType.setText("ÃÜ»°Ä£Ê½");
 			mCallType.setVisibility(View.VISIBLE);
@@ -657,7 +709,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         String infos = "";
         String natType = "";
 		try {
-			infos = service.showCallInfosDialog(getActiveCallInfo().getCallId());
+			infos = service.showCallInfosDialog(callInfo.getCallId());
 	        natType = service.getLocalNatType();
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -694,7 +746,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                 }
 
                 // Detect if ringing
-                SipCallSession currentCallInfo = getActiveCallInfo();
+                SipCallSession currentCallInfo = callInfo;
                 // If not any active call active
                 if (currentCallInfo == null && serviceConnected) {
                     break;
@@ -747,13 +799,13 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
             }
         }
         
-        if (callsInfo == null) {
+        if (callInfo == null) {
             return false;
         }
 
         boolean isValidCallState = true;
-        int count = 0;
-        for (SipCallSession callInfo : callsInfo) {
+//        int count = 0;
+//        for (SipCallSession callInfo : callsInfo) {
             if(callInfo.mediaHasVideo()) {
                 return false;
             }
@@ -766,12 +818,12 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                         (state == SipCallSession.InvState.CALLING) ||
                         (state == SipCallSession.InvState.EARLY && !callInfo.isIncoming())
                         );
-                count ++;
+//                count ++;
             }
-        }
-        if(count == 0) {
-            return false;
-        }
+//        }
+//        if(count == 0) {
+//            return false;
+//        }
 
         return isValidCallState;
     }
@@ -803,7 +855,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	@Override
 	public void onTrigger(int whichAction) {
 
-		SipCallSession call = getActiveCallInfo();
+		SipCallSession call = callInfo;
 		
         if (whichAction == TAKE_CALL || whichAction == REJECT_CALL || whichAction == DONT_TAKE_CALL ||
             whichAction == TERMINATE_CALL || whichAction == DETAILED_DISPLAY || 
@@ -839,21 +891,21 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 
                         service.answer(call.getCallId(), SipCallSession.StatusCode.OK);
 
-                        // if it's a ringing call, we assume that user wants to
-                        // hold other calls
-                        if (shouldHoldOthers && callsInfo != null) {
-                            for (SipCallSession callInfo : callsInfo) {
-                                // For each active and running call
-                                if (SipCallSession.InvState.CONFIRMED == callInfo.getCallState()
-                                        && !callInfo.isLocalHeld()
-                                        && callInfo.getCallId() != call.getCallId()) {
-
-                                    Log.d(TAG, "Hold call " + callInfo.getCallId());
-                                    service.hold(callInfo.getCallId());
-
-                                }
-                            }
-                        }
+//                        // if it's a ringing call, we assume that user wants to
+//                        // hold other calls
+//                        if (shouldHoldOthers && callsInfo != null) {
+//                            for (SipCallSession callInfo : callsInfo) {
+//                                // For each active and running call
+//                                if (SipCallSession.InvState.CONFIRMED == callInfo.getCallState()
+//                                        && !callInfo.isLocalHeld()
+//                                        && callInfo.getCallId() != call.getCallId()) {
+//
+//                                    Log.d(TAG, "Hold call " + callInfo.getCallId());
+//                                    service.hold(callInfo.getCallId());
+//
+//                                }
+//                            }
+//                        }
                     }
                     break;
                 }

@@ -23,6 +23,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.view.asim.worker.FileRecvResultListener;
+import com.view.asim.worker.FileSentResultListener;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -186,6 +188,34 @@ public class ImageUtil {
 		}
         return outStream.toByteArray();  
 	}
+	
+	public static byte[] getBytesFromUrl(String fileUrl, long totalLen, int readTimeOut, FileRecvResultListener callback) {
+		 ByteArrayOutputStream outStream;
+		 int recvLen = 0;
+		 
+		try {
+		    InputStream inputStream = getInputStreamFromUrl(fileUrl, readTimeOut);
+		    
+		    outStream = new ByteArrayOutputStream();  
+	        byte[] buffer = new byte[1024];  
+	        int len = 0;  
+	        while((len = inputStream.read(buffer)) != -1){  
+	            outStream.write(buffer, 0, len);
+	            recvLen += len;
+	            callback.onRecvProgress(recvLen, totalLen);
+	        }  
+		    closeInputStream(inputStream);
+		    outStream.close();
+		}
+		catch (Exception e) {
+			callback.onRecvResult(false);
+			return null;
+		}
+		
+		callback.onRecvResult(true);
+        return outStream.toByteArray();  
+	}
+	
 	
 	/**
 	 * 从七牛返回的 avinfo 信息中解析视频图像尺寸

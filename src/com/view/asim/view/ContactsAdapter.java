@@ -3,6 +3,8 @@ package com.view.asim.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.view.asim.manager.AUKeyManager;
+import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
 
 import com.view.asim.R;
@@ -11,6 +13,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,6 +88,8 @@ public class ContactsAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(final int p, View convertView, ViewGroup parent) {
+		Drawable rightIcon = null;
+
 		if (flag == SHOW_MODE) {
 			View v = null;
 			ViewHolderShow holder = null;
@@ -97,6 +102,7 @@ public class ContactsAdapter extends BaseAdapter {
 				holder.ivDivider = (ImageView) v.findViewById(R.id.alphabetic_divide_img);
 				holder.tvRemark = (TextView) v.findViewById(R.id.contact_remark_txt);
 				holder.headimage = (ImageView) v.findViewById(R.id.contact_head_img);
+				holder.securityImage = (ImageView) v.findViewById(R.id.security_img);
 				v.setTag(holder);
 
 			} else {
@@ -112,7 +118,17 @@ public class ContactsAdapter extends BaseAdapter {
 			} else {
 				holder.text.setText(u.getName());
 			}
-			Log.d(TAG, "list view item " + p + ", text:" + holder.text.getText() + ", tag user: " + ((User)(holder.text.getTag())).getName());
+			
+			if (u.getSecurity() != null && u.getSecurity().equals(AUKeyManager.ATTACHED)) {
+				holder.securityImage.setImageResource(R.drawable.notificationbar_icon_logo_normal);
+				holder.securityImage.setVisibility(View.VISIBLE);
+				//rightIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
+				//rightIcon.setBounds(0, 0, rightIcon.getMinimumWidth(), rightIcon.getMinimumHeight());
+			}
+			
+			//holder.text.setCompoundDrawables(null, null, rightIcon, null);
+			
+			Log.d(TAG, "list view item " + p + ", text:" + holder.text.getText() + ", tag user: " + ((User)(holder.text.getTag())).getName() + ", security: " + ((User)(holder.text.getTag())).getSecurity());
 
 			if (u.getHeadImg() != null) {
 				holder.headimage.setImageBitmap(u.getHeadImg());
@@ -170,6 +186,7 @@ public class ContactsAdapter extends BaseAdapter {
 				holder.tvTopBlank = (TextView) v.findViewById(R.id.top_blank_txt);
 				holder.tvRemark = (TextView) v.findViewById(R.id.contact_remark_txt);
 				holder.headimage = (ImageView) v.findViewById(R.id.contact_head_img);
+				holder.securityImage = (ImageView) v.findViewById(R.id.security_img);
 				holder.is_select = (ImageView) v.findViewById(R.id.is_select_img);
 				v.setTag(holder);
 
@@ -185,6 +202,13 @@ public class ContactsAdapter extends BaseAdapter {
 				holder.text.setText(u.getNickName());
 			} else {
 				holder.text.setText(u.getName());
+			}
+			
+			if (u.getSecurity() != null && u.getSecurity().equals(AUKeyManager.ATTACHED)) {
+				holder.securityImage.setImageResource(R.drawable.notificationbar_icon_logo_normal);
+				holder.securityImage.setVisibility(View.VISIBLE);
+				//rightIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
+				//rightIcon.setBounds(0, 0, rightIcon.getMinimumWidth(), rightIcon.getMinimumHeight());
 			}
 			
 			if (u.getHeadImg() != null) {
@@ -214,6 +238,8 @@ public class ContactsAdapter extends BaseAdapter {
 				holder.tvRemark.setVisibility(View.VISIBLE);
 				holder.tvTopBlank.setVisibility(View.GONE);
 			}
+			
+			holder.is_select.setVisibility(View.VISIBLE);
 			
 			if(is_select[p])
 				holder.is_select.setImageResource(R.drawable.g_checkbox_checked_green);
@@ -252,6 +278,7 @@ public class ContactsAdapter extends BaseAdapter {
 		ImageView ivDivider;
 		TextView tvRemark;
 		ImageView headimage;
+		ImageView securityImage;
 	}
 
 	class ViewHolderSelect{
@@ -262,6 +289,7 @@ public class ContactsAdapter extends BaseAdapter {
 		ImageView ivDivider;
 		TextView tvRemark;
 		ImageView headimage;
+		ImageView securityImage;
 		ImageView is_select;
 	}
 	

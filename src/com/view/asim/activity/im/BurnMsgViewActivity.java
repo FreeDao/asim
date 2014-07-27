@@ -63,14 +63,14 @@ import com.view.asim.R;
  */
 public class BurnMsgViewActivity extends ActivitySupport {
 	public static final String TAG = "BurnMsgViewActivity";
-	public static final int timer = 5;
+	public static final int timer = 10;
 	
 	private ChatMessage message = null;
 			
 	private TextView title = null;
-	private ImageView previewImage = null;
 	private ImageView burnImage = null;
-	private ImageView play = null;
+	private ImageView voicePlayImage = null;
+	
 	private TextView previewText;
 	private Button confirm = null;
 	private Context context;
@@ -101,17 +101,12 @@ public class BurnMsgViewActivity extends ActivitySupport {
         context = this;
 
 		burnImage = (ImageView) findViewById(R.id.burn_image);
+		voicePlayImage = (ImageView) findViewById(R.id.voice_play_img);
 		
 		title = (TextView) findViewById(R.id.title);
-		previewImage = (ImageView) findViewById(R.id.preview_image);
-		play = (ImageView) findViewById(R.id.preview_video_play);
 		previewText = (TextView) findViewById(R.id.preview_text);
-		confirm = (Button) findViewById(R.id.cfm_btn);
-		confirm.setText("即将销毁");
 		
 		if (message.getType().equals(ChatMessage.CHAT_TEXT)) {
-			previewImage.setVisibility(View.GONE);
-			play.setVisibility(View.GONE);
 			previewText.setVisibility(View.VISIBLE);
 			title.setText("文字消息");
 			
@@ -119,80 +114,10 @@ public class BurnMsgViewActivity extends ActivitySupport {
 
 			previewText.setText(spannableString);
 		}
-		else if (message.getType().equals(ChatMessage.CHAT_IMAGE)) {
-			previewImage.setVisibility(View.VISIBLE);
-			play.setVisibility(View.INVISIBLE);
-			previewText.setVisibility(View.INVISIBLE);
-			title.setText("图片消息");
-			Bitmap bitmap;
-			if (message.getAttachment().getSrcUri().length() > 0)
-				bitmap = ImageUtil.getImageThumbnail(message.getAttachment().getSrcUri(), 200, 200);
-			else 
-				bitmap = ImageUtil.getImageThumbnail(message.getAttachment().getThumbUri(), 200, 200);
-
-			previewImage.setImageBitmap(bitmap);
-			previewImage.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					Intent intent = new Intent();
-					intent.putExtra(ChatMessage.IMMESSAGE_KEY, message);
-					intent.setClass(context, ImagePreviewActivity.class);
-					startActivity(intent);
-				}
-			});  
-			
-		}
 		else if (message.getType().equals(ChatMessage.CHAT_AUDIO)) {
-			previewImage.setVisibility(View.INVISIBLE);
-			play.setVisibility(View.VISIBLE);
 			previewText.setVisibility(View.INVISIBLE);
 			title.setText("语音消息");
-			play.setImageResource(R.drawable.btn_chat_voicemessage_n);
-			String uri = message.getAttachment().getSrcUri();
-
-			if (uri != null) {
-				playMusic(uri);
-			}
-
-			/*
-			play.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					String uri = message.getAttachment().getSrcUri();
-
-					if (uri != null) {
-						playMusic(uri) ;
-					}
-				}
-			});  
-			*/
 		}
-		else if (message.getType().equals(ChatMessage.CHAT_VIDEO)) {
-			previewImage.setVisibility(View.VISIBLE);
-			play.setVisibility(View.VISIBLE);
-			previewText.setVisibility(View.INVISIBLE);
-			title.setText("视频消息");
-			
-			Bitmap bitmap = ImageUtil.getVideoThumbnail(message.getAttachment().getSrcUri(), 100, 100,
-					Images.Thumbnails.MINI_KIND);
-			previewImage.setImageBitmap(bitmap);
-			play.setOnClickListener(new View.OnClickListener() {
-	
-				@Override
-				public void onClick(View v) {
-					String path = message.getAttachment().getSrcUri();
-	
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-			        String type = "video/*";
-			        Uri uri = Uri.parse(path);
-			        intent.setDataAndType(uri, type);
-			        startActivity(intent);
-				}
-			});  
-		}
-		
 		
 	}
 	
@@ -215,7 +140,7 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			        {    
 			            public void run()    
 			            {    
-			            	confirm.setText("" + t);
+			    			title.setText("文字消息(" + t + ")");
 			            }    
 			    
 			        });
@@ -227,15 +152,21 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			        {    
 			            public void run()    
 			            {    
-			            	confirm.setText("销毁");
-			            	Burn();
+			            	title.setText("销毁");
+			            	burnAnim();
 			            }    
 			        });				
 				}
 				
 			}).start();
-			confirm.setText("" + timer);
 
+		} else {
+			String uri = message.getAttachment().getSrcUri();
+
+			if (uri != null) {
+				playMusic(uri);
+			}
+			playTrackAnim();
 		}
 	}
 	// 自动销毁倒计时线程
@@ -263,13 +194,26 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			listener.onEnd();
 		}
 	}
-		
-		
-	private void Burn() {
+	
+	private void playTrackAnim() {
 
-		previewImage.setVisibility(View.INVISIBLE);
-		play.setVisibility(View.INVISIBLE);
 		previewText.setVisibility(View.INVISIBLE);
+		burnImage.setVisibility(View.INVISIBLE);
+		
+		AnimationDrawable playAnim = (AnimationDrawable) context.getResources().getDrawable(R.drawable.burn_voice_play_anim);
+		
+		playAnim.setOneShot(false);
+		
+		voicePlayImage.setBackgroundDrawable(playAnim);
+		voicePlayImage.setVisibility(View.VISIBLE);
+		playAnim.start();
+	}
+		
+		
+	private void burnAnim() {
+
+		previewText.setVisibility(View.INVISIBLE);
+		voicePlayImage.setVisibility(View.INVISIBLE);
 		
 		EndAnimationDrawable burnAnim = new EndAnimationDrawable(
 				(AnimationDrawable) context.getResources().getDrawable(R.drawable.burn_anim)
@@ -299,7 +243,34 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			mMediaPlayer.start();
 			mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer mp) {
-					Burn();
+					new BurnTimerThread(timer / 2, new ExpiryTimerListener() {
+						
+						@Override
+						public void onTick(int sec) {
+							final int t = sec;
+							runOnUiThread(new Runnable()    
+					        {    
+					            public void run()    
+					            {    
+					    			title.setText("语音消息(" + t + ")");
+					            }    
+					    
+					        });
+						}
+			
+						@Override
+						public void onEnd() {
+							runOnUiThread(new Runnable()    
+					        {    
+					            public void run()    
+					            {    
+					            	title.setText("销毁");
+					            	burnAnim();
+					            }    
+					        });				
+						}
+						
+					}).start();
 				}
 			});
 

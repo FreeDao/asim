@@ -82,7 +82,7 @@ public class SMSVerifyManager {
 			return false;
 		}
 		
-		Log.i(TAG, "send verfication SMS to " + cellphone + " succ");
+		Log.i(TAG, "send verfication SMS to " + cellphone + " succ, code: " + code);
 		return true;
 	}
 	

@@ -59,7 +59,12 @@ import com.csipsimple.utils.Log;
 import com.csipsimple.utils.Threading;
 import com.csipsimple.utils.TimerWrapper;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.ContacterManager;
+import com.view.asim.manager.NoticeManager;
 import com.view.asim.model.IMMessage;
+import com.view.asim.model.User;
+import com.view.asim.util.DateUtil;
+import com.view.asim.util.StringUtil;
 
 import org.pjsip.pjsua.Callback;
 import org.pjsip.pjsua.SWIGTYPE_p_int;
@@ -636,18 +641,22 @@ public class UAStateReceiver extends Callback {
     private SipCallSessionImpl updateCallInfoFromStack(Integer callId, pjsip_event e)
             throws SameThreadException {
         SipCallSessionImpl callInfo;
-        Log.d(THIS_FILE, "Updating call infos from the stack");
+        android.util.Log.w(THIS_FILE, "Updating call infos from the stack");
         synchronized (callsList) {
             callInfo = callsList.get(callId);
             if (callInfo == null) {
                 callInfo = new SipCallSessionImpl();
                 callInfo.setCallId(callId);
-        		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+        		if (SipService.aukeyStatus.equals(AUKeyManager.ATTACHED)) {
+
         			callInfo.setSecurity(IMMessage.ENCRYPTION);
         		}
         		else {
+
         			callInfo.setSecurity(IMMessage.PLAIN);
         		}
+    	        android.util.Log.w(THIS_FILE, "alloc callinfo " + callId + " on " + callInfo.getSecurity());
+
             }
         }
         // We update session infos. callInfo is both in/out and will be updated
@@ -720,6 +729,7 @@ public class UAStateReceiver extends Callback {
         }
         
     	public ContentValues logValuesForCall(Context context, SipCallSession call, long callStart) {
+    		Log.w(THIS_FILE,  "save call log for " + call.getCallId() + ", status " + call.getLastStatusCode() + ", incoming " + call.isIncoming());
     		ContentValues cv = new ContentValues();
     		String remoteContact = call.getRemoteContact();
     		
@@ -856,10 +866,14 @@ public class UAStateReceiver extends Callback {
                             // If the call goes out in error...
                             if (callInfo.getLastStatusCode() != 200 && callInfo.getLastReasonCode() != 200) {
                                 // We notify the user with toaster
-                                stateReceiver.pjService.service.notifyUserOfMessage(callInfo
+                            	Log.w(THIS_FILE, "call id " + callInfo.getCallId() + ": " + callInfo
                                         .getLastStatusCode()
                                         + " / "
                                         + callInfo.getLastStatusComment());
+//                                stateReceiver.pjService.service.notifyUserOfMessage(callInfo
+//                                        .getLastStatusCode()
+//                                        + " / "
+//                                        + callInfo.getLastStatusComment());
                             }
 
                             // If needed fill native database

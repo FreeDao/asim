@@ -29,7 +29,6 @@ import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.DateUtil;
 import com.view.asim.worker.MessageSentResultListener;
-import com.view.asim.worker.UISendVideoHandler;
 import com.view.asim.worker.Worker;
 
 import android.content.BroadcastReceiver;
@@ -214,6 +213,7 @@ public abstract class AChatActivity extends ActivitySupport {
 	};
 
 	protected abstract void handReConnect(String status);
+	protected abstract void refreshMessageView();
 	protected abstract void receiveNewMessage(ChatMessage message);
 	protected abstract void sendMessageResult(ChatMessage message);
 	protected abstract void sendFileResult(ChatMessage message);
@@ -391,40 +391,79 @@ public abstract class AChatActivity extends ActivitySupport {
 		sendBroadcast(intent);
 		
 		// 刷新视图
-		refreshMessage();
+		refreshMessageView();
 
 	}
+	
+	protected void sendVideo(Uri videoUri, Uri thumbUri, String destroy) throws Exception {
+		String videoAbsoluteUri = getMediaAbsolutePath(videoUri);
+		String thumbAbsoluteUri = getMediaAbsolutePath(thumbUri);
+		sendVideo(videoAbsoluteUri, thumbAbsoluteUri, destroy);
+	}
 		
-	protected void sendVideo(Uri videoUri, String destroy) throws Exception {
-		String absoluteUri = getMediaAbsolutePath(videoUri);
-
-		UISendVideoHandler handler = new UISendVideoHandler(getWith(), absoluteUri, destroy, mChatType, 
-				new MessageSentResultListener() {
-
-					@Override
-					public void onSentResult(ChatMessage msgSent) {
-						long msgId = MessageManager.getInstance().saveIMMessage(msgSent);
-						msgSent.setId("" + msgId);
-						
-						mMessagePool.put(msgSent.getId(), msgSent);
-						Intent intent = new Intent(Constant.SEND_FILE_ACTION);
-						intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, msgSent);
-						sendBroadcast(intent);
-						
-						runOnUiThread(new Runnable()    
-				        {    
-				            public void run()    
-				            {    
-								// 刷新视图
-								refreshMessage();
-				            }    
-				    
-				        });
-					}
-			
-		});
+	protected void sendVideo(String videoUri, String thumbUri, String destroy) throws Exception {
 		
-		mWorker.addHandler(handler);
+		boolean needEncr = AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED);
+
+		String time = DateUtil.getCurDateStr();
+		
+		ChatMessage newMessage = new ChatMessage();
+		newMessage.setDir(IMMessage.SEND);
+		newMessage.setFrom(ContacterManager.userMe.getJID());
+		newMessage.setType(ChatMessage.CHAT_VIDEO);
+		newMessage.setDestroy(destroy);
+		newMessage.setContent("你发了一段视频");
+		newMessage.setTime(time);
+		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
+		newMessage.setChatType(mChatType);
+		newMessage.setWith(getWith());
+		
+		Attachment att = new Attachment();
+		att.setSrcUri(videoUri);
+		att.setThumbUri(thumbUri);
+		
+		newMessage.setAttachment(att);
+		newMessage.setUniqueId(String.valueOf(newMessage.hashCode()));
+
+		long msgId = MessageManager.getInstance().saveIMMessage(newMessage);
+		newMessage.setId("" + msgId);
+		
+		mMessagePool.put(newMessage.getId(), newMessage);
+
+		Intent intent = new Intent(Constant.SEND_FILE_ACTION);
+		intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, newMessage);
+		sendBroadcast(intent);
+		
+		// 刷新视图
+		refreshMessageView();
+//		
+//		UISendVideoHandler handler = new UISendVideoHandler(getWith(), videoAbsoluteUri, thumbAbsoluteUri, destroy, mChatType, 
+//				new MessageSentResultListener() {
+//
+//					@Override
+//					public void onSentResult(ChatMessage msgSent) {
+//						long msgId = MessageManager.getInstance().saveIMMessage(msgSent);
+//						msgSent.setId("" + msgId);
+//						
+//						mMessagePool.put(msgSent.getId(), msgSent);
+//						Intent intent = new Intent(Constant.SEND_FILE_ACTION);
+//						intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, msgSent);
+//						sendBroadcast(intent);
+//						
+//						runOnUiThread(new Runnable()    
+//				        {    
+//				            public void run()    
+//				            {    
+//								// 刷新视图
+//								refreshMessage();
+//				            }    
+//				    
+//				        });
+//					}
+//			
+//		});
+//		
+//		mWorker.addHandler(handler);
 	}
 	
 	// 发送文件（语音）
@@ -463,7 +502,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		sendBroadcast(intent);
 		
 		// 刷新视图
-		refreshMessage();
+		refreshMessageView();
 
 	}
 	
@@ -501,7 +540,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		sendBroadcast(intent);
 		
 		// 刷新视图
-		refreshMessage();
+		refreshMessageView();
 
 	}
 	
@@ -517,7 +556,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		sendBroadcast(intent);
 		
 		// 刷新视图
-		refreshMessage();
+		refreshMessageView();
 
 	}
 

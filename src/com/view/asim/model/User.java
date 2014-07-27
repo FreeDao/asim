@@ -37,6 +37,7 @@ public class User implements Parcelable {
 	public static final String VCARD_FIELD_PUBLICKEY = "public_key";
 	public static final String VCARD_FIELD_PRIVATEKEY = "private_key";
 	public static final String VCARD_FIELD_GROUPINFO = "group_list";
+	public static final String VCARD_FIELD_SECURITY = "security_status";
 
 
 	public static final String MALE = "male";
@@ -80,8 +81,12 @@ public class User implements Parcelable {
 	protected String publicKey = null;
 	protected String privateKey = null;
 	
+	// SIP 账户 ID
 	protected long sipAccountId = 0; 
 
+	// 密盾状态
+	protected String security = null;
+	
 	// 所属群聊组信息
 	protected ArrayList<GroupUser> groupList = null;
 
@@ -193,6 +198,15 @@ public class User implements Parcelable {
 		return grpList.toString();
 	}
 	
+	public String getSecurity() {
+		return security;
+	}
+
+
+	public void setSecurity(String security) {
+		this.security = security;
+	}
+
 	public String getPrivateKey() {
 		return privateKey;
 	}
@@ -334,6 +348,7 @@ public class User implements Parcelable {
 				", nameFirstChar = " + nameFirstChar +
 				", sortLetters = " + sortLetters +
 				", namecode = " + namecode +
+				", security = " + security +
 				", " + (headImg != null ? "has avatar" : "has no avatar" +
 				", " + (publicKey != null ? "has public key" : "has no public key") + 
 				", " + (privateKey != null ? "has private key" : "has no private key") +
@@ -356,6 +371,7 @@ public class User implements Parcelable {
 		dest.writeString(nameFirstChar);
 		dest.writeString(sortLetters);
 		dest.writeString(namecode);
+		dest.writeString(security);
 		dest.writeString(publicKey);
 		dest.writeString(privateKey);
 		dest.writeSerializable(groupList);
@@ -381,6 +397,7 @@ public class User implements Parcelable {
 			u.nameFirstChar = source.readString();
 			u.sortLetters = source.readString();
 			u.namecode = source.readString();
+			u.security = source.readString();
 			u.publicKey = source.readString();
 			u.privateKey = source.readString();
 			u.groupList = (ArrayList<GroupUser>)source.readSerializable();
@@ -412,6 +429,7 @@ public class User implements Parcelable {
 		user.setNameFirstChar(User.this.nameFirstChar);
 		user.setSortLetters(User.this.sortLetters);
 		user.setNamecode(User.this.namecode);
+		user.setSecurity(User.this.security);
 		user.setPublicKey(User.this.publicKey);
 		user.setPrivateKey(User.this.privateKey);
 		user.setGroupList(User.this.groupList);

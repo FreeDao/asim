@@ -93,6 +93,11 @@ public class DateUtil {
 		Calendar c = Calendar.getInstance();
 		return date2Str(c);
 	}
+	
+	public static long getCurDateLong() {
+		Calendar c = Calendar.getInstance();
+		return c.getTimeInMillis();
+	}
 
 	/**
 	 * 获得当前日期的字符串格式

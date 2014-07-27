@@ -15,6 +15,7 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -90,14 +91,12 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 		loginAnim.stop();
 		switch (result) {
 		case Constant.SERVER_SUCCESS: // 登录成功
+
+			activity.startGeneralService();
 			
 			Intent intent = new Intent();
 			intent.setClass(activity, MainActivity.class);
 			activity.saveLoginConfig(loginConfig);// 保存用户配置信息
-			
-			
-			//activity.stopService();
-			//activity.startService();
 			activity.startActivity(intent);
 			activity.finish();
 			
@@ -119,6 +118,22 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			//activity.finish();
 
 			break;
+			
+		case Constant.LOGIN_ERROR_DUPLICATED:// 重复登录
+			Toast.makeText(
+					activity,
+					activity.getResources().getString(
+							R.string.message_login_conflicted),
+					Toast.LENGTH_LONG).show();
+			
+			loginConfig.setUsername(null);
+			loginConfig.setPassword(null);
+			loginConfig.setOnline(false);
+			activity.saveLoginConfig(loginConfig);
+			
+			loginAnim.setVisible(false, false);
+
+			break;			
 		case Constant.SERVER_UNAVAILABLE:// 服务器连接失败
 			Toast.makeText(
 					activity,
@@ -183,8 +198,12 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			}
 			
 			ContacterManager.setUserMe(mUser);
-			NoticeManager.getInstance().init();
-			MessageManager.getInstance().init();
+			updateSecurityStatus();
+			
+	        NoticeManager.getInstance(activity, loginConfig).init();
+	        MessageManager.getInstance(activity, loginConfig).init();
+	        CallLogManager.getInstance(activity, loginConfig).init();
+			
 			loginConfig.setOnline(true);
 			initUserCacheFolder(mUser);
 			
@@ -200,9 +219,11 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 				}
 				xe.printStackTrace();
 				if (errorCode == 401) {
+					// not authorized: 帐号密码错误
 					return Constant.LOGIN_ERROR_ACCOUNT_PASS;
 				}else if (errorCode == 403) {
-					return Constant.LOGIN_ERROR_ACCOUNT_PASS;
+					// forbidden: 已登录，不允许重复登录
+					return Constant.LOGIN_ERROR_DUPLICATED;
 				} else {
 					return Constant.SERVER_UNAVAILABLE;
 				}
@@ -210,6 +231,24 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 				return Constant.UNKNOWN_ERROR;
 			}
 		}
+	}
+	
+	private void updateSecurityStatus() {
+		ContacterManager.userMe.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
+		
+		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
+		ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
+		Presence presence = new Presence(Presence.Type.available);
+		presence.setStatus("update");
+		
+		Collection<RosterEntry> rosters = conn.getRoster()
+				.getEntries();
+		for (RosterEntry rosterEntry : rosters) {
+			Log.d(TAG, "presence updated to " + rosterEntry.getUser());
+			presence.setTo(rosterEntry.getUser());
+			conn.sendPacket(presence);
+		}
+
 	}
 	
 	private void initUserCacheFolder(User u) {

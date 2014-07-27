@@ -51,7 +51,6 @@ public class SendFileMsgHandler implements BaseHandler {
     private final Chat mChat;
     private final Context mCntx;
     
-	private String domain = Constant.FILE_STORAGE_HOST;
 	private String uptoken = null;
 	private String accessKey = "2h4PWQ6V8_OJcMvejQvaa-tFm1-oRcCTNMZ5q_KG";
 	
@@ -79,7 +78,12 @@ public class SendFileMsgHandler implements BaseHandler {
 			return;
 		}
     	
-    	doUpload(Uri.parse(mSendMsg.getAttachment().getSrcUri()));
+    	doUpload(Uri.parse(mSendMsg.getAttachment().getSrcUri()), false);
+    	
+    	// 视频还需要上传缩略图
+    	if (mSendMsg.getType().equals(ChatMessage.CHAT_VIDEO)) {
+        	doUpload(Uri.parse(mSendMsg.getAttachment().getThumbUri()), true);
+    	}
  
     }
     
@@ -121,10 +125,9 @@ public class SendFileMsgHandler implements BaseHandler {
 	    return new String(result).trim();
 	}
 
-	private void doUpload(Uri uri) {
+	private void doUpload(Uri uri, final boolean isThumb) {
 		final boolean needEncr = AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED);
 		final String time = DateUtil.getCurDateStr();
-		final Uri localUri = uri;
 		
 		String key = uri.getPath().substring(uri.getPath().lastIndexOf("/") + 1, uri.getPath().length());
 				
@@ -145,48 +148,56 @@ public class SendFileMsgHandler implements BaseHandler {
 
 				Attachment attach = Attachment.loads(resp);
 				
-				mSendMsg.getAttachment().setHash(attach.getHash());
-				mSendMsg.getAttachment().setKey(attach.getKey());
-				mSendMsg.getAttachment().setMimeType(attach.getMimeType());
-				mSendMsg.getAttachment().setWidth(attach.getWidth());
-				mSendMsg.getAttachment().setHeight(attach.getHeight());
-				mSendMsg.getAttachment().setSize(attach.getSize());
-				
-				try {
-		    		
-					Message message = new Message();
-					message.setProperty(IMMessage.PROP_ID, mSendMsg.getUniqueId());
-					message.setProperty(IMMessage.PROP_TYPE, IMMessage.PROP_TYPE_CTRL);
-					message.setProperty(IMMessage.PROP_TIME, time);
-					message.setProperty(IMMessage.PROP_WITH, mSendMsg.getWith());
-	    			message.setProperty(IMMessage.PROP_DESTROY, mSendMsg.getDestroy());
-	    			message.setProperty(IMMessage.PROP_CHATTYPE, IMMessage.SINGLE);
-	    			
-	    			if (needEncr) {
-	    				User u = ContacterManager.contacters.get(mSendMsg.getWith());
-
-	    				message.setProperty(IMMessage.PROP_SECURITY, IMMessage.ENCRYPTION);
-	    				String encrContent = AUKeyManager.getInstance().encryptData(u.getPublicKey(), mSendMsg.getAttachment().dumps());
-	    				message.setBody(encrContent);
-	    			}
-	    			else {
-	    				message.setProperty(IMMessage.PROP_SECURITY, IMMessage.PLAIN);
-	    				message.setBody(mSendMsg.getAttachment().dumps());
-	    			}
-	    			
-	    			message.setProperty(CtrlMessage.PROP_CTRL_MSGTYPE, mSendMsg.getType());
-					mChat.sendMessage(message);
-					
-				} catch (XMPPException e) {
-					e.printStackTrace();
-					
-					mSendMsg.setStatus(IMMessage.ERROR);
-					mListener.onSentResult(mSendMsg);
-					return;
+				if (isThumb == false) {
+					mSendMsg.getAttachment().setHash(attach.getHash());
+					mSendMsg.getAttachment().setKey(attach.getKey());
+					mSendMsg.getAttachment().setMimeType(attach.getMimeType());
+					mSendMsg.getAttachment().setWidth(attach.getWidth());
+					mSendMsg.getAttachment().setHeight(attach.getHeight());
+					mSendMsg.getAttachment().setSize(attach.getSize());
 				}
-
-				mSendMsg.setStatus(IMMessage.SUCCESS);
-				mListener.onSentResult(mSendMsg);
+				else {
+					mSendMsg.getAttachment().setThumbHash(attach.getHash());
+					mSendMsg.getAttachment().setThumbKey(attach.getKey());
+				}
+				
+				if ((mSendMsg.getType().equals(ChatMessage.CHAT_VIDEO) && isThumb) || !mSendMsg.getType().equals(ChatMessage.CHAT_VIDEO)) {
+					try {
+			    		
+						Message message = new Message();
+						message.setProperty(IMMessage.PROP_ID, mSendMsg.getUniqueId());
+						message.setProperty(IMMessage.PROP_TYPE, IMMessage.PROP_TYPE_CTRL);
+						message.setProperty(IMMessage.PROP_TIME, time);
+						message.setProperty(IMMessage.PROP_WITH, mSendMsg.getWith());
+		    			message.setProperty(IMMessage.PROP_DESTROY, mSendMsg.getDestroy());
+		    			message.setProperty(IMMessage.PROP_CHATTYPE, IMMessage.SINGLE);
+		    			
+		    			if (needEncr) {
+		    				User u = ContacterManager.contacters.get(mSendMsg.getWith());
+	
+		    				message.setProperty(IMMessage.PROP_SECURITY, IMMessage.ENCRYPTION);
+		    				String encrContent = AUKeyManager.getInstance().encryptData(u.getPublicKey(), mSendMsg.getAttachment().dumps());
+		    				message.setBody(encrContent);
+		    			}
+		    			else {
+		    				message.setProperty(IMMessage.PROP_SECURITY, IMMessage.PLAIN);
+		    				message.setBody(mSendMsg.getAttachment().dumps());
+		    			}
+		    			
+		    			message.setProperty(CtrlMessage.PROP_CTRL_MSGTYPE, mSendMsg.getType());
+						mChat.sendMessage(message);
+						
+					} catch (XMPPException e) {
+						e.printStackTrace();
+						
+						mSendMsg.setStatus(IMMessage.ERROR);
+						mListener.onSentResult(mSendMsg);
+						return;
+					}
+	
+					mSendMsg.setStatus(IMMessage.SUCCESS);
+					mListener.onSentResult(mSendMsg);
+				}
 			}
 
 			@Override

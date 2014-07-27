@@ -71,10 +71,10 @@ public class RecvTextMsgHandler implements BaseHandler {
 		newMessage.setSecurity(security);
 		newMessage.setStatus(IMMessage.SUCCESS);
 		
-		if(time == null || time.length() == 0) {
-			time = DateUtil.getCurDateStr();
-		}
-		newMessage.setTime(time);
+//		if(time == null || time.length() == 0) {
+//			time = DateUtil.getCurDateStr();
+//		}
+		newMessage.setTime(DateUtil.getCurDateStr());
 
         
 		mListener.onRecvResult(newMessage);

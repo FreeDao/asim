@@ -7,12 +7,14 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket;
 
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -50,8 +52,10 @@ public class IMContactService extends Service {
 
 		context = this;
 		super.onCreate();
+		initRoster();
 		
 		IntentFilter mFilter = new IntentFilter();
+		mFilter.addAction(Constant.AUKEY_STATUS_UPDATE);
 		mFilter.addAction(Constant.ACTION_RECONNECT_STATE);
 
 		registerReceiver(reConnectionBroadcastReceiver, mFilter);
@@ -76,6 +80,9 @@ public class IMContactService extends Service {
 					initRoster();
 				}
 			}
+			else if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
+				updateMyUserInfo();
+			}
 		}
 
 	};
@@ -92,6 +99,40 @@ public class IMContactService extends Service {
 		return START_NOT_STICKY;
 		//return super.onStartCommand(intent, flags, startId);
 	}
+	
+	// 个人信息服务器更新
+	public void updateMyUserInfo() {
+		new UserInfoUpdateThread().start();
+	}
+
+	// 用户个人信息更新线程
+	private class UserInfoUpdateThread extends Thread {
+		
+		@Override
+		public void run() {
+			Log.d(TAG, "UserInfoUpdateThread");
+			if (ContacterManager.userMe != null) {
+				ContacterManager.userMe.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
+				
+				XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
+				if (conn != null) {
+					ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
+					Presence presence = new Presence(Presence.Type.available);
+					presence.setStatus("update");
+					
+					Collection<RosterEntry> rosters = conn.getRoster()
+							.getEntries();
+					for (RosterEntry rosterEntry : rosters) {
+						Log.d(TAG, "presence updated to " + rosterEntry.getUser());
+						presence.setTo(rosterEntry.getUser());
+						conn.sendPacket(presence);
+					}
+				}
+			}
+		}
+	}
+	
+	
 	/**
 	 * 添加一个监听，监听好友添加请求。
 	 */
@@ -264,7 +305,7 @@ public class IMContactService extends Service {
 	private void userAddFriendRequest(Packet packet) {
 
 		NoticeManager noticeManager = NoticeManager
-				.getInstance(context);
+				.getInstance();
 		
 		List<Notice> notices = null;
 		

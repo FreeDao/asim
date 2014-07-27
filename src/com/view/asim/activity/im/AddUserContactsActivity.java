@@ -10,6 +10,7 @@ import org.jivesoftware.smack.packet.Presence;
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.LoginActivity;
+import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
@@ -106,4 +107,50 @@ public class AddUserContactsActivity extends ActivitySupport {
 		mUsersAdapter.setUserList(mContactUsers);
 		mUsersAdapter.notifyDataSetChanged();
 	}
+	
+	@Override 
+    public void onResume() {
+    	super.onResume();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+
+		registerReceiver(receiver, filter);
+		refreshViewOnAUKeyStatusChange();
+    }
+	
+    @Override
+    public void onPause() {
+    	super.onPause();
+		unregisterReceiver(receiver);
+    }
+	
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			
+			if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
+				
+				refreshViewOnAUKeyStatusChange();
+			}
+		}
+    };
+    
+	
+	private void refreshViewOnAUKeyStatusChange() {
+		View titleBar = findViewById(R.id.main_head);
+		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
+			mBackTxt.setTextColor(getResources().getColor(R.color.white));
+			mBackTxt.setBackgroundResource(R.drawable.title_clickable_background_black);
+		}
+		else {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
+			mBackTxt.setTextColor(getResources().getColor(R.color.darkgray));
+			mBackTxt.setBackgroundResource(R.drawable.title_clickable_background);
+		}
+			
+	}
+    
 }

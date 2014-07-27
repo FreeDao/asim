@@ -21,6 +21,8 @@
 
 package com.csipsimple.service.impl;
 
+import android.util.Log;
+
 import com.csipsimple.api.SipCallSession;
 import com.csipsimple.api.SipProfile;
 
@@ -139,6 +141,7 @@ public class SipCallSessionImpl extends SipCallSession {
      * @see #isIncoming()
      */
     public void setIncoming(boolean isIncoming) {
+    	Log.w("SipCallSession", "set incoming flag: " + isIncoming + " for call id " + getCallId());
         this.isIncoming = isIncoming;
     }
 

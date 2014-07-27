@@ -214,18 +214,12 @@ public class ContacterManager {
      * @return 
      * @throws XMPPException 
      */ 
-	public static VCard saveUserVCard(XMPPConnection conn, User user) {
-		VCard card = new VCard();
+	public static VCard saveUserVCard(XMPPConnection conn, User user, VCard card) {
+		if (card == null || user == null || conn == null) {
+			return null;
+		}
+		
 		try {
-			try {
-				card.load(conn);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-			
-			Log.d(TAG, "load my vcard: " + card);
-			
 			// êÇ³Æ²»ÔÊÐíÎª¿Õ
 			card.setNickName(user.getNickName());
 			
@@ -258,6 +252,10 @@ public class ContacterManager {
 				card.setField(User.VCARD_FIELD_REMARK, user.getRemark());
 			}
 			
+			if (user.getSecurity() != null) {
+				card.setField(User.VCARD_FIELD_SECURITY, user.getSecurity());
+			}
+			
 			if (user.getPublicKey() != null) {
 				card.setField(User.VCARD_FIELD_PUBLICKEY, user.getPublicKey());
 			}
@@ -277,6 +275,20 @@ public class ContacterManager {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	
+	
+	public static VCard saveUserVCard(XMPPConnection conn, User user) {
+		VCard card = new VCard();
+		try {
+			card.load(conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+			
+		return saveUserVCard(conn, user, card);
 	}
 	
 	/**
@@ -402,6 +414,7 @@ public class ContacterManager {
 		user.setGlobalID(vcard.getField(User.VCARD_FIELD_GLOBALID));
 		user.setLocation(vcard.getAddressFieldHome(User.VCARD_FIELD_LOCATION));
 		user.setRemark(vcard.getField(User.VCARD_FIELD_REMARK));
+		user.setSecurity(vcard.getField(User.VCARD_FIELD_SECURITY));
 		user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
 		
 		String cellphone = StringUtil.getCellphoneByName(user.getName());
@@ -439,7 +452,6 @@ public class ContacterManager {
 	public static User getUserByName(XMPPConnection conn, String name) {
 		User user = new User();
 		VCard vcard = getUserVCard(conn, name);
-		Log.d(TAG, "get vcard: " + vcard);
 
 		user.setName(name);
 		user.setJID(StringUtil.getJidByName(name, conn.getServiceName()));
@@ -449,6 +461,7 @@ public class ContacterManager {
 		user.setLocation(vcard.getAddressFieldHome(User.VCARD_FIELD_LOCATION));
 		user.setRemark(vcard.getField(User.VCARD_FIELD_REMARK));
 		user.setHeadImg(getUserImage(conn, vcard));
+		user.setSecurity(vcard.getField(User.VCARD_FIELD_SECURITY));
 		user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
 		
 		if (user.getNickName() != null) {
