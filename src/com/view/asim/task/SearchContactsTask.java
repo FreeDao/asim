@@ -45,7 +45,6 @@ import com.view.asim.R;
  */
 public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 	private final static String TAG = "SearchContactsTask";
-
     
 	private ProgressDialog pd;
 	private ActivitySupport activity;
@@ -69,11 +68,13 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 
 	@Override
 	protected Integer doInBackground(String... params) {
+		ContacterManager.initPhoneContacts(activity);
 		return search();
 	}
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
+		pd.setMessage("正在搜索通讯录 (" + values[0] + "%)");
 	}
 
 	@Override
@@ -122,6 +123,8 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 	// 登录
 	private Integer search() {
 		List<User> resultsByCellphone = null;
+		int total = ContacterManager.phoneContacters.size();
+		int cur = 0;
 
 		try {
 
@@ -132,7 +135,8 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 					user = resultsByCellphone.get(0);
 			        Log.d(TAG, "found user: " + user.getName());
 			        
-			        if(ContacterManager.contacters.containsKey(user.getJID()) == false) {
+			        if(ContacterManager.contacters.containsKey(user.getJID()) == false && 
+			          !ContacterManager.userMe.getName().equals(user.getName())) {
 				        user.setContactName(ContacterManager.phoneContacters.get(key));
 				        contactUsers.add(user);
 			        }
@@ -143,6 +147,8 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 				else {
 			        Log.d(TAG, "no match user");
 				}
+				cur += 1;
+				publishProgress((int) ((cur / (float) total) * 100));
 	        }  
 		  
 		    return Constant.SERVER_SUCCESS;

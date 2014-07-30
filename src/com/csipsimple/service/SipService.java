@@ -886,9 +886,10 @@ public class SipService extends Service {
             return (String) action.getResult();
         }
 
-
-
-		
+		@Override
+		public void setSecurity(String security) throws RemoteException {
+			aukeyStatus = security;
+		}
 	};
 
 	private final ISipConfiguration.Stub binderConfiguration = new ISipConfiguration.Stub() {

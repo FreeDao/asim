@@ -17,6 +17,7 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.UserManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatMessage;
+import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
 import com.view.asim.util.FaceConversionUtil;
@@ -74,16 +75,19 @@ public class BurnMsgViewActivity extends ActivitySupport {
 	private TextView previewText;
 	private Button confirm = null;
 	private Context context;
+	
+	private boolean musicPlaying = false;
+	private boolean destroyTimerStarting = false;
 
 	private MediaPlayer mMediaPlayer = new MediaPlayer();
+	private BurnTimerThread burnThread = null;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		// Make us non-modal, so that others can receive touch events.
-	    getWindow().setFlags(LayoutParams.FLAG_NOT_FOCUSABLE, LayoutParams.FLAG_NOT_FOCUSABLE);
+	    //getWindow().setFlags(LayoutParams.FLAG_NOT_FOCUSABLE, LayoutParams.FLAG_NOT_FOCUSABLE);
 
 		setContentView(R.layout.custom_dialog);
 		init();
@@ -93,11 +97,6 @@ public class BurnMsgViewActivity extends ActivitySupport {
 		getEimApplication().addActivity(this);
 		message = (ChatMessage) getIntent().getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
 		
-    	Intent intent = new Intent();
-        intent.putExtra(ChatMessage.IMMESSAGE_KEY, message);
-
-        setResult(RESULT_OK, intent);
-
         context = this;
 
 		burnImage = (ImageView) findViewById(R.id.burn_image);
@@ -123,7 +122,14 @@ public class BurnMsgViewActivity extends ActivitySupport {
 	
 	@Override
 	public void onBackPressed() {
-		
+		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (burnThread != null) {
+				burnThread.cancel();
+			}
+			burnMessage();
+			
+		}
+		super.onBackPressed();
 	}
 	
 	@Override
@@ -131,67 +137,91 @@ public class BurnMsgViewActivity extends ActivitySupport {
 		super.onResume();
 		
 		if (!message.getType().equals(ChatMessage.CHAT_AUDIO)) {
-			new BurnTimerThread(timer, new ExpiryTimerListener() {
-	
-				@Override
-				public void onTick(int sec) {
-					final int t = sec;
-					runOnUiThread(new Runnable()    
-			        {    
-			            public void run()    
-			            {    
-			    			title.setText("文字消息(" + t + ")");
-			            }    
-			    
-			        });
-				}
-	
-				@Override
-				public void onEnd() {
-					runOnUiThread(new Runnable()    
-			        {    
-			            public void run()    
-			            {    
-			            	title.setText("销毁");
-			            	burnAnim();
-			            }    
-			        });				
-				}
-				
-			}).start();
+			if (!destroyTimerStarting) {
+				burnThread = new BurnTimerThread(timer, new ExpiryTimerListener() {
+		
+					@Override
+					public void onTick(int sec) {
+						final int t = sec;
+						runOnUiThread(new Runnable()    
+				        {    
+				            public void run()    
+				            {    
+				    			title.setText("文字消息(" + t + ")");
+				            }    
+				    
+				        });
+					}
+		
+					@Override
+					public void onEnd() {
+						runOnUiThread(new Runnable()    
+				        {    
+				            public void run()    
+				            {    
+				            	title.setText("销毁");
+				            	burnAnim();
+				            }    
+				        });				
+					}
+
+					@Override
+					public void onCancel() {
+					}
+					
+				});
+				burnThread.start();
+				destroyTimerStarting = true;
+			}
 
 		} else {
 			String uri = message.getAttachment().getSrcUri();
 
-			if (uri != null) {
-				playMusic(uri);
+			if (!musicPlaying) {
+				if (uri != null) {
+					playMusic(uri);
+					musicPlaying = true;
+				}
+				playTrackAnim();
 			}
-			playTrackAnim();
 		}
 	}
+	
 	// 自动销毁倒计时线程
 	private class BurnTimerThread extends Thread {
 		private int expiry = -1;
 		private ExpiryTimerListener listener;
+		private boolean canceled = false;
 		
 		public BurnTimerThread(int sec, ExpiryTimerListener listener) {
 			this.expiry = sec;
 			this.listener = listener; 
 		}
 		
+		public void cancel() {
+			canceled = true;
+		}
+		
 		@Override
 		public void run() {
-			Log.d(TAG, "BurnTimerThread");
+			Log.d(TAG, "BurnTimerThread start");
 			while(expiry > 0) {
+				if (canceled) {
+					listener.onCancel();
+					Log.d(TAG, "BurnTimerThread cancel");
+					return;
+				}
+				listener.onTick(expiry);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				expiry = expiry - 1;
-				listener.onTick(expiry);
 			}
 			listener.onEnd();
+			Log.d(TAG, "BurnTimerThread end");
+
 		}
 	}
 	
@@ -221,8 +251,9 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			
 			@Override
 			public void onAnimationEnd() {
-	            finish();			        
-	        }
+				burnMessage();
+		        finish();			        
+			}
 	    });
 		
 	    burnAnim.setOneShot(true);
@@ -243,7 +274,7 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			mMediaPlayer.start();
 			mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer mp) {
-					new BurnTimerThread(timer / 2, new ExpiryTimerListener() {
+					burnThread = new BurnTimerThread(timer / 2, new ExpiryTimerListener() {
 						
 						@Override
 						public void onTick(int sec) {
@@ -269,8 +300,15 @@ public class BurnMsgViewActivity extends ActivitySupport {
 					            }    
 					        });				
 						}
+
+						@Override
+						public void onCancel() {
+							// TODO Auto-generated method stub
+							
+						}
 						
-					}).start();
+					});
+					burnThread.start();
 				}
 			});
 
@@ -278,6 +316,24 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			e.printStackTrace();
 		}
 
+	}
+	
+	@Override
+	public void onPause() {
+		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (burnThread != null) {
+				burnThread.cancel();
+			}
+			burnMessage();
+			
+		}
+		super.onPause();
+	}
+	
+	private void burnMessage() {
+    	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
+    	showToast("消息已销毁");
+    	MessageManager.getInstance().delChatHisById(message.getId());
 	}
 	
 }

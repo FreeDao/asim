@@ -82,7 +82,7 @@ public class AsimApplication extends Application {
         initRootPath();
         
         CrashHandler crashHandler = CrashHandler.getInstance();  
-        crashHandler.init(this);
+        //crashHandler.init(this);
 	}
 	
 	private void initRootPath() {

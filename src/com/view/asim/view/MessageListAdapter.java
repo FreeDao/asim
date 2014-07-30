@@ -109,8 +109,8 @@ public class MessageListAdapter extends BaseAdapter {
 		
 		imageLoader = loader;
 		options = new DisplayImageOptions.Builder()
-			.showImageForEmptyUri(R.drawable.image_download_fail_icon)
-			.showImageOnFail(R.drawable.image_download_fail_icon)
+			//.showImageForEmptyUri(R.drawable.image_download_fail_icon)
+			//.showImageOnFail(R.drawable.image_download_fail_icon)
 			.cacheInMemory(true)
 			.cacheOnDisc(true)
 			.considerExifParams(true)
@@ -490,10 +490,15 @@ public class MessageListAdapter extends BaseAdapter {
 				
 			case VALUE_LEFT_TEXT:
 				msg = (ChatMessage)item.getValue();
-				spannableString = FaceConversionUtil.getInstace().
-						getExpressionString(mCntx, msg.getContent(), 60);
+				if (msg.getContent() != null) {
+					spannableString = FaceConversionUtil.getInstace().
+							getExpressionString(mCntx, msg.getContent(), 60);
+					holderLeftText.btnLeftText.setText(spannableString);
+				}
+				else {
+					holderLeftText.btnLeftText.setText("");
+				}
 				setAvatarImage(holderLeftText.ivLeftIcon, user);
-				holderLeftText.btnLeftText.setText(spannableString);
 				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
 					holderLeftText.ivSecurityImg.setVisibility(View.VISIBLE);
 				}
@@ -638,10 +643,17 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightText.ivSecurityImg.setVisibility(View.GONE);
 				}
 
+				if (msg.getContent() != null) {
+					spannableString = FaceConversionUtil.getInstace().
+							getExpressionString(mCntx, msg.getContent(), 60);
+					holderRightText.btnRightText.setText(spannableString);
+				}
+				else {
+					holderRightText.btnRightText.setText("");
+				}
 				spannableString = FaceConversionUtil.getInstace().
 						getExpressionString(mCntx, msg.getContent(), 60);
 				setAvatarImage(holderRightText.ivRightIcon, ContacterManager.userMe);
-				holderRightText.btnRightText.setText(spannableString);
 				holderRightText.btnRightText.setTag(msg);
 				holderRightText.ivFailedImg.setTag(msg);
 

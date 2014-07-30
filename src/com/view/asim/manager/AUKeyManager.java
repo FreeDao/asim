@@ -52,7 +52,7 @@ public class AUKeyManager {
 	private PublicKey mMyPubKey = null;
 		
 	private AUKeyManager() {
-		mStatus = UNKNOWN;
+		mStatus = DETACHED;
 	}
 
 	public static AUKeyManager getInstance() {

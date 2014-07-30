@@ -39,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.view.asim.R;
@@ -54,6 +55,7 @@ public class AddUserContactsActivity extends ActivitySupport {
 	private ListView mFriendsList = null;
 	private ContactUsersAdapter mUsersAdapter = null;
 	private List<User> mContactUsers = new ArrayList<User>();
+	private View noContactersLayout = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class AddUserContactsActivity extends ActivitySupport {
 
 	private void init() {
 		getEimApplication().addActivity(this);
+		noContactersLayout = (LinearLayout) findViewById(R.id.no_other_contacters_layout);
 
 		mBackTxt = (TextView) findViewById(R.id.title_back_btn);
 		mBackTxt.setOnClickListener(new OnClickListener() {
@@ -104,8 +107,17 @@ public class AddUserContactsActivity extends ActivitySupport {
 	}
 
 	public void refresh() {
-		mUsersAdapter.setUserList(mContactUsers);
-		mUsersAdapter.notifyDataSetChanged();
+		
+		if(mContactUsers.size() > 0) {
+			mUsersAdapter.setUserList(mContactUsers);
+			mUsersAdapter.notifyDataSetChanged();
+			noContactersLayout.setVisibility(View.GONE);
+			mFriendsList.setVisibility(View.VISIBLE);
+		}
+		else {
+			noContactersLayout.setVisibility(View.VISIBLE);
+			mFriendsList.setVisibility(View.GONE);
+		}
 	}
 	
 	@Override 

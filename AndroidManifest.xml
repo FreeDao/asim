@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.view.asim"
     android:versionCode="1"
-    android:versionName="0.7.26" >
+    android:versionName="0.7.28" >
 
     <uses-sdk
         android:minSdkVersion="12"
@@ -203,20 +203,20 @@
         <!-- 预览界面 -->
         <activity
             android:name="com.view.asim.activity.im.ImagePreviewActivity"
-            android:launchMode="standard"
+            android:launchMode="singleInstance"
             android:screenOrientation="unspecified" >
         </activity>
         <!-- 预览界面 -->
         <activity
             android:name="com.view.asim.activity.im.VideoPreviewActivity"
-            android:launchMode="standard"
+            android:launchMode="singleInstance"
             android:screenOrientation="unspecified" >
         </activity>
         
         <!-- 阅后即焚预览界面 -->
         <activity
             android:name="com.view.asim.activity.im.BurnMsgViewActivity"
-            android:launchMode="standard"
+            android:launchMode="singleInstance"
             android:screenOrientation="unspecified"
             android:theme="@style/Translucent_NoTitle" >
         </activity>
@@ -275,8 +275,7 @@
         <service
             android:name="com.csipsimple.service.SipService"
             android:exported="true"
-            android:permission="android.permission.CONFIGURE_SIP"
-            android:process=":sipStack" >
+            android:permission="android.permission.CONFIGURE_SIP">
             <intent-filter>
                 <action android:name="com.csipsimple.service.SipService" />
                 <action android:name="com.csipsimple.service.SipConfiguration" />
@@ -285,7 +284,7 @@
         
         <receiver
             android:name="com.csipsimple.service.DeviceStateReceiver"
-            android:process=":sipStack" >
+            >
 
             <!-- Here filter for protected-broadcasts -->
             <intent-filter>
@@ -303,7 +302,7 @@
         <receiver
             android:name="com.csipsimple.service.DeviceStateReceiver"
             android:permission="android.permission.CONFIGURE_SIP"
-            android:process=":sipStack" >
+            >
             <intent-filter>
                 <action android:name="com.csipsimple.accounts.activate" />
             </intent-filter>

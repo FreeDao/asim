@@ -1060,7 +1060,7 @@ public class MainActivity extends AContacterActivity implements
 	 */
 	@Override
 	protected void msgReceive(IMMessage msg) {
-		Log.d(TAG, "msgReceive: " + msg.getFrom());
+		Log.d(TAG, "msgReceive: " + msg);
 		refreshMessageListView();
 	}
 	

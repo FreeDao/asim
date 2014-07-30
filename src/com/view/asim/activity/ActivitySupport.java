@@ -75,6 +75,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		preferences = getSharedPreferences(Constant.IM_SET_PREF, 0);
 		sipPreferences = getSharedPreferences(Constant.SIP_SET_PREF, 0);
 		pg = new ProgressDialog(context);
+		pg.setCancelable(false);
 		eimApplication = (AsimApplication) getApplication();
 		eimApplication.addActivity(this);
 		

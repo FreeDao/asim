@@ -109,7 +109,6 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableTop="@drawable/record_delay_selector"
                     android:gravity="center_horizontal"
                     android:text="@string/record_camera_delay"
                     android:textColor="@color/record_text_color_selector"

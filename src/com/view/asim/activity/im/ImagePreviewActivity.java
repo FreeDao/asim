@@ -86,6 +86,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 
 	private DisplayImageOptions options;
 	private WeakReference<Bitmap> downloadImage = null;
+	private BurnTimerThread burnThread = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -211,16 +212,26 @@ public class ImagePreviewActivity extends ActivitySupport{
 	private class BurnTimerThread extends Thread {
 		private int expiry = -1;
 		private ExpiryTimerListener listener;
+		private boolean canceled = false;
 		
 		public BurnTimerThread(int sec, ExpiryTimerListener listener) {
 			this.expiry = sec;
 			this.listener = listener; 
 		}
 		
+		public void cancel() {
+			canceled = true;
+		}
+		
 		@Override
 		public void run() {
-			Log.d(TAG, "BurnTimerThread");
+			Log.d(TAG, "BurnTimerThread start");
 			while(expiry > 0) {
+				if (canceled) {
+					listener.onCancel();
+					Log.d(TAG, "BurnTimerThread cancel");
+					return;
+				}
 				listener.onTick(expiry);
 				try {
 					Thread.sleep(1000);
@@ -230,6 +241,8 @@ public class ImagePreviewActivity extends ActivitySupport{
 				expiry = expiry - 1;
 			}
 			listener.onEnd();
+			Log.d(TAG, "BurnTimerThread end");
+
 		}
 	}
 	
@@ -237,7 +250,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
 			mSaveBtn.setVisibility(View.GONE);
 			mTimerBtn.setVisibility(View.VISIBLE);
-			new BurnTimerThread(timer, new ExpiryTimerListener() {
+			burnThread = new BurnTimerThread(timer, new ExpiryTimerListener() {
 				
 				@Override
 				public void onTick(int sec) {
@@ -263,28 +276,25 @@ public class ImagePreviewActivity extends ActivitySupport{
 			            }    
 			        });				
 				}
+
+				@Override
+				public void onCancel() {
+					
+				}
 				
-			}).start();
+			});
+			burnThread.start();
 		}
 	}
 	
 	private void Burn() {
-
-    	Intent intent = new Intent();
-        intent.putExtra(ChatMessage.IMMESSAGE_KEY, message);
-
-        setResult(RESULT_OK, intent);
+		burnMessage();
         finish();			        
 	}
 
 	private void init() {
 		getEimApplication().addActivity(this);
 		message = (ChatMessage) getIntent().getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
-		
-    	Intent intent = new Intent();
-        intent.putExtra(ChatMessage.IMMESSAGE_KEY, message);
-
-        setResult(RESULT_OK, intent);
 		
 		mPreviewImg = (ImageView) findViewById(R.id.preview_img);
 		mProgressTxt = (TextView) findViewById(R.id.progress_txt);
@@ -330,7 +340,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 		});
 		
 		options = new DisplayImageOptions.Builder()
-			.showImageOnFail(R.drawable.image_download_fail_icon)
+			//.showImageOnFail(R.drawable.image_download_fail_icon)
 			.resetViewBeforeLoading(true)
 			.cacheOnDisc(true)
 			.imageScaleType(ImageScaleType.EXACTLY)
@@ -340,4 +350,33 @@ public class ImagePreviewActivity extends ActivitySupport{
 			.build();
 	}
 	
+	@Override
+	public void onBackPressed() {
+		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (burnThread != null) {
+				burnThread.cancel();
+			}
+			burnMessage();
+			
+		}
+		super.onBackPressed();
+	}
+	
+	@Override
+	public void onStop() {
+		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (burnThread != null) {
+				burnThread.cancel();
+			}
+			burnMessage();
+			
+		}
+		super.onStop();
+	}
+	
+	private void burnMessage() {
+    	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
+    	showToast("消息已销毁");
+    	MessageManager.getInstance().delChatHisById(message.getId());
+	}
 }

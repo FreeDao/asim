@@ -11,7 +11,9 @@ import org.jivesoftware.smack.packet.Presence;
 import com.csipsimple.api.ISipService;
 import com.csipsimple.api.SipManager;
 import com.view.asim.activity.ActivitySupport;
+import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
+import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -22,10 +24,12 @@ import com.view.asim.model.User;
 import com.view.asim.util.StringUtil;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -83,6 +87,50 @@ public class SettingsActivity extends ActivitySupport {
 
 		setContentView(R.layout.settings);
 		init();
+	}
+	
+	@Override 
+    public void onResume() {
+    	super.onResume();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+
+		registerReceiver(receiver, filter);
+		refreshViewOnAUKeyStatusChange();
+    }
+	
+    @Override
+    public void onPause() {
+    	super.onPause();
+		unregisterReceiver(receiver);
+    }
+	
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			
+			if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
+				
+				refreshViewOnAUKeyStatusChange();
+			}
+		}
+    };
+    
+	private void refreshViewOnAUKeyStatusChange() {
+		View titleBar = findViewById(R.id.main_head);
+		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.grayblack));
+			mBackTxtBtn.setTextColor(getResources().getColor(R.color.white));
+			mBackTxtBtn.setBackgroundResource(R.drawable.title_clickable_background_black);
+		}
+		else {
+			titleBar.setBackgroundColor(getResources().getColor(R.color.white6));
+			mBackTxtBtn.setTextColor(getResources().getColor(R.color.darkgray));
+			mBackTxtBtn.setBackgroundResource(R.drawable.title_clickable_background);
+		}
+			
 	}
 
 	private void init() {

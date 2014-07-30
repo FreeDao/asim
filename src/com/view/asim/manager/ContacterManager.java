@@ -27,6 +27,7 @@ import com.view.asim.model.GroupUser;
 import com.view.asim.model.User;
 import com.view.asim.util.CharacterParser;
 import com.view.asim.util.CryptoUtil;
+import com.view.asim.util.DateUtil;
 import com.view.asim.util.ImageUtil;
 import com.view.asim.util.StringUtil;
 
@@ -104,9 +105,10 @@ public class ContacterManager {
 		}		
 	}
 
-	protected static void initPhoneContacts(Context cntx) {
-		Log.d(TAG, "init phone contacters");
+	public static void initPhoneContacts(Context cntx) {
+		Log.d(TAG, "init phone contacters start on " + DateUtil.getCurDateStr());
 
+		phoneContacters.clear();
 		ContentResolver resolver = cntx.getContentResolver();  
 		  
 	    // 获取手机联系人  
@@ -142,6 +144,8 @@ public class ContacterManager {
 	  
 	        phoneCursor.close();
 	    }
+		Log.d(TAG, "init phone contacters end on " + DateUtil.getCurDateStr());
+
 	}
 	
 	/**
@@ -771,11 +775,18 @@ public class ContacterManager {
 		Iterator<Row> it = data.getRows();
 		Row row = null;
 		User user = null;
+		String name = null;
+		String nick = null;
 		while (it.hasNext()) {
 			row = it.next();
-			user = getUserByName(conn, row.getValues("Username").next().toString());
-			
-			Log.d(TAG, "search succ: " + user);
+			//user = getUserByName(conn, row.getValues("Username").next().toString());
+			name = row.getValues("Username").next().toString();
+			nick = row.getValues("Name").next().toString();
+			user = new User();
+			user.setName(name);
+			user.setJID(StringUtil.getJidByName(name));
+			user.setNickName(nick);
+			Log.d(TAG, "search succ: " + name  + ", " + nick);
 			results.add(user);
 		}
 		if (results.size() == 0) 

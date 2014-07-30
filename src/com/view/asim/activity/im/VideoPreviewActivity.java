@@ -69,6 +69,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	private DisplayImageOptions options;
 	private WeakReference<Bitmap> downloadImage = null;
 	private int mWindowWidth;
+	private BurnTimerThread burnThread = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -197,16 +198,26 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	private class BurnTimerThread extends Thread {
 		private int expiry = -1;
 		private ExpiryTimerListener listener;
-		
+		private boolean canceled = false;
+
 		public BurnTimerThread(int sec, ExpiryTimerListener listener) {
 			this.expiry = sec;
 			this.listener = listener; 
 		}
 		
+		public void cancel() {
+			canceled = true;
+		}
+
 		@Override
 		public void run() {
-			Log.d(TAG, "BurnTimerThread");
+			Log.d(TAG, "BurnTimerThread start");
 			while(expiry > 0) {
+				if (canceled) {
+					listener.onCancel();
+					Log.d(TAG, "BurnTimerThread cancel");
+					return;
+				}
 				listener.onTick(expiry);
 				try {
 					Thread.sleep(1000);
@@ -216,6 +227,8 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 				expiry = expiry - 1;
 			}
 			listener.onEnd();
+			Log.d(TAG, "BurnTimerThread end");
+
 		}
 	}
 	
@@ -249,6 +262,11 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 			            }    
 			        });				
 				}
+
+				@Override
+				public void onCancel() {
+					
+				}
 				
 			}).start();
 		}
@@ -256,21 +274,13 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	
 	private void Burn() {
 
-    	Intent intent = new Intent();
-        intent.putExtra(ChatMessage.IMMESSAGE_KEY, message);
-
-        setResult(RESULT_OK, intent);
+		burnMessage();
         finish();			        
 	}
 
 	private void init() {
 		getEimApplication().addActivity(this);
 		message = (ChatMessage) getIntent().getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
-		
-    	Intent intent = new Intent();
-        intent.putExtra(ChatMessage.IMMESSAGE_KEY, message);
-
-        setResult(RESULT_OK, intent);
 		
 		mPreviewImg = (ImageView) findViewById(R.id.preview_img);
 		mVideoView = (VideoView) findViewById(R.id.video_preview);
@@ -323,7 +333,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 		});
 		
 		options = new DisplayImageOptions.Builder()
-			.showImageOnFail(R.drawable.image_download_fail_icon)
+			//.showImageOnFail(R.drawable.image_download_fail_icon)
 			.resetViewBeforeLoading(true)
 			.cacheOnDisc(true)
 			.imageScaleType(ImageScaleType.EXACTLY)
@@ -353,6 +363,36 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		startBurnTimer();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (burnThread != null) {
+				burnThread.cancel();
+			}
+			burnMessage();
+			
+		}
+		super.onBackPressed();
+	}
+	
+	@Override
+	public void onStop() {
+		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (burnThread != null) {
+				burnThread.cancel();
+			}
+			burnMessage();
+			
+		}
+		super.onStop();
+	}
+	
+	private void burnMessage() {
+    	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
+    	showToast("消息已销毁");
+    	MessageManager.getInstance().delChatHisById(message.getId());
 	}
 	
 }

@@ -647,7 +647,8 @@ public class UAStateReceiver extends Callback {
             if (callInfo == null) {
                 callInfo = new SipCallSessionImpl();
                 callInfo.setCallId(callId);
-        		if (SipService.aukeyStatus.equals(AUKeyManager.ATTACHED)) {
+        		//if (SipService.aukeyStatus.equals(AUKeyManager.ATTACHED)) {
+        		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
 
         			callInfo.setSecurity(IMMessage.ENCRYPTION);
         		}

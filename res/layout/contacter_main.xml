@@ -44,7 +44,6 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/ivTitleName"
-            android:background="@drawable/icon_setting_security"
             android:visibility="gone" />
 
         <com.view.asim.view.CircleImageView
@@ -107,7 +106,7 @@
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:text="@string/navi_message"
                     android:textColor="@color/darkgray"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/message_paopao_txt"
@@ -137,7 +136,7 @@
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:text="@string/navi_contacts"
                     android:textColor="@color/darkgray"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:id="@+id/contacts_paopao_img"
@@ -166,7 +165,7 @@
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:text="@string/navi_call"
                     android:textColor="@color/darkgray"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
                  <ImageView
                     android:id="@+id/calllogs_paopao_img"
                     android:layout_width="wrap_content"

@@ -17,13 +17,13 @@
             android:layout_alignParentLeft="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:background="@drawable/title_clickable_background"
+            android:drawableLeft="@drawable/common_back_btn_normal"
+            android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:drawableLeft="@drawable/common_back_btn_normal"
-            android:background="@drawable/title_clickable_background"
-            android:gravity="center_vertical"
-            android:textColor="@color/black"
             android:text="@string/user_notify"
+            android:textColor="@color/black"
             android:textSize="18.0sp" />
 
         <ImageButton
@@ -43,11 +43,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" 
-        android:background="@color/white"
-        
+        android:layout_height="match_parent"
         android:layout_weight="1.0"
-        >
+        android:background="@color/white" >
 
         <ListView
             android:id="@+id/my_notice_list"
@@ -70,7 +68,7 @@
                 android:layout_gravity="center_horizontal|center_vertical"
                 android:src="@drawable/friends_map_introduce_image" />
 
-           <TextView
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|center_vertical"

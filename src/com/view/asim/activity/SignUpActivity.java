@@ -76,8 +76,9 @@ public class SignUpActivity extends ActivitySupport {
 	private final static int SIGNUP_CONFLICT = -1;
 	private final static int SIGNUP_SUCC = 0;
 	private final static int SEND_SMSCODE_COMPLETE = 1;
-	private final static int RESEND_SMSCODE_OK = 2;
-	private final static int REFRESH_SMSCODE_TIMER = 3;
+	private final static int SEND_SMSCODE_FAILED = 2;
+	private final static int RESEND_SMSCODE_OK = 3;
+	private final static int REFRESH_SMSCODE_TIMER = 4;
 	
 	private final static int SMS_CODE_RESEND_DURATION = 60;
 	// 用于连续按返回键退出的判定时间
@@ -291,6 +292,10 @@ public class SignUpActivity extends ActivitySupport {
 				showVerificationLayout(mCellphoneText.getText().toString().trim());
 				break;
 				
+        	case SEND_SMSCODE_FAILED:
+        		showToast("短信验证码发送失败，请检查手机号码，稍等重试");
+        		break;
+				
         	case RESEND_SMSCODE_OK:
 				allowResendSmsCode();
 				break;
@@ -310,7 +315,8 @@ public class SignUpActivity extends ActivitySupport {
 					notifySmsCodeSent();
 				}
 				else {
-					showToast("短信验证码发送失败，请稍等后重试");
+					//showToast("短信验证码发送失败，请稍等后重试");
+					notifySmsCodeSentFailed();
 				}
 			}
 			
@@ -336,6 +342,11 @@ public class SignUpActivity extends ActivitySupport {
 			public void onEnd() {
 				notifyCanResendSmsCode();
 			}
+
+			@Override
+			public void onCancel() {
+				
+			}
 		});
 		mSmsCodeSendWorker.addHandler(timerHandler);
 
@@ -359,6 +370,10 @@ public class SignUpActivity extends ActivitySupport {
     
     public void notifySmsCodeSent() {
     	handler.sendEmptyMessage(SEND_SMSCODE_COMPLETE);
+    }
+    
+    public void notifySmsCodeSentFailed() {
+    	handler.sendEmptyMessage(SEND_SMSCODE_FAILED);
     }
     
     public void notifyCanResendSmsCode() {

@@ -34,7 +34,7 @@
             android:gravity="center"
             android:text="用户名"
             android:textColor="@color/darkgray"
-            android:textSize="18.0sp" />
+            android:textSize="18sp" />
 
         <ImageView
             android:layout_width="match_parent"

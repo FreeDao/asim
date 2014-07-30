@@ -125,6 +125,9 @@ public class ContactsAdapter extends BaseAdapter {
 				//rightIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
 				//rightIcon.setBounds(0, 0, rightIcon.getMinimumWidth(), rightIcon.getMinimumHeight());
 			}
+			else {
+				holder.securityImage.setVisibility(View.GONE);
+			}
 			
 			//holder.text.setCompoundDrawables(null, null, rightIcon, null);
 			
@@ -209,6 +212,9 @@ public class ContactsAdapter extends BaseAdapter {
 				holder.securityImage.setVisibility(View.VISIBLE);
 				//rightIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
 				//rightIcon.setBounds(0, 0, rightIcon.getMinimumWidth(), rightIcon.getMinimumHeight());
+			}
+			else {
+				holder.securityImage.setVisibility(View.GONE);
 			}
 			
 			if (u.getHeadImg() != null) {

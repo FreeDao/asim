@@ -3,6 +3,8 @@ package com.view.asim.worker;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.jivesoftware.smack.packet.Message;
 
@@ -88,6 +90,7 @@ public class RecvFileMsgHandler implements BaseHandler {
 		newMessage.setDestroy(destroy);
 		newMessage.setChatType(chatType);
 		newMessage.setSecurity(security);
+		newMessage.setContent("");
 //		if(time == null || time.length() == 0) {
 //			time = DateUtil.getCurDateStr();
 //		}
@@ -181,7 +184,17 @@ public class RecvFileMsgHandler implements BaseHandler {
     }
     
     private void downloadImage(Attachment att, ChatMessage msg) {
-		String downloadUrl = "http://" + Constant.FILE_STORAGE_HOST + "/" + att.getKey();
+		String downloadUrl = null;
+		try {
+			String key = att.getKey();
+			if (key.contains(" ")) {
+				key = URLEncoder.encode(key, "UTF-8").replaceAll("\\+", "%20");
+			}
+			downloadUrl = "http://" + Constant.FILE_STORAGE_HOST + "/" + key;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return;
+		};
 		
 		msg.setContent(mNickName + "发来了一张图片");
 

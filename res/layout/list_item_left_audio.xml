@@ -1,8 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res/com.view.asim"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" xmlns:app="http://schemas.android.com/apk/res/com.view.asim">
+    android:orientation="vertical" >
 
     <TextView
         android:layout_width="fill_parent"
@@ -11,6 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="left"
         android:orientation="horizontal" >
 
         <com.view.asim.view.CircleImageView
@@ -19,10 +21,16 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/default_avatar_male" 
-            app:border_width="1px"
-            app:border_color="@color/white"/>
+            android:src="@drawable/default_avatar_male"
+            app:border_color="@color/white"
+            app:border_width="1px" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="left"
+            android:orientation="horizontal" >           
         <Button
             android:id="@+id/btn_left_audio"
             android:layout_width="wrap_content"
@@ -30,31 +38,30 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@drawable/message_left_white_bg"
-            android:gravity="right|center_vertical"
             android:drawableLeft="@drawable/audio_play_anim_left"
+            android:gravity="right|center_vertical"
+            android:layout_weight="1.0"
             android:paddingLeft="15dp"
             android:paddingRight="10dp"
-            android:textSize="14dp" 
-            android:text="6''"
-            android:textColor="@color/puregreen"/>
-        
-            <ImageView 
-	            android:id="@+id/security_img"
-	            android:layout_width="20dp"
-	            android:layout_height="20dp"
-	            android:layout_marginLeft="10dp"
-	            android:src="@drawable/notificationbar_icon_logo_intercept_sms"
-	            android:layout_gravity="center_vertical"
-	            android:visibility="gone"
-	            />
-        
+            android:text="6&apos;&apos;"
+            android:textColor="@color/puregreen"
+            android:textSize="14dp" />
 
+        <ImageView
+            android:id="@+id/security_img"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/notificationbar_icon_logo_intercept_sms"
+            android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="10dp" 
-        android:textSize="10sp"
-        android:textColor="@color/white"/>
+        android:layout_height="10dp"
+        android:textColor="@color/white"
+        android:textSize="10sp" />
 
 </LinearLayout>

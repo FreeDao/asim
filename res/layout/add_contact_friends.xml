@@ -33,13 +33,48 @@
         android:layout_height="1dp"
         android:background="@color/linegray" />
 
-    <ListView
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:background="@color/white" >
+    
+    
+   	 <ListView
         android:id="@+id/friends_list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1.0"
         android:background="@color/white"
         android:divider="@null"
-        android:listSelector="@android:color/transparent" />
+        android:listSelector="@android:color/transparent"
+        android:visibility="gone" />
+   	 
+        <LinearLayout
+            android:id="@+id/no_other_contacters_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="150dp"
+            android:orientation="vertical"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:src="@drawable/friends_map_introduce_image" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/no_other_contacters_tips"
+                android:textColor="@color/gray"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </RelativeLayout>    
+
 
 </LinearLayout>

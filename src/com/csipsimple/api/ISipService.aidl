@@ -218,5 +218,7 @@ interface ISipService{
 	 * Get nat type detected by the sip stack
 	 * @return String representing nat type detected by the stack. Empty string if nothing detected yet.
 	 */
-	 String getLocalNatType();
+	String getLocalNatType();
+	 
+	void setSecurity(String security); 
 }

@@ -64,7 +64,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	
 	private User mUser;
 	final int SCREEN_OFF_TIMEOUT = 12000;
-    private static final int QUIT_DELAY = 3000;
+    private static final int QUIT_DELAY = 2000;
     private String mUKeyState = AUKeyManager.DETACHED;
     
     private boolean isIncoming = false;
@@ -157,12 +157,6 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
             quitTimer = new Timer("Quit-timer");
         }
         
-//        synchronized (callMutex) {
-//            callsInfo = new SipCallSession[1];
-//            callsInfo[0] = initialSession;
-//        }
-        
-        
         useAutoDetectSpeaker = prefsWrapper.getPreferenceBooleanValue(SipConfigManager.AUTO_DETECT_SPEAKER);
         proximityManager.startTracking();
         takeKeyEvents(true);
@@ -251,7 +245,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 		mInCallLayout = findViewById(R.id.incall_layout);
 		mCalledLayout = findViewById(R.id.called_layout);
 		
-		mUKeyState = AUKeyManager.getInstance().getAUKeyStatus();
+		mUKeyState = callInfo.getSecurity();
 
 		setCallState(callInfo);
 	}
@@ -622,6 +616,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 //					Log.w(TAG, "askey state changed (" + mUKeyState + " -> " + AUKeyManager.getInstance().getAUKeyStatus() + ").");
 //					onTrigger(TERMINATE_CALL);
 //				}
+				mUKeyState = intent.getStringExtra(Constant.AUKEY_STATUS_KEY);
+				mUser = getUser(callInfo);
 				refreshViewOnAUKeyStatusChange();
 			}
 			else if (action.equals(SipManager.ACTION_SIP_CALL_CHANGED)) {
@@ -664,7 +660,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	
 	private void refreshViewOnAUKeyStatusChange() {
 		View screen = findViewById(R.id.call_screen_layout);
-		if (mUKeyState.equals(AUKeyManager.ATTACHED) && mUser.getSecurity().equals(AUKeyManager.ATTACHED)) {
+		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED) && mUser.getSecurity().equals(AUKeyManager.ATTACHED)) {
 			screen.setBackgroundResource(R.drawable.account_guidance_bg);
 			mCallType.setText("ÃÜ»°Ä£Ê½");
 			mCallType.setVisibility(View.VISIBLE);
@@ -711,7 +707,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 		try {
 			infos = service.showCallInfosDialog(callInfo.getCallId());
 	        natType = service.getLocalNatType();
-		} catch (RemoteException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		

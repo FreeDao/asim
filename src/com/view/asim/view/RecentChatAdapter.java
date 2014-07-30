@@ -116,8 +116,12 @@ public class RecentChatAdapter extends BaseAdapter {
 			}
 		}
 		else {
-			spannableString = FaceConversionUtil.getInstace().getExpressionString(context, notice.getContent(), 40);
-			holder.lastMsgTxt.setText(spannableString);
+			if (notice.getContent() != null) {
+				spannableString = FaceConversionUtil.getInstace().getExpressionString(context, notice.getContent(), 40);
+				holder.lastMsgTxt.setText(spannableString);
+			} else {
+				holder.lastMsgTxt.setText("");
+			}
 		}
 		
 		String dispTime = DateUtil.getMDHM(DateUtil.str2Calendar(notice.getTime()).getTimeInMillis());

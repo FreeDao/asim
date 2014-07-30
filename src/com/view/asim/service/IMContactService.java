@@ -157,7 +157,9 @@ public class IMContactService extends Service {
 					if (presence.getType().equals(Presence.Type.subscribe) || 
 						presence.getType().equals(Presence.Type.unsubscribe) ||
 						presence.getType().equals(Presence.Type.subscribed) ||
-						presence.getType().equals(Presence.Type.available)) {
+						presence.getType().equals(Presence.Type.available) ||
+						presence.getType().equals(Presence.Type.unavailable)
+						) {
 						return true;
 					}
 				}

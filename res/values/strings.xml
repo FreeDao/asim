@@ -73,6 +73,7 @@
     <string name="settings_exit_btn">退出密信</string>
     <string name="no_chat_message_tips">快去通讯录，找个密友聊聊吧！</string>
     <string name="no_notice_tips">每次和密友间相互添加，这里都会记录下来。</string>
+	<string name="no_other_contacters_tips">通讯录里没有其他密信好友咯，快去邀请吧。</string>    
     <string name="no_contacts_tips">一个人好孤独，快去添加密友吧！</string>
     <string name="no_friends_message_tips">密友圈空空如也，快去分享好玩的事情吧！</string>
     <string name="no_calllogs_tips">试试用密话，和密友通个电话吧！</string>

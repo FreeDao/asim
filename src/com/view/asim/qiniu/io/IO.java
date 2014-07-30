@@ -3,6 +3,7 @@ package com.view.asim.qiniu.io;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import com.view.asim.qiniu.auth.Client;
 import com.view.asim.qiniu.auth.JSONObjectRet;
@@ -15,8 +16,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 public class IO {
@@ -97,7 +100,13 @@ public class IO {
 	public void putFile(Context mContext, String key, Uri uri, PutExtra extra, final JSONObjectRet ret) {
 		if (!uri.toString().startsWith("file")) uri = convertFileUri(mContext, uri);
 		try {
-			File file = new File(new URI(uri.toString()));
+			String uriStr = uri.toString();
+			if (uriStr.contains(" ")) {
+				Log.w("qiniu.IO", "uri path contains invalid char: " + uriStr);
+				uriStr = uriStr.replaceAll(" ", "%20");
+			}
+			File file = new File(new URI(uriStr));
+
 			if (file.exists()) {
 				putAndClose(key, InputStreamAt.fromFile(file), extra, ret);
 				return;

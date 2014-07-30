@@ -11,9 +11,12 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.LoginActivity;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
+import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
+import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
+import com.view.asim.util.DateUtil;
 import com.view.asim.util.StringUtil;
 import com.view.asim.view.NoticeAdapter;
 
@@ -74,6 +77,9 @@ public class UserNoticeActivity extends ActivitySupport {
 
 	@Override
 	protected void onResume() {
+
+		super.onResume();
+
 		// 注册广播接收器
 		IntentFilter filter = new IntentFilter();
 		// 好友请求
@@ -82,11 +88,7 @@ public class UserNoticeActivity extends ActivitySupport {
 		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
 		
 		registerReceiver(receiver, filter);
-		super.onResume();
-		
 		NoticeManager.getInstance().clearRosterMessageNotify();
-		NoticeManager.getInstance().updateAllReadStatus(Notice.READ);
-		
 		refresh();
 	}
 
@@ -117,6 +119,12 @@ public class UserNoticeActivity extends ActivitySupport {
 		noticeManager = NoticeManager.getInstance();
 		noticeAdapter = new NoticeAdapter(context, inviteNotices, acceptClick);
 		noticeList.setAdapter(noticeAdapter);
+		
+		new Thread() {
+			public void run() {
+				NoticeManager.getInstance().updateAllReadStatus(Notice.READ);
+			}
+		}.start();
 	}
 
 	private class ContacterReceiver extends BroadcastReceiver {
@@ -174,8 +182,10 @@ public class UserNoticeActivity extends ActivitySupport {
 	}
 
 	private void refresh() {
+		Log.d(TAG, "get all notices from db start on " + DateUtil.getCurDateStr());
 		inviteNotices = noticeManager.getAllNoticeListByDispStatus(Notice.DISPLAY);
-		
+		Log.d(TAG, "get all notices from db end on " + DateUtil.getCurDateStr());
+
 		if(inviteNotices.size() > 0) {
 			noticeAdapter.setNoticeList(inviteNotices);
 			noticeAdapter.notifyDataSetChanged();

@@ -104,9 +104,9 @@ public abstract class AChatActivity extends ActivitySupport {
 		if(mInitialMsg != null) {
 			try {
 				if (mInitialMsg.getType().equals(ChatMessage.CHAT_TEXT)) {
-					sendMessage(mInitialMsg);
+					sendMessage(mInitialMsg, true);
 				} else {
-					sendFile(mInitialMsg);
+					sendFile(mInitialMsg, true);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -303,11 +303,15 @@ public abstract class AChatActivity extends ActivitySupport {
 
 	}
 	
-	protected void sendMessage(ChatMessage msg) throws Exception {
+	protected void sendMessage(ChatMessage msg, boolean save) throws Exception {
 
 		msg.setStatus(IMMessage.INPROGRESS);
-		long msgId = MessageManager.getInstance().saveIMMessage(msg);
-		msg.setId("" + msgId);
+		if (save) {
+			long msgId = MessageManager.getInstance().saveIMMessage(msg);
+			msg.setId("" + msgId);
+		} else {
+			MessageManager.getInstance().updateIMMessage(msg);
+		}
 		
 		mMessagePool.put(msg.getId(), msg);
 
@@ -544,10 +548,13 @@ public abstract class AChatActivity extends ActivitySupport {
 
 	}
 	
-	protected void sendFile(ChatMessage msg) throws Exception {
-
-		long msgId = MessageManager.getInstance().saveIMMessage(msg);
-		msg.setId("" + msgId);
+	protected void sendFile(ChatMessage msg, boolean save) throws Exception {
+		if (save) {
+			long msgId = MessageManager.getInstance().saveIMMessage(msg);
+			msg.setId("" + msgId);
+		} else {
+			MessageManager.getInstance().updateIMMessage(msg);
+		}
 		
 		mMessagePool.put(msg.getId(), msg);
 

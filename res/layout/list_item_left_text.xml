@@ -11,8 +11,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="left"
         android:orientation="horizontal" >
-
+        
         <com.view.asim.view.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/iv_icon"
@@ -20,30 +21,36 @@
             android:layout_height="48dp"
             android:layout_marginLeft="10dp"
             android:src="@drawable/default_avatar_male"
-            app:border_width="1px"
-            app:border_color="@color/white"/>
+            app:border_color="@color/white"
+            app:border_width="1px" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="left"
+            android:orientation="horizontal" >        
         <Button
             android:id="@+id/btn_left_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1.0"
             android:background="@drawable/message_left_white_bg"
-            android:gravity="left|center_vertical"
+            android:gravity="center_vertical"
             android:textColor="@color/darkgray"
             android:textSize="16dp" />
-        
-            <ImageView 
-	            android:id="@+id/security_img"
-	            android:layout_width="20dp"
-	            android:layout_height="20dp"
-	            android:layout_marginLeft="10dp"
-	            android:src="@drawable/notificationbar_icon_logo_intercept_sms"
-	            android:layout_gravity="center_vertical"
-	            android:visibility="gone"
-	            />
-        
+
+        <ImageView
+            android:id="@+id/security_img"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/notificationbar_icon_logo_intercept_sms"
+            android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 
     <TextView

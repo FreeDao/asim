@@ -231,6 +231,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 				ChatMessage msg = (ChatMessage) v.getTag();
+				
 				showResendDialog(msg);
 			}
 		});
@@ -311,7 +312,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					intent.setClass(context, BurnMsgViewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
 				}
-	            startActivityForResult(intent, Constant.REQCODE_BURN_AFTER_READ); 
+	            startActivity(intent); 
 			}
 		}); 
 		
@@ -334,7 +335,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					intent.setClass(context, BurnMsgViewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
 				}
-	            startActivityForResult(intent, Constant.REQCODE_BURN_AFTER_READ); 
+	            startActivity(intent); 
 			}
 		});
 		
@@ -489,6 +490,13 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	            startActivityForResult(intent, Constant.REQCODE_TAKE_PICTURE); 
 			}
 		});
+		
+		new Thread() {
+			public void run() {
+				// 更新某人所有通知
+				MessageManager.getInstance().updateReadStatus(mUser.getJID(), IMMessage.READ);
+			}
+		}.start();
 	}
 	
 	@Override
@@ -500,6 +508,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			faceLayout.hideAddMoreView();
 			
 			switch(requestCode){
+				/*
 				case Constant.REQCODE_BURN_AFTER_READ:
 		        	ChatMessage msg = data.getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
 		        	Log.d(TAG, "remove message id " + msg.getId() + ", " + msg.getContent());
@@ -509,7 +518,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					
 					
 					break;
-				
+				*/
 		        case Constant.REQCODE_IMAGE_PICK:
 		            if (data != null) {  
 		                // 得到图片的全路径  
@@ -733,14 +742,16 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								msg.setStatus(IMMessage.INPROGRESS);
-								Intent intent = new Intent();
-								intent.setAction(Constant.SEND_MESSAGE_ACTION);
-								intent.putExtra(Constant.SEND_MESSAGE_KEY_MESSAGE, msg);
-								sendBroadcast(intent);
-
-								// 刷新视图
-								refreshMessage();
+								try {
+									if (msg.getType().equals(ChatMessage.CHAT_TEXT)) {
+											sendMessage(msg, false);
+									}
+									else {
+										sendFile(msg, false);
+									}
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
 						})
 				.setNegativeButton(getResources().getString(R.string.no),
@@ -842,9 +853,6 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 //		adapter.refreshList(mChatItems);
 
 		refreshMessageView();
-		
-		// 更新某人所有通知
-		MessageManager.getInstance().updateReadStatus(mUser.getJID(), IMMessage.READ);
 		
 		refreshViewOnAUKeyStatusChange();
 		
