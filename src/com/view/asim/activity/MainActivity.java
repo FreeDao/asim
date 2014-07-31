@@ -97,10 +97,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -820,11 +822,9 @@ public class MainActivity extends AContacterActivity implements
 			
 			if (ContacterManager.userMe.getGender().equals(User.MALE)) {
 				rightIcon = maleIcon;
-//				mMyNicknameTxt.setCompoundDrawables(null, null, maleIcon, null);
 			}
 			else {
 				rightIcon = femaleIcon;
-//				mMyNicknameTxt.setCompoundDrawables(null, null, femaleIcon, null);
 			}
 		}
 		
@@ -835,9 +835,27 @@ public class MainActivity extends AContacterActivity implements
 		}
 		
 		mMyNicknameTxt.setCompoundDrawables(leftIcon, null, rightIcon, null);
-    
 		
 		mMyRemarkTxt.setText(ContacterManager.userMe.getRemark());
+		ViewTreeObserver vto = mMyRemarkTxt.getViewTreeObserver();
+	    vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+
+	        @Override
+	        public void onGlobalLayout() {
+	            ViewTreeObserver obs = mMyRemarkTxt.getViewTreeObserver();
+	            obs.removeGlobalOnLayoutListener(this);
+	            if(mMyRemarkTxt.getLineCount() > 2){
+	                Log.d("","Line["+mMyRemarkTxt.getLineCount()+"]"+mMyRemarkTxt.getText());
+	                int lineEndIndex = mMyRemarkTxt.getLayout().getLineEnd(1);
+	                String text = mMyRemarkTxt.getText().subSequence(0, lineEndIndex-3)+"...";
+	                mMyRemarkTxt.setText(text);
+	                Log.d("","NewText:"+text);
+	            }
+
+	        }
+	    });
+		
+		
 		mMyLocationTxt.setText(ContacterManager.userMe.getLocation());
 		
 		String s = StringUtil.getCellphoneByName(ContacterManager.userMe.getName());

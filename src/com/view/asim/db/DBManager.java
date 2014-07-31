@@ -1,5 +1,7 @@
 package com.view.asim.db;
 
+import com.view.asim.comm.Constant;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,14 +16,7 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public class DBManager {
 	
-	/**
-	 * App 版本: 
-	 * V0.4.28，数据库版本：V1（初始版本）
-	 * V0.5.14，数据库版本：V2（修改了 im_notice 表）
-	 * V0.6.25，数据库版本：V3（修改了 im_notice 和 im_msg_his 表）
-	 * V0.7.15，数据库版本：V4（增加了 SIP 相关表）
-	 */
-	public final int version = 4;
+	public final int version = Constant.DB_VERSION;
 	
 	public String databaseName;
 

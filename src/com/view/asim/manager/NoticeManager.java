@@ -2,6 +2,7 @@ package com.view.asim.manager;
 
 import java.util.List;
 
+import com.csipsimple.api.SipManager;
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.im.ChatActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
@@ -665,7 +666,7 @@ public class NoticeManager {
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
 		dispatchSystemNotify(userId, avatar, user.getNickName(), content,
-				ticker, notifyIntent);
+				ticker, notifyIntent, true);
 	}
 
 	/**
@@ -717,7 +718,7 @@ public class NoticeManager {
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
 		// 好友添加通知使用统一的 ID 0
-		dispatchSystemNotify(0, avatar, title, content, ticker, notifyIntent);
+		dispatchSystemNotify(0, avatar, title, content, ticker, notifyIntent, true);
 	}
 
 	/**
@@ -759,7 +760,41 @@ public class NoticeManager {
 
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
-		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent);
+		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, true);
+	}
+	
+	public void dispatchInCallNotify(User user) {
+		int userId = user.getJID().hashCode();
+
+		Intent notifyIntent = new Intent(SipManager.ACTION_SIP_CALL_UI);
+		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		Bitmap avatar = null;
+		if (user.getHeadImg() != null) {
+			avatar = user.getHeadImg();
+		} else {
+			if (user.getGender() == null) {
+				avatar = BitmapFactory.decodeResource(mCntx.getResources(),
+						R.drawable.default_avatar_male);
+			} else {
+				avatar = BitmapFactory
+						.decodeResource(
+								mCntx.getResources(),
+								user.getGender().equals(User.MALE) ? R.drawable.default_avatar_male
+										: R.drawable.default_avatar_female);
+			}
+
+		}
+
+		String ticker = "与密友" + user.getNickName() + "通话中";
+		String content = null;
+		String title = null;
+		title = user.getNickName();
+		content = "正在与您进行语音通话";
+
+		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
+
+		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, false);
 	}
 	
 	
@@ -799,6 +834,11 @@ public class NoticeManager {
 	public void clearRosterMessageNotify() {
 		mNotificationManager.cancel(0);
 	}
+	
+	public void clearInCallNotify(User u) {
+		int userId = u.getJID().hashCode();
+		mNotificationManager.cancel(userId);
+	}
 
 	/**
 	 * 发送消息通知
@@ -810,7 +850,7 @@ public class NoticeManager {
 	 * @param intent
 	 */
 	protected void dispatchSystemNotify(int id, Bitmap avatar, String title,
-			String content, String ticker, Intent intent) {
+			String content, String ticker, Intent intent, boolean canBeClean) {
 
 		/* 创建PendingIntent作为设置递延运行的Activity */
 		PendingIntent appIntent = PendingIntent
@@ -827,7 +867,11 @@ public class NoticeManager {
 		mBuilder.setAutoCancel(true);
 		mBuilder.setContentIntent(appIntent);
 
-		mNotificationManager.notify(id, mBuilder.build());
+		Notification n = mBuilder.build();
+		if (!canBeClean) {
+			n.flags |= Notification.FLAG_NO_CLEAR;
+		}
+		mNotificationManager.notify(id, n);
 	}
 
 }

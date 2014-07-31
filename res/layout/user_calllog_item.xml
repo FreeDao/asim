@@ -9,11 +9,10 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:padding="10dp"
-        android:text="111"
         android:layout_gravity="center"
-        android:layout_weight="0.6"
+        android:layout_weight="0.5"
         android:textColor="@color/darkgray"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/call_info"
@@ -21,10 +20,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="left"
         android:padding="10dp"
-        android:text="222"
         android:drawablePadding="10dp"
         android:layout_weight="1"
         android:textColor="@color/darkgray"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
     
 </LinearLayout>

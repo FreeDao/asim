@@ -24,6 +24,7 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -41,6 +42,7 @@ import com.csipsimple.api.SipMessage;
 import com.csipsimple.api.SipProfile;
 import com.csipsimple.api.SipProfileState;
 import com.csipsimple.utils.Log;
+import com.view.asim.comm.Constant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -270,7 +272,16 @@ public class DBProvider extends ContentProvider {
 
     private DataBaseHelper getDatabaseHelper() {
 		if(mOpenHelper == null) {
-			mOpenHelper = new DataBaseHelper(getContext(), DBManager.getInstance().databaseName, null, DBManager.getInstance().version);
+			String database = "";
+			int ver = Constant.DB_VERSION;
+			if (DBManager.getInstance() == null) {
+				SharedPreferences preferences = getContext().getSharedPreferences(Constant.IM_SET_PREF, 0);
+				database = preferences.getString(Constant.USERNAME, null);
+			} else {
+				database = DBManager.getInstance().databaseName;
+			}
+			
+			mOpenHelper = new DataBaseHelper(getContext(), database, null, ver);
 		}
 		return mOpenHelper;
     }

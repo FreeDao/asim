@@ -51,6 +51,7 @@ import com.csipsimple.api.SipUri;
 import com.csipsimple.api.SipUri.ParsedSipContactInfos;
 import com.csipsimple.service.MediaManager;
 import com.csipsimple.service.SipService;
+import com.csipsimple.service.SipService.ReturnRunnable;
 import com.csipsimple.service.SipService.SameThreadException;
 import com.csipsimple.service.SipService.SipRunnable;
 import com.csipsimple.service.impl.SipCallSessionImpl;
@@ -781,6 +782,22 @@ public class UAStateReceiver extends Callback {
     		
     		return cv;
     	}
+    	
+        
+        private void printCallDetailsInfo(final int callId) {
+
+        	new Thread() {
+    			public void run() {
+    				String infos = "";
+    				try {
+    					infos = PjSipCalls.dumpCallInfo(callId);
+    				} catch (SameThreadException e) {
+    					e.printStackTrace();
+    				}
+    				Log.d(THIS_FILE, "call details: " + infos);
+    			}
+    		}.start();
+        }
 
         public void handleMessage(Message msg) {
             UAStateReceiver stateReceiver = sr.get();
@@ -849,6 +866,9 @@ public class UAStateReceiver extends Callback {
                                             .treatDeferUnregistersForOutgoing();
                                 }
                             }
+                            
+                            // print call detailed log
+                            printCallDetailsInfo(callInfo.getCallId());
 
                             // CallLog
                             ContentValues cv = logValuesForCall(
@@ -920,7 +940,9 @@ public class UAStateReceiver extends Callback {
                         default:
                             break;
                     }
-                    stateReceiver.onBroadcastCallState(callInfo);
+                    //stateReceiver.onBroadcastCallState(callInfo);
+                    stateReceiver.launchCallHandlerForcely(callInfo);
+                    
                     break;
                 }
                 case ON_MEDIA_STATE: {
@@ -1074,6 +1096,16 @@ public class UAStateReceiver extends Callback {
         } else {
             Log.d(THIS_FILE, "Ignore extra launch handler");
         }
+    }
+    
+    private synchronized void launchCallHandlerForcely(SipCallSession currentCallInfo2) {
+        Context ctxt = pjService.service;
+
+        // Launch activity to choose what to do with this call
+        Intent callHandlerIntent = SipService.buildCallUiIntent(ctxt, currentCallInfo2);
+
+        Log.d(THIS_FILE, "Anounce call activity forcely");
+        ctxt.startActivity(callHandlerIntent);
     }
 
     /**

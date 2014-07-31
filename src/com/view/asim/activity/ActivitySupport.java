@@ -323,8 +323,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	 * 
 	 * @param text
 	 * @param longint
-	 * @author shimiso
-	 * @update 2012-6-28 下午3:46:18
+	 * @author xuweinan
 	 */
 	@Override
 	public void showToast(String text, int longint) {
@@ -342,7 +341,6 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	 * 关闭键盘事件
 	 * 
 	 * @author xuweinan
-	 * @update 2012-7-4 下午2:34:34
 	 */
 	public void closeInput() {
 		InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

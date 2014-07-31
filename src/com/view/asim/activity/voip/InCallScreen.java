@@ -88,6 +88,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
     boolean first;
     
     private SipCallSession callInfo = null;
+    //private SipCallSession callsInfo[] = null;
     private PreferencesProviderWrapper prefsWrapper;
     private PowerManager powerManager;
     private WakeLock wakeLock;
@@ -254,6 +255,45 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         Log.i(TAG, "New intent is launched");
+		SipCallSession call = intent.getParcelableExtra(SipManager.EXTRA_CALL_INFO);
+		if (call != null) {
+			if (call.getCallId() == callInfo.getCallId()) {
+				callInfo = call;
+		        Log.i(TAG, "input call id " + call.getCallId() + " matched, update");
+			}
+			else {
+				SipCallSession[] callsInfo = null;
+				try {
+					callsInfo = service.getCalls();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				
+				for (SipCallSession c : callsInfo) {
+					if (c.getCallId() == callInfo.getCallId()) {
+						Log.i(TAG, "enum call id " + c.getCallId() + ", state " + c.getCallState() + ", code " + c.getLastStatusCode());
+				        if (c.getCallState() == SipCallSession.InvState.DISCONNECTED) {
+							Log.i(TAG, "input call id " + call.getCallId() + " dismatch, my call id " + callInfo.getCallId() + " disconnected, so the input call is a new incoming call, save it");
+							callInfo = call;
+							quitTimer.cancel();
+				        }
+				        else {
+							Log.i(TAG, "input call id " + call.getCallId() + " dismatch, update my call id " + callInfo.getCallId());
+							callInfo = c;
+				        }
+						super.onNewIntent(intent);
+						return;
+					}
+				}
+				
+		        Log.i(TAG, "my call id is invalid, update to input call id " + call.getCallId());
+				callInfo = call;
+			}
+		}
+		else {
+			Log.i(TAG, "enter in from notification click");
+		}
+		
         super.onNewIntent(intent);
     }
 	
@@ -364,6 +404,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			mCallingCancelBtn.setVisibility(View.GONE);
 			mCalledLayout.setVisibility(View.GONE);
 			mCallingTxt.setVisibility(View.GONE);
+			
+			NoticeManager.getInstance().dispatchInCallNotify(mUser);
 			break;
 			
 		case SipCallSession.InvState.NULL:
@@ -372,9 +414,15 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			mSessionEndBtn.setVisibility(View.INVISIBLE);
 			mMuteBtn.setVisibility(View.INVISIBLE);
 			mSpeakerBtn.setVisibility(View.INVISIBLE);
-			break;
 			
+			NoticeManager.getInstance().clearInCallNotify(mUser);
+			break;
 		case SipCallSession.InvState.EARLY:
+			if (callInfo.isIncoming()) {
+				mInCallLayout.setVisibility(View.GONE);
+				mCallingCancelBtn.setVisibility(View.GONE);
+				mCalledLayout.setVisibility(View.VISIBLE);
+			}
 		default:
 			break;
 		}
@@ -491,7 +539,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                     case SipCallSession.InvState.DISCONNECTED:
                         Log.d(TAG, "Active call " + mainCallInfo.getCallId() + " session is disconnected or null wait for quit..." + mainCallInfo.getLastStatusCode()
                         		+ ", incoming:" + isIncoming);
-                        printCallLog();
+                        //printCallLog();
                         
                         if(judgeMissedCall(mainCallInfo, isIncoming)) {
     	        			NoticeManager.getInstance().dispatchMissedCallNotify(mUser);
@@ -539,9 +587,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	    }
 	}
 	
-	
 	/*
-    private SipCallSession getPrioritaryCall(SipCallSession call1, SipCallSession call2) {
+	private SipCallSession getPrioritaryCall(SipCallSession call1, SipCallSession call2) {
         // We prefer the not null
         if (call1 == null) {
             return call2;
@@ -626,7 +673,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
                         synchronized (callMutex) {
                             //callsInfo = service.getCalls();
                         	SipCallSession call = intent.getParcelableExtra(SipManager.EXTRA_CALL_INFO);
-                        	
+            				Log.i(TAG, "recv sip state changed broadcast: " + call.getCallId());
+
                     		if(callInfo != null && call.getCallId() != callInfo.getCallId()) {
                     			return;
                     		}
@@ -718,6 +766,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	public void onStop() {
 		super.onStop();
         keyguardManager.lock();
+        
 	}
 	
 	@Override
@@ -761,6 +810,10 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
             case KeyEvent.KEYCODE_ENDCALL:
             case KeyEvent.KEYCODE_SEARCH:
                 return true;
+            
+            case KeyEvent.KEYCODE_BACK:
+            	moveTaskToBack(true);
+            	return true;
             default:
                 // Nothing to do
         }
@@ -982,8 +1035,8 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
         }
     }
 	
-	@Override
-	public void onBackPressed() {
-        onTrigger(TERMINATE_CALL);
-	}
+//	@Override
+//	public void onBackPressed() {
+//        onTrigger(TERMINATE_CALL);
+//	}
 }

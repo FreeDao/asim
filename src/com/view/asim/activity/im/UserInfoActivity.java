@@ -44,6 +44,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
@@ -297,7 +299,19 @@ public class UserInfoActivity extends ActivitySupport {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			//String action = intent.getAction();
+			String action = intent.getAction();
+			if (action.equals(Constant.ROSTER_PRESENCE_CHANGED) || action.equals(Constant.ROSTER_UPDATED)) {
+				User u = intent.getParcelableExtra(User.userKey);
+				if (u.getName().equals(mUser.getName())) {
+					mUser = u;
+					Log.i(TAG, "update user info: " + u.getName());
+				}
+				else {
+					Log.i(TAG, "update other user info: " + u.getName());
+				}
+			}
+			
+			setUserInfoView();
 			refreshViewOnAUKeyStatusChange();
 			refreshUserSecurityStatus();
 		}
@@ -430,6 +444,25 @@ public class UserInfoActivity extends ActivitySupport {
 		}
 		
 		mRemarkTxt.setText(mUser.getRemark());
+		ViewTreeObserver vto = mRemarkTxt.getViewTreeObserver();
+	    vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+
+	        @Override
+	        public void onGlobalLayout() {
+	            ViewTreeObserver obs = mRemarkTxt.getViewTreeObserver();
+	            obs.removeGlobalOnLayoutListener(this);
+	            if(mRemarkTxt.getLineCount() > 2){
+	                Log.d("","Line["+mRemarkTxt.getLineCount()+"]"+mRemarkTxt.getText());
+	                int lineEndIndex = mRemarkTxt.getLayout().getLineEnd(1);
+	                String text = mRemarkTxt.getText().subSequence(0, lineEndIndex-3)+"...";
+	                mRemarkTxt.setText(text);
+	                Log.d("","NewText:"+text);
+	            }
+
+	        }
+	    });
+		
+		
 		mLocationTxt.setText(mUser.getLocation());
 		
 		String s = StringUtil.getCellphoneByName(mUser.getName());

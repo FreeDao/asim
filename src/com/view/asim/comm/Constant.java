@@ -148,6 +148,15 @@ public class Constant {
 	public static final int SERVER_UNAVAILABLE = 6;// 无法连接到服务器
 	public static final int UNKNOWN_ERROR = 7;// 未知错误
 	public static final int NONE_RESULTS = 8;// 搜索失败错误
+	
+	/**
+	 * 数据库版本: 
+	 * V0.4.28，数据库版本：V1（初始版本）
+	 * V0.5.14，数据库版本：V2（修改了 im_notice 表）
+	 * V0.6.25，数据库版本：V3（修改了 im_notice 和 im_msg_his 表）
+	 * V0.7.15，数据库版本：V4（增加了 SIP 相关表）
+	 */
+	public static final int DB_VERSION = 4;
 
 	public static final String XMPP_CONNECTION_CLOSED = "xmpp_connection_closed";// 连接中断
 

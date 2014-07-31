@@ -417,12 +417,13 @@ public class IMContactService extends Service {
 			if (ContacterManager.contacters.containsKey(subscriber)) {
 				// 将状态改变之前的user广播出去
 				Log.d(TAG, "presenceChanged: " + subscriber);
-				intent.putExtra(User.userKey,
-						ContacterManager.contacters.get(subscriber));
+				
+				User user = ContacterManager.getUserByRosterEntry(XmppConnectionManager.getInstance().getConnection(),
+						entry, XmppConnectionManager.getInstance().getRoster());
+
+				intent.putExtra(User.userKey, user);
 				//ContacterManager.contacters.remove(subscriber);
-				ContacterManager.contacters.put(subscriber,
-						ContacterManager.getUserByRosterEntry(XmppConnectionManager.getInstance().getConnection(),
-								entry, XmppConnectionManager.getInstance().getRoster()));
+				ContacterManager.contacters.put(subscriber, user);
 				sendBroadcast(intent);
 			}
 		}

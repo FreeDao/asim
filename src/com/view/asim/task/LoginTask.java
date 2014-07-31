@@ -236,6 +236,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	private void updateSecurityStatus() {
 		ContacterManager.userMe.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
 		
+		/*
 		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
 		ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
 		Presence presence = new Presence(Presence.Type.available);
@@ -248,6 +249,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			presence.setTo(rosterEntry.getUser());
 			conn.sendPacket(presence);
 		}
+		*/
 
 	}
 	

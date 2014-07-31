@@ -138,7 +138,7 @@ public class ContacterManager {
 		        }
 		        
 		        phoneContacters.put(phoneNumber, contactName);
-				Log.d(TAG, "init phone contacter: " + phoneNumber + ", " + contactName);
+				//Log.d(TAG, "init phone contacter: " + phoneNumber + ", " + contactName);
 
 	        }  
 	  
@@ -401,6 +401,47 @@ public class ContacterManager {
         return ImageUtil.byteToBitmap(bais);
     } 
     
+    public static User getUserByNameAndVCard(String name, VCard vcard) {
+		User user = new User();
+		
+		user.setName(name);
+		user.setJID(StringUtil.getJidByName(name, Constant.IM_SERVICE_NAME));
+		user.setNickName(vcard.getNickName());
+		user.setGender(vcard.getField(User.VCARD_FIELD_GENDER));
+		user.setGlobalID(vcard.getField(User.VCARD_FIELD_GLOBALID));
+		user.setLocation(vcard.getAddressFieldHome(User.VCARD_FIELD_LOCATION));
+		user.setRemark(vcard.getField(User.VCARD_FIELD_REMARK));
+		user.setSecurity(vcard.getField(User.VCARD_FIELD_SECURITY));
+		user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
+		
+		String cellphone = StringUtil.getCellphoneByName(user.getName());
+		if (phoneContacters != null && phoneContacters.containsKey(cellphone)) {
+			user.setContactName(phoneContacters.get(cellphone));
+		}
+
+		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
+		user.setHeadImg(getUserImage(conn, vcard));
+
+		if (user.getNickName() != null) {
+			user.setNamepy(CharacterParser.getPingYin(user.getNickName()));
+			user.setNameFirstChar(CharacterParser.getPinYinHeadChar(user.getNickName()));
+			user.setNamecode(CharacterParser.getnamecode(user.getNameFirstChar()));
+		}
+		
+		String pinyin = user.getNamepy();
+		user.setSortLetters("#");
+
+		if(pinyin != null) {
+			String sortString = pinyin.substring(0, 1).toUpperCase();
+			if (sortString.matches("[A-Z]")) {
+				user.setSortLetters(sortString.toUpperCase());
+			}
+		}
+		
+		Log.d(TAG, "getUserByNameAndVCard: " + user);
+		return user;
+	}
+    
     
 	/**
 	 * 根据RosterEntry创建一个完整User
@@ -409,8 +450,13 @@ public class ContacterManager {
 	 * @return
 	 */
 	public static User getUserByRosterEntry(XMPPConnection conn, RosterEntry entry, Roster roster) {
-		User user = new User();
-		VCard vcard = getUserVCard(conn, StringUtil.getUserNameByJid(entry.getUser()));
+		//User user = new User();
+		String name = StringUtil.getUserNameByJid(entry.getUser());
+		VCard vcard = getUserVCard(conn, name);
+		
+		return getUserByNameAndVCard(name, vcard);
+
+		/*
 		user.setName(StringUtil.getUserNameByJid(entry.getUser()));
 		user.setJID(entry.getUser());
 		user.setNickName(vcard.getNickName());
@@ -422,7 +468,7 @@ public class ContacterManager {
 		user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
 		
 		String cellphone = StringUtil.getCellphoneByName(user.getName());
-		if (phoneContacters.containsKey(cellphone)) {
+		if (phoneContacters != null && phoneContacters.containsKey(cellphone)) {
 			user.setContactName(phoneContacters.get(cellphone));
 		}
 
@@ -445,6 +491,7 @@ public class ContacterManager {
 		Log.d(TAG, "getUserByRosterEntry: " + user);
 
 		return user;
+		*/
 	}
 
 	/**
@@ -454,9 +501,11 @@ public class ContacterManager {
 	 * @return
 	 */
 	public static User getUserByName(XMPPConnection conn, String name) {
-		User user = new User();
+		//User user = new User();
 		VCard vcard = getUserVCard(conn, name);
 
+		return getUserByNameAndVCard(name, vcard);
+		/*
 		user.setName(name);
 		user.setJID(StringUtil.getJidByName(name, conn.getServiceName()));
 		user.setNickName(vcard.getNickName());
@@ -464,10 +513,16 @@ public class ContacterManager {
 		user.setGlobalID(vcard.getField(User.VCARD_FIELD_GLOBALID));
 		user.setLocation(vcard.getAddressFieldHome(User.VCARD_FIELD_LOCATION));
 		user.setRemark(vcard.getField(User.VCARD_FIELD_REMARK));
-		user.setHeadImg(getUserImage(conn, vcard));
 		user.setSecurity(vcard.getField(User.VCARD_FIELD_SECURITY));
 		user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
 		
+		String cellphone = StringUtil.getCellphoneByName(user.getName());
+		if (phoneContacters != null && phoneContacters.containsKey(cellphone)) {
+			user.setContactName(phoneContacters.get(cellphone));
+		}
+
+		user.setHeadImg(getUserImage(conn, vcard));
+
 		if (user.getNickName() != null) {
 			user.setNamepy(CharacterParser.getPingYin(user.getNickName()));
 			user.setNameFirstChar(CharacterParser.getPinYinHeadChar(user.getNickName()));
@@ -487,6 +542,7 @@ public class ContacterManager {
 		Log.d(TAG, "getUserByName: " + user);
 
 		return user;
+		*/
 	}
 	/**
 	 * 修改这个好友的昵称

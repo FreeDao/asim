@@ -2002,7 +2002,7 @@ public class SipService extends Service {
     
     private static String UI_CALL_PACKAGE = null;
     public static Intent buildCallUiIntent(Context ctxt, SipCallSession callInfo) {
-        // Resolve the package to handle call.
+    	/*
         if(UI_CALL_PACKAGE == null) {
             UI_CALL_PACKAGE = ctxt.getPackageName();
             try {
@@ -2025,10 +2025,11 @@ public class SipService extends Service {
                 Log.e(THIS_FILE, "Error while resolving package", e);
             }
         }
+        */
         SipCallSession toSendInfo = new SipCallSession(callInfo);
         Intent intent = new Intent(SipManager.ACTION_SIP_CALL_UI);
         intent.putExtra(SipManager.EXTRA_CALL_INFO, toSendInfo);
-        intent.setPackage(UI_CALL_PACKAGE);
+        //intent.setPackage(UI_CALL_PACKAGE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }
