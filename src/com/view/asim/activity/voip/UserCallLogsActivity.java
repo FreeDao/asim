@@ -119,6 +119,7 @@ public class UserCallLogsActivity extends ActivitySupport {
 		getEimApplication().addActivity(this);
 
 		mUser = (User)getIntent().getParcelableExtra(User.userKey);
+		Log.i(TAG, "show call logs view from user:" + mUser);
 
 		mBackTxtBtn = (TextView) findViewById(R.id.title_back_btn);
 		mBackTxtBtn.setOnClickListener(new OnClickListener() {
@@ -173,6 +174,8 @@ public class UserCallLogsActivity extends ActivitySupport {
         
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
+		filter.addAction(Constant.ROSTER_PRESENCE_CHANGED);
+		filter.addAction(Constant.ROSTER_UPDATED);
 
 		registerReceiver(receiver, filter);
 	}
@@ -214,6 +217,7 @@ public class UserCallLogsActivity extends ActivitySupport {
     public void onResume() {
     	super.onResume();
     	refreshCalllogListView();
+    	refreshUserSecurityStatus();
     }
 	
     @Override
@@ -227,10 +231,18 @@ public class UserCallLogsActivity extends ActivitySupport {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			
-			if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
-				
-		    	refreshCalllogListView();
+			if (action.equals(Constant.ROSTER_PRESENCE_CHANGED) || action.equals(Constant.ROSTER_UPDATED)) {
+				User u = intent.getParcelableExtra(User.userKey);
+				if (u.getName().equals(mUser.getName())) {
+					mUser = u;
+					Log.i(TAG, "update user info: " + u.getName());
+				}
+				else {
+					Log.i(TAG, "update other user info: " + u.getName());
+				}
 			}
+	    	refreshCalllogListView();
+	    	refreshUserSecurityStatus();
 		}
     };
     
@@ -240,6 +252,18 @@ public class UserCallLogsActivity extends ActivitySupport {
 		unregisterReceiver(receiver);
 		unbindService(connection);
 	}
+	
+    private void refreshUserSecurityStatus() {
+    	Drawable leftIcon = null;
+    	
+    	Drawable[] icons = mNicknameTxt.getCompoundDrawables();
+		if (mUser.getSecurity()!= null && mUser.getSecurity().equals(AUKeyManager.ATTACHED)) {
+			leftIcon = context.getResources().getDrawable(R.drawable.notificationbar_icon_logo_normal);
+			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
+		}
+		
+		mNicknameTxt.setCompoundDrawables(leftIcon, null, icons[2], null);
+    }
 	
 	// 刷新通话记录列表子界面
 	protected void refreshCalllogListView() {

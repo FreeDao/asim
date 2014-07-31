@@ -204,6 +204,8 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	        MessageManager.getInstance(activity, loginConfig).init();
 	        CallLogManager.getInstance(activity, loginConfig).init();
 			
+	        NoticeManager.getInstance().clearAllMessageNotify();
+	        
 			loginConfig.setOnline(true);
 			initUserCacheFolder(mUser);
 			

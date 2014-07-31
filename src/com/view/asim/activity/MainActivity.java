@@ -790,7 +790,9 @@ public class MainActivity extends AContacterActivity implements
 			ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
 			Presence presence = new Presence(Presence.Type.available);
 			presence.setStatus("update");
-			
+			conn.sendPacket(presence);
+
+			/*
 			Collection<RosterEntry> rosters = conn.getRoster()
 					.getEntries();
 			for (RosterEntry rosterEntry : rosters) {
@@ -798,6 +800,7 @@ public class MainActivity extends AContacterActivity implements
 				presence.setTo(rosterEntry.getUser());
 				conn.sendPacket(presence);
 			}
+			*/
 		}
 	}
 	

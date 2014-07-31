@@ -1,6 +1,7 @@
 package com.view.asim.manager;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.csipsimple.api.SipManager;
 import com.view.asim.comm.Constant;
@@ -730,7 +731,8 @@ public class NoticeManager {
 
 	public void dispatchMissedCallNotify(User user) {
 		int userId = user.getName().hashCode();
-
+		Log.i(TAG, "notify new missed call from user:" + user);
+		
 		Intent notifyIntent = new Intent(mCntx, UserCallLogsActivity.class);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		notifyIntent.putExtra(User.userKey, user);
@@ -786,7 +788,7 @@ public class NoticeManager {
 
 		}
 
-		String ticker = "与密友" + user.getNickName() + "通话中";
+		String ticker = "与" + user.getNickName() + "通话中";
 		String content = null;
 		String title = null;
 		title = user.getNickName();
@@ -854,7 +856,7 @@ public class NoticeManager {
 
 		/* 创建PendingIntent作为设置递延运行的Activity */
 		PendingIntent appIntent = PendingIntent
-				.getActivity(mCntx, 0, intent, 0);
+				.getActivity(mCntx, UUID.randomUUID().hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Notification.Builder mBuilder = new Notification.Builder(mCntx);
 

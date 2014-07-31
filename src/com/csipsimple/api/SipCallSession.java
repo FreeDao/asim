@@ -159,10 +159,17 @@ public class SipCallSession implements Parcelable {
         public static final int NOT_FOUND = 404;
         public static final int METHOD_NOT_ALLOWED = 405;
         public static final int NOT_ACCEPTABLE = 406;
+        public static final int NO_REPSONSE = 408;
+        
         public static final int INTERVAL_TOO_BRIEF = 423;
+        public static final int SEND_FAILED = 477;
         public static final int BUSY_HERE = 486;
+        public static final int REQUEST_TERMINATED = 487;
         public static final int INTERNAL_SERVER_ERROR = 500;
         public static final int DECLINE = 603;
+        
+        // asim defined
+        public static final int ASIM_SECURITY_STATE_CHANGED = 999;
         /*
          * PJSIP_SC_PROXY_AUTHENTICATION_REQUIRED = 407,
          * PJSIP_SC_REQUEST_TIMEOUT = 408, PJSIP_SC_GONE = 410,
@@ -268,6 +275,31 @@ public class SipCallSession implements Parcelable {
          initFromParcel(p);
          p.recycle();
     }
+    
+    @Override
+	public String toString() {
+	
+		return "CallSession: id = " + callId + 
+				", callState = " + callState +
+				", mediaStatus = " + mediaStatus + 
+				", remoteContact = " + remoteContact + 
+				", isIncoming = " + isIncoming +
+				", confPort = " + confPort +
+				", accId = " + accId +
+				", lastStatusCode = " + lastStatusCode +
+				", mediaSecureInfo = " + mediaSecureInfo +
+				", connectStart = " + connectStart +
+				", mediaSecure = " + mediaSecure +
+				", lastStatusComment = " + lastStatusComment +
+				", mediaHasVideoStream = " + mediaHasVideoStream +
+				", canRecord = " + canRecord +
+				", isRecording = " + isRecording +
+				", hasZrtp = " + hasZrtp +
+				", zrtpSASVerified = " + zrtpSASVerified +
+				", transportSecure = " + transportSecure +
+				", lastReasonCode = " + lastReasonCode +
+				", security = " + security;
+	}
     
     private void initFromParcel(Parcel in) {
         primaryKey = in.readInt();
@@ -610,6 +642,10 @@ public class SipCallSession implements Parcelable {
     
     public String getSecurity() {
     	return security;
+    }
+    
+    public void setSecurity(String s) {
+    	this.security = s;
     }
 
 }

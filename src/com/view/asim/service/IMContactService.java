@@ -119,7 +119,9 @@ public class IMContactService extends Service {
 					ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
 					Presence presence = new Presence(Presence.Type.available);
 					presence.setStatus("update");
-					
+					conn.sendPacket(presence);
+
+					/*
 					Collection<RosterEntry> rosters = conn.getRoster()
 							.getEntries();
 					for (RosterEntry rosterEntry : rosters) {
@@ -127,6 +129,7 @@ public class IMContactService extends Service {
 						presence.setTo(rosterEntry.getUser());
 						conn.sendPacket(presence);
 					}
+					*/
 				}
 			}
 		}

@@ -642,25 +642,27 @@ public class UAStateReceiver extends Callback {
     private SipCallSessionImpl updateCallInfoFromStack(Integer callId, pjsip_event e)
             throws SameThreadException {
         SipCallSessionImpl callInfo;
-        android.util.Log.w(THIS_FILE, "Updating call infos from the stack");
         synchronized (callsList) {
             callInfo = callsList.get(callId);
             if (callInfo == null) {
                 callInfo = new SipCallSessionImpl();
                 callInfo.setCallId(callId);
         		//if (SipService.aukeyStatus.equals(AUKeyManager.ATTACHED)) {
-        		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
-
-        			callInfo.setSecurity(IMMessage.ENCRYPTION);
-        		}
-        		else {
-
-        			callInfo.setSecurity(IMMessage.PLAIN);
-        		}
-    	        android.util.Log.w(THIS_FILE, "alloc callinfo " + callId + " on " + callInfo.getSecurity());
+//        		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
+//
+//        			callInfo.setSecurity(IMMessage.ENCRYPTION);
+//        		}
+//        		else {
+//
+//        			callInfo.setSecurity(IMMessage.PLAIN);
+//        		}
+    	        android.util.Log.w(THIS_FILE, "alloc callinfo " + callId);
 
             }
         }
+        
+        android.util.Log.w(THIS_FILE, "Updating call infos from the stack start: " + callInfo);
+
         // We update session infos. callInfo is both in/out and will be updated
         PjSipCalls.updateSessionFromPj(callInfo, e, pjService.service);
         // We update from our current recording state
@@ -670,6 +672,9 @@ public class UAStateReceiver extends Callback {
             // Re-add to list mainly for case newly added session
             callsList.put(callId, callInfo);
         }
+        
+        android.util.Log.w(THIS_FILE, "Updating call infos from the stack end: " + callInfo);
+
         return callInfo;
     }
 
@@ -870,19 +875,19 @@ public class UAStateReceiver extends Callback {
                             // print call detailed log
                             printCallDetailsInfo(callInfo.getCallId());
 
-                            // CallLog
-                            ContentValues cv = logValuesForCall(
-                                    stateReceiver.pjService.service, callInfo,
-                                    callInfo.getCallStart());
-
-                            // Fill our own database
-                            stateReceiver.pjService.service.getContentResolver().insert(
-                                    SipManager.CALLLOG_URI, cv);
-                            Integer isNew = cv.getAsInteger(CallLog.Calls.NEW);
-                            if (isNew != null && isNew == 1) {
-                            	// TODO: 
-//                                stateReceiver.notificationManager.showNotificationForMissedCall(cv);
-                            }
+//                            // CallLog
+//                            ContentValues cv = logValuesForCall(
+//                                    stateReceiver.pjService.service, callInfo,
+//                                    callInfo.getCallStart());
+//
+//                            // Fill our own database
+//                            stateReceiver.pjService.service.getContentResolver().insert(
+//                                    SipManager.CALLLOG_URI, cv);
+//                            Integer isNew = cv.getAsInteger(CallLog.Calls.NEW);
+//                            if (isNew != null && isNew == 1) {
+//                            	// TODO: 
+////                                stateReceiver.notificationManager.showNotificationForMissedCall(cv);
+//                            }
 
                             // If the call goes out in error...
                             if (callInfo.getLastStatusCode() != 200 && callInfo.getLastReasonCode() != 200) {
@@ -935,13 +940,16 @@ public class UAStateReceiver extends Callback {
                                     }
                                 }
                             */}
-                            callInfo.applyDisconnect();
                             break;
                         default:
                             break;
                     }
                     //stateReceiver.onBroadcastCallState(callInfo);
                     stateReceiver.launchCallHandlerForcely(callInfo);
+                    
+                    if (msg.what == SipCallSession.InvState.DISCONNECTED) {
+                        callInfo.applyDisconnect();
+                    }
                     
                     break;
                 }
@@ -951,7 +959,8 @@ public class UAStateReceiver extends Callback {
                             .getCallId());
                     callInfo.setMediaStatus(mediaCallInfo.getMediaStatus());
                     stateReceiver.callsList.put(mediaCallInfo.getCallId(), callInfo);
-                    stateReceiver.onBroadcastCallState(callInfo);
+                    //stateReceiver.onBroadcastCallState(callInfo);
+                    stateReceiver.launchCallHandlerForcely(callInfo);
                     break;
                 }
             }

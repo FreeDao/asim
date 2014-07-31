@@ -53,7 +53,7 @@ public class SipCallSessionImpl extends SipCallSession {
     }
     
     public void setSecurity(String s) {
-    	this.security = s;
+    	super.setSecurity(s);
     }
 
     /**

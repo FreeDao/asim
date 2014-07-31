@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.csipsimple.api.SipCallSession.StatusCode;
+
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,34 +25,35 @@ public class CallUtil {
     public static String getStringByStatusCode(int code) {
     	String statusTxt = null;
     	switch(code) {
-    	case 200:
+    	case StatusCode.OK:
     		statusTxt = "正常通话";
     		break;
 
-    	case 404:
+    	case StatusCode.NOT_FOUND:
+    	case StatusCode.SEND_FAILED:
     		statusTxt = "对方不在线";
     		break;
     		
-    	case 408:
+    	case StatusCode.NO_REPSONSE:
     		statusTxt = "无应答";
     		break;
     		
-    	case 477:
-    		statusTxt = "呼叫失败";
-    		break;
-    		
-    	case 487:
+    	case StatusCode.REQUEST_TERMINATED:
     		statusTxt = "主动取消";
     		break;
     		
-    	case 486:
+    	case StatusCode.BUSY_HERE:
     		statusTxt = "对方正在通话";
     		break;
     		
-    	case 603:
+    	case StatusCode.DECLINE:
     		statusTxt = "拒绝";
     		break;	
     	
+    	case StatusCode.ASIM_SECURITY_STATE_CHANGED:
+    		statusTxt = "密盾状态变化";
+    		break;	
+    		
     	default:
     		statusTxt = "线路异常";
     		break;
