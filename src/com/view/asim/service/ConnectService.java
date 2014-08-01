@@ -138,7 +138,11 @@ public class ConnectService extends Service {
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(reConnectionBroadcastReceiver);
-		mSmackAndroid.onDestroy();
+		try {
+			mSmackAndroid.onDestroy();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		super.onDestroy();
 	}
 

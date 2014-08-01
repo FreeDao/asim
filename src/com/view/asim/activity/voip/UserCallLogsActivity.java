@@ -267,6 +267,11 @@ public class UserCallLogsActivity extends ActivitySupport {
 	
 	// 刷新通话记录列表子界面
 	protected void refreshCalllogListView() {
+		if (CallLogManager.getInstance() == null) {
+			Log.w(TAG, "CallLogManager.getInstance() null");
+			return;
+		}
+		
 		mCalllogList.clear();
 		mCalllogList = CallLogManager.getInstance().getCalllogsByName(mUser.getName(), 1, 500);
 		Collections.sort(mCalllogList);

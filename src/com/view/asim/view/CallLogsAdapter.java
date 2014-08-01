@@ -79,21 +79,26 @@ public class CallLogsAdapter extends BaseAdapter {
 		Log.d(TAG, "calllogs view pos " + position + ", jid " + jid);
 		
 		User u = ContacterManager.contacters.get(jid);
-		String name = u.getNickName();
-		if (logs.getTotalCount() > 1) {
-			name += " (" + logs.getTotalCount() + ")";
-		}
-		holder.nameTxt.setText(name);
-		
-		if (u.getHeadImg() != null) {
-			holder.avatarImg.setImageBitmap(u.getHeadImg());
-		} else {
-			if (u.getGender() != null) {
-				holder.avatarImg.setImageResource(u.getGender().equals(User.MALE) ? 
-						R.drawable.default_avatar_male : R.drawable.default_avatar_female);
-			} else {
-				holder.avatarImg.setImageResource(R.drawable.default_avatar_male);
+		if (u != null) {
+			String name = u.getNickName();
+			if (logs.getTotalCount() > 1) {
+				name += " (" + logs.getTotalCount() + ")";
 			}
+			holder.nameTxt.setText(name);
+			
+			if (u.getHeadImg() != null) {
+				holder.avatarImg.setImageBitmap(u.getHeadImg());
+			} else {
+				if (u.getGender() != null) {
+					holder.avatarImg.setImageResource(u.getGender().equals(User.MALE) ? 
+							R.drawable.default_avatar_male : R.drawable.default_avatar_female);
+				} else {
+					holder.avatarImg.setImageResource(R.drawable.default_avatar_male);
+				}
+			}
+		}
+		else {
+			Log.d(TAG, "cannot found roster user by jid");
 		}
 		
 		String dispTime = DateUtil.getMDHM(logs.getTime());

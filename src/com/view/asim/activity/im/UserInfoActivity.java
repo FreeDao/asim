@@ -86,12 +86,15 @@ public class UserInfoActivity extends ActivitySupport {
 	private Button mChatBtn;
 	private Button mVoiceBtn;
 	private ImageButton mRmvUserBtn;
-    protected ISipService service;
+    protected ISipService service = null;
+    protected boolean mServiceConnected = false;
     protected ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+        	Log.i(TAG, "connect sip service OK");
             service = ISipService.Stub.asInterface(arg1);
+            mServiceConnected = true;
             /*
              * timings.addSplit("Service connected"); if(configurationService !=
              * null) { timings.dumpToLog(); }
@@ -499,13 +502,18 @@ public class UserInfoActivity extends ActivitySupport {
 	}
 	
 	private void makeCall(String name) {
+		if (!mServiceConnected || service == null) {
+    		showToast("网络正忙，请稍后拨打语音电话。");
+    		return;
+		}
+		
         try {
         	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
-        	if (state == null || !state.isActive()) {
+        	if (state == null || !state.isValidForCall()) {
         		showToast("网络状态异常，无法进行语音呼叫。");
         		return;
         	}
-        	Log.i(TAG, "my sip state: " + state.isActive());
+        	Log.i(TAG, "my sip state: " + state.isValidForCall());
 			service.makeCall(StringUtil.getCellphoneByName(name), (int) ContacterManager.userMe.getSipAccountId());
 		} catch (RemoteException e) {
 			e.printStackTrace();

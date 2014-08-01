@@ -947,7 +947,7 @@ public class UAStateReceiver extends Callback {
                     //stateReceiver.onBroadcastCallState(callInfo);
                     stateReceiver.launchCallHandlerForcely(callInfo);
                     
-                    if (msg.what == SipCallSession.InvState.DISCONNECTED) {
+                    if (callState == SipCallSession.InvState.DISCONNECTED) {
                         callInfo.applyDisconnect();
                     }
                     

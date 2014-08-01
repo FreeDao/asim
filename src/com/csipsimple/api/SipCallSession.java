@@ -225,7 +225,7 @@ public class SipCallSession implements Parcelable {
     protected int callId = INVALID_CALL_ID;
     protected int callState = InvState.INVALID;
     protected String remoteContact;
-    protected boolean isIncoming;
+    protected boolean isIncoming = false;
     protected int confPort = -1;
     protected long accId = SipProfile.INVALID_ID;
     protected int mediaStatus = MediaState.NONE;

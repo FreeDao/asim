@@ -228,6 +228,11 @@ public abstract class AChatActivity extends ActivitySupport {
 	protected void refreshMessage() {
 		Log.d(TAG, "refresh msg pool start on: " + DateUtil.getCurDateStr());
 
+		if (MessageManager.getInstance() == null) {
+			Log.d(TAG, "MessageManager instance null");
+			return;
+		}
+		
 		List<ChatMessage> messages = MessageManager.getInstance()
 				.getMessageListByName(getWith(), 1, pageSize);
 		mMessagePool.clear();

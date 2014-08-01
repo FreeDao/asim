@@ -199,6 +199,12 @@ public class MainActivity extends AContacterActivity implements
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		setContentView(com.view.asim.R.layout.contacter_main);
+
+		if (ContacterManager.userMe == null) {
+			Log.w(TAG, "init main activity but no user");
+			return;
+		}
+		
 		init();
 		initSip();
 	}
@@ -225,6 +231,7 @@ public class MainActivity extends AContacterActivity implements
 		String server = Constant.VOIP_SERVICE_HOST;
 		
 		account.display_name = mLoginCfg.getUsername();
+		account.active = true;
 		account.acc_id = "<sip:" + sipNum + "@" + server + ">";
 		String regUri = "sip:" + server + ":" + Constant.VOIP_SERVICE_PORT;
 		account.reg_uri = regUri;

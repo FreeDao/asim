@@ -12,6 +12,7 @@ import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPException;
 
 import com.csipsimple.api.ISipService;
+import com.csipsimple.api.SipProfileState;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.view.asim.util.SoundMeter;
 import com.view.asim.activity.LoginActivity;
@@ -454,7 +455,13 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
                 try {
-					service.makeCall(StringUtil.getCellphoneByName(mUser.getJID()), (int) ContacterManager.userMe.getSipAccountId());
+                	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
+                	if (state == null || !state.isValidForCall()) {
+                		showToast("ÍøÂç×´Ì¬Òì³££¬ÎÞ·¨½øÐÐÓïÒôºô½Ð¡£");
+                		return;
+                	}
+                	Log.i(TAG, "my sip state: " + state.isValidForCall());
+					service.makeCall(StringUtil.getCellphoneByName(mUser.getName()), (int) ContacterManager.userMe.getSipAccountId());
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}

@@ -121,6 +121,11 @@ public class SearchUserTask extends AsyncTask<String, Integer, Integer> {
 		}
 		super.onPostExecute(result);
 	}
+	
+	private User getEntireUserInfo(String name) {
+		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
+		return ContacterManager.getUserByName(conn, name);
+	}
 
 	private Integer search() {
 		try {
@@ -130,14 +135,16 @@ public class SearchUserTask extends AsyncTask<String, Integer, Integer> {
 			if(StringUtil.isNumeric(name)) {
 				resultsByCellphone = ContacterManager.searchUserByCellphone(name);
 				if (resultsByCellphone.size() > 0) {
-					user = resultsByCellphone.get(0);
+					User u = resultsByCellphone.get(0);
+					user = getEntireUserInfo(u.getName());
 					return Constant.SERVER_SUCCESS;
 				}
 			}
 			
 			resultsByName = ContacterManager.searchUserByName(name);
 			if (resultsByName.size() > 0) {
-				user = resultsByName.get(0);
+				User u = resultsByName.get(0);
+				user = getEntireUserInfo(u.getName());
 				return Constant.SERVER_SUCCESS;
 			}
 			else {

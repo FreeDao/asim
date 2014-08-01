@@ -633,6 +633,10 @@ public class NoticeManager {
 	 */
 
 	public void dispatchIMMessageNotify(User user, boolean doUpdate) {
+		if (user == null) {
+			Log.w(TAG, "dispatchIMMessageNotify null user");
+			return;
+		}
 		int userId = user.getName().hashCode();
 		
 		int unreadCount = MessageManager.getInstance().getMsgCountByWithAndReadStatus(user.getJID(), IMMessage.UNREAD);
@@ -685,7 +689,10 @@ public class NoticeManager {
 	 */
 
 	public void dispatchRosterMessageNotify(User user) {
-
+		if (user == null) {
+			Log.w(TAG, "dispatchRosterMessageNotify null user");
+			return;
+		}
 		Intent notifyIntent = new Intent(mCntx, UserNoticeActivity.class);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -737,6 +744,10 @@ public class NoticeManager {
 	 */
 
 	public void dispatchMissedCallNotify(User user) {
+		if (user == null) {
+			Log.w(TAG, "dispatchMissedCallNotify null user");
+			return;
+		}
 		int userId = user.getName().hashCode();
 		Log.i(TAG, "notify new missed call from user:" + user);
 		
@@ -773,6 +784,10 @@ public class NoticeManager {
 	}
 	
 	public void dispatchInCallNotify(User user) {
+		if (user == null) {
+			Log.w(TAG, "dispatchInCallNotify null user");
+			return;
+		}
 		int userId = user.getJID().hashCode();
 
 		Intent notifyIntent = new Intent(SipManager.ACTION_SIP_CALL_UI);
@@ -815,6 +830,10 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void clearIMMessageNotify(User user) {
+		if (user == null) {
+			Log.w(TAG, "clearIMMessageNotify null user");
+			return;
+		}
 		int userId = user.getName().hashCode();
 		mNotificationManager.cancel(userId);
 	}
@@ -845,6 +864,10 @@ public class NoticeManager {
 	}
 	
 	public void clearInCallNotify(User u) {
+		if (u == null) {
+			Log.w(TAG, "clearInCallNotify null user");
+			return;
+		}
 		int userId = u.getJID().hashCode();
 		mNotificationManager.cancel(userId);
 	}
@@ -873,7 +896,7 @@ public class NoticeManager {
 		mBuilder.setTicker(ticker);
 		mBuilder.setLargeIcon(avatar);
 		mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-		//mBuilder.setAutoCancel(autoCancel);
+		mBuilder.setAutoCancel(autoCancel);
 		mBuilder.setOnlyAlertOnce(alertOne);
 		mBuilder.setContentIntent(appIntent);
 

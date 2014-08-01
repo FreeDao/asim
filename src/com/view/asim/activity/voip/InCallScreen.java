@@ -134,6 +134,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 
         @Override
         public void onServiceConnected(ComponentName arg0, IBinder arg1) {
+        	Log.i(TAG, "connect sip service OK");
             service = ISipService.Stub.asInterface(arg1);
             //callsInfo = service.getCalls();
             serviceConnected = true;
@@ -263,7 +264,13 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	
 	private void initSecuritySessionState() {
 		mInitLocalUKeyState = AUKeyManager.getInstance().getAUKeyStatus();
-		mInitPeerUKeyState = mUser.getSecurity();
+		if (mUser == null) {
+			Log.w(TAG, "initSecuritySessionState: my user info is null");
+			mInitPeerUKeyState = AUKeyManager.DETACHED;
+		}
+		else {
+			mInitPeerUKeyState = mUser.getSecurity();
+		}
 		
 		if (mInitLocalUKeyState.equals(AUKeyManager.ATTACHED) && mInitPeerUKeyState.equals(AUKeyManager.ATTACHED)) {
 			mSecurityMode = MODE_ENCRYPTION;
@@ -281,6 +288,9 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			setAvatarImage(mAvatar, mUser);
 			mNickname.setText(mUser.getNickName());
 		}
+		else {
+			Log.w(TAG, "cannot found roster user by callinfo: " + call);
+		}
 	}
 	
     @Override
@@ -296,6 +306,11 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			}
 			else {
 				SipCallSession[] callsInfo = null;
+				if(!serviceConnected || service == null) {
+			        Log.i(TAG, "input call id " + call.getCallId() + " so early, sip service has not been connected, ignore it");
+					super.onNewIntent(intent);
+					return;
+				}
 				try {
 					callsInfo = service.getCalls();
 				} catch (RemoteException e) {
@@ -699,7 +714,18 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 				String peerState = null;
 				if (Constant.ROSTER_PRESENCE_CHANGED.equals(action) || Constant.ROSTER_UPDATED.equals(action)) {
 					newUser = intent.getParcelableExtra(User.userKey);
-					peerState = newUser.getSecurity();
+    				Log.i(TAG, "recv user info and state changed broadcast: " + newUser.getName());
+
+    				if (mUser == null) {
+        				Log.w(TAG, "my user info is null");
+    					return;
+    				}
+    				
+					if (newUser.getName().equals(mUser.getName())) {
+						peerState = newUser.getSecurity();
+					} else {
+						return;
+					}
 				}
 				else {
 					peerState = mInitPeerUKeyState;
@@ -767,8 +793,10 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 	private User getUser(SipCallSession call) {
 		if (call != null) {
             ParsedSipContactInfos uriInfos = SipUri.parseSipContact(call.getRemoteContact());
-            Log.w(TAG, "sip account username: " + uriInfos.userName);
-			return ContacterManager.contacters.get(StringUtil.getJidByCellphone(uriInfos.userName));
+            if (uriInfos != null) {
+                Log.w(TAG, "sip account username: " + uriInfos.userName);
+    			return ContacterManager.contacters.get(StringUtil.getJidByCellphone(uriInfos.userName));
+            }
 		}
 		return null;
 	}
