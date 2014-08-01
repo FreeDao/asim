@@ -490,13 +490,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	            startActivityForResult(intent, Constant.REQCODE_TAKE_PICTURE); 
 			}
 		});
-		
-		new Thread() {
-			public void run() {
-				// 更新某人所有通知
-				MessageManager.getInstance().updateReadStatus(mUser.getJID(), IMMessage.READ);
-			}
-		}.start();
+
 	}
 	
 	@Override
@@ -794,6 +788,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	}
 	
 	protected void refreshChatMessageList() {
+		Log.i(TAG, "refreshChatMessageList start on " + DateUtil.getCurDateStr());
 
 		int i = 0;
 		int j = 0;
@@ -832,6 +827,19 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			}
 			i = j;
 		}
+		Log.i(TAG, "refreshChatMessageList end on " + DateUtil.getCurDateStr());
+
+	}
+	
+	private void refreshMessageNotify() {
+		int unreadCount = MessageManager.getInstance().getMsgCountByWithAndReadStatus(mUser.getJID(), IMMessage.UNREAD);
+		if (unreadCount == 0) {
+			Log.i(TAG, "no more unread message at all, clean notification");
+			NoticeManager.getInstance().clearIMMessageNotify(mUser);
+		}
+		else {
+			NoticeManager.getInstance().dispatchIMMessageNotify(mUser, true);
+		}
 	}
 
 	@Override
@@ -868,6 +876,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		refreshChatMessageList();
 		
 		Log.d(TAG, "refresh chat msg list end on: " + DateUtil.getCurDateStr());
+
+		refreshMessageNotify();
+
+		Log.d(TAG, "refresh notification msg end on: " + DateUtil.getCurDateStr());
 
 		adapter.refreshList(mChatItems);
 	}
@@ -920,11 +932,11 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		
 		if (mChatType.equals(IMMessage.SINGLE)) {
 			mNoticeManager.setCurrentChatUser(mUser.getName());
-			mNoticeManager.clearIMMessageNotify(mUser.getName());
+			//mNoticeManager.clearIMMessageNotify(mUser.getName());
 		}
 		else {
 			mNoticeManager.setCurrentChatUser(mGroup.getName());
-			mNoticeManager.clearIMMessageNotify(mGroup.getName());
+			//mNoticeManager.clearIMMessageNotify(mGroup.getName());
 		}
 
 	}

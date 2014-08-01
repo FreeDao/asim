@@ -350,4 +350,20 @@ public class Constant {
 	// 发送多媒体文件的大小上限（10M）
 	public final static int SEND_MEDIA_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
 	
+	
+	// AVOSCloud 云服务定义
+	public final static String EVENT_TAG_IM_SEND_TEXT_PLAIN = "im_send_text_plain";
+	public final static String EVENT_TAG_IM_SEND_TEXT_ENCRYPTED = "im_send_text_encrypted";
+	public final static String EVENT_TAG_IM_SEND_PIC_PLAIN = "im_send_pic_plain";
+	public final static String EVENT_TAG_IM_SEND_PIC_ENCRYPTED = "im_send_pic_encrypted";
+	public final static String EVENT_TAG_IM_SEND_AUDIO_PLAIN = "im_send_audio_plain";
+	public final static String EVENT_TAG_IM_SEND_AUDIO_ENCRYPTED = "im_send_audio_encrypted";
+	public final static String EVENT_TAG_IM_SEND_VIDEO_PLAIN = "im_send_video_plain";
+	public final static String EVENT_TAG_IM_SEND_VIDEO_ENCRYPTED = "im_send_video_encrypted";
+
+	public final static String EVENT_TAG_VOIP_OUTGOING_CALL_PLAIN = "voip_outgoing_call_plain";
+	public final static String EVENT_TAG_VOIP_OUTGOING_CALL_ENCRYPTED = "voip_outgoing_call_encrypted";
+	public final static String EVENT_TAG_VOIP_INCOMING_CALL_PLAIN = "voip_incoming_call_plain";
+	public final static String EVENT_TAG_VOIP_INCOMING_CALL_ENCRYPTED = "voip_incoming_call_encrypted";
+	
 }

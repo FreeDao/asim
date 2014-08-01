@@ -102,7 +102,7 @@ public class UserInfoModActivity extends ActivitySupport {
 		getEimApplication().addActivity(this);
 
 		mTitleTxt = (TextView) findViewById(R.id.title_back_btn);
-				
+		
 		mModNickLayout = (LinearLayout) findViewById(R.id.mod_nick_layout);
 		mModLocLayout = (LinearLayout) findViewById(R.id.mod_location_layout);
 		mModRemarkLayout = (LinearLayout) findViewById(R.id.mod_remark_layout);
@@ -177,6 +177,15 @@ public class UserInfoModActivity extends ActivitySupport {
 			mOldRemark = getIntent().getStringExtra(REMARK);
 			mRemarkTxt.setText(mOldRemark);
 			mTitleTxt.setText(getResources().getString(R.string.my_info_title_remark));
+			mTitleTxt.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+	                Intent intent = new Intent();
+	                intent.putExtra(REMARK, mRemarkTxt.getText().toString());
+	                setResult(RESULT_OK, intent);
+	                finish();
+				}
+			});
 			
 			mModRemarkLayout.setVisibility(View.VISIBLE);
 			mModLocLayout.setVisibility(View.GONE);
@@ -186,6 +195,15 @@ public class UserInfoModActivity extends ActivitySupport {
 			mOldLocation = getIntent().getStringExtra(LOCATION);
 			mLocationTxt.setText(mOldLocation);
 			mTitleTxt.setText(getResources().getString(R.string.my_info_title_loc));
+			mTitleTxt.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+	                Intent intent = new Intent();
+	                intent.putExtra(LOCATION, mLocationTxt.getText().toString());
+	                setResult(RESULT_OK, intent);
+	                finish();
+				}
+			});
 			
 			mModRemarkLayout.setVisibility(View.GONE);
 			mModLocLayout.setVisibility(View.VISIBLE);
@@ -195,7 +213,17 @@ public class UserInfoModActivity extends ActivitySupport {
 			mOldNickname = getIntent().getStringExtra(NICKNAME);
 			mOldGender = getIntent().getStringExtra(GENDER);
 			mTitleTxt.setText(getResources().getString(R.string.my_info_title_nick));
-
+			mTitleTxt.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+	                Intent intent = new Intent();
+	                intent.putExtra(NICKNAME, mNickNameTxt.getText().toString());
+	                intent.putExtra(GENDER, mGender);
+	                setResult(RESULT_OK, intent);
+	                finish();
+				}
+			});
+			
 			mNickNameTxt.setText(mOldNickname);
 			
 			if(mOldGender.equals(User.MALE)) {

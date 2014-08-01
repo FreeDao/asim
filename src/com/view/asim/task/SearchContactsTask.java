@@ -56,12 +56,18 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 		this.activity = as;
 		this.pd = as.getProgressDialog();
 	}
+	
+	public void stopProgress() {
+		pd.dismiss();
+	}
 
 	@Override
 	protected void onPreExecute() {
 		// 如果是注册后的自动登录，不再显示进度对话框
 		pd.setTitle("请稍等");
 		pd.setMessage("正在搜索通讯录");
+		pd.setCancelable(true);
+		pd.setCanceledOnTouchOutside(false);
 		pd.show();
 		super.onPreExecute();
 	}

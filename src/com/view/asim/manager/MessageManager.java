@@ -120,7 +120,7 @@ public class MessageManager {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("unique_id", msg.getUniqueId());
 		contentValues.put("status", msg.getStatus());
-		contentValues.put("readStatus", IMMessage.UNREAD);
+		contentValues.put("readStatus", msg.getReadStatus());
 		contentValues.put("content", msg.getContent());
 		contentValues.put("with", msg.getWith());
 		contentValues.put("src", msg.getFrom());
@@ -173,6 +173,12 @@ public class MessageManager {
 	 */
 	public void updateReadStatus(long id, String readStatus) {
 		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
+		ContentValues contentValues = new ContentValues();
+		contentValues.put("readStatus", readStatus);
+		st.updateById("im_msg_his", "" + id, contentValues);
+	}
+	
+	public void updateReadStatus(SQLiteTemplate st, long id, String readStatus) {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("readStatus", readStatus);
 		st.updateById("im_msg_his", "" + id, contentValues);
@@ -231,6 +237,7 @@ public class MessageManager {
 						msg.setId(cursor.getString(cursor.getColumnIndex("_id")));
 						msg.setUniqueId(cursor.getString(cursor.getColumnIndex("unique_id")));
 						msg.setStatus(cursor.getString(cursor.getColumnIndex("status")));
+						msg.setReadStatus(cursor.getString(cursor.getColumnIndex("readStatus")));
 						msg.setContent(cursor.getString(cursor.getColumnIndex("content")));
 						msg.setWith(cursor.getString(cursor.getColumnIndex("with")));
 						msg.setFrom(cursor.getString(cursor.getColumnIndex("src")));

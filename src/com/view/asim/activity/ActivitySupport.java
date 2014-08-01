@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 
+import com.avos.avoscloud.AVAnalytics;
 import com.csipsimple.api.SipManager;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -94,6 +95,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		AVAnalytics.onResume(this);
 		Log.d(this.toString(), "onResume on " + DateUtil.getCurDateStr());
 
 	}
@@ -101,6 +103,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		AVAnalytics.onPause(this);
 		Log.d(this.toString(), "onPause on " + DateUtil.getCurDateStr());
 
 	}

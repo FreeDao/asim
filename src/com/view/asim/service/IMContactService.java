@@ -81,6 +81,8 @@ public class IMContactService extends Service {
 				}
 			}
 			else if (Constant.AUKEY_STATUS_UPDATE.equals(action)) {
+				Log.i(TAG, "aukey state changed, notify im server");
+				
 				updateMyUserInfo();
 			}
 		}
@@ -425,7 +427,12 @@ public class IMContactService extends Service {
 						entry, XmppConnectionManager.getInstance().getRoster());
 
 				intent.putExtra(User.userKey, user);
-				//ContacterManager.contacters.remove(subscriber);
+				
+				if(presence.getType().equals(Presence.Type.unavailable)) {
+					Log.w(TAG, "user " + user.getName() + " offline, remove the aukey attached flag");
+					user.setSecurity(AUKeyManager.DETACHED);
+				}
+				
 				ContacterManager.contacters.put(subscriber, user);
 				sendBroadcast(intent);
 			}

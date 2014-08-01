@@ -54,6 +54,9 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 
 	// 消息状态（成功/失败）
 	private String status;
+	
+	// 已读状态（已读/未读）
+	private String readStatus;
 
 	// 消息归属对象(个人或者群组)
 	private String with;
@@ -120,6 +123,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 
 	public IMMessage() {
 		this.status = INPROGRESS;
+		this.readStatus = UNREAD;
 	}
 
 	public String getId() {
@@ -211,6 +215,16 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 		this.time = time;
 	}
 
+
+	public String getReadStatus() {
+		return readStatus;
+	}
+
+
+	public void setReadStatus(String readStatus) {
+		this.readStatus = readStatus;
+	}
+
 	@Override
 	public String toString() {
 	
@@ -219,6 +233,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 				", type = " + type + 
 				", dir = " + dir +
 				", status = " + status +
+				", readStatus = " + readStatus +
 				", time = " + time +
 				", with = " + with +
 				", from = " + from +
@@ -234,6 +249,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 		this.type = in.readString();
 		this.dir = in.readString();
 		this.status = in.readString();
+		this.readStatus = in.readString();
 		this.time = in.readString();
 		this.with = in.readString();
 		this.from = in.readString();
@@ -255,6 +271,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 		dest.writeString(type);
 		dest.writeString(dir);
 		dest.writeString(status);
+		dest.writeString(readStatus);
 		dest.writeString(time);
 		dest.writeString(with);
 		dest.writeString(from);

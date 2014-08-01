@@ -14,6 +14,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.OfflineMessageManager;
 
+import com.avos.avoscloud.AVAnalytics;
 import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.im.ChatActivity;
@@ -472,7 +473,7 @@ public class IMChatService extends Service {
 										Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
 										intent.putExtra(ChatMessage.IMMESSAGE_KEY, msgRecv);
 										sendBroadcast(intent);
-										
+
 									}
 						});
 					}
@@ -537,7 +538,7 @@ public class IMChatService extends Service {
 					Log.d(TAG, "new message notice from " + from + " dispatch");
 
 					User u = ContacterManager.contacters.get(from);
-					NoticeManager.getInstance().dispatchIMMessageNotify(u);
+					NoticeManager.getInstance().dispatchIMMessageNotify(u, false);
 				}
 
 

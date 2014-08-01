@@ -218,9 +218,9 @@ public class ContacterManager {
      * @return 
      * @throws XMPPException 
      */ 
-	public static VCard saveUserVCard(XMPPConnection conn, User user, VCard card) {
+	public static void saveUserVCard(XMPPConnection conn, User user, VCard card) {
 		if (card == null || user == null || conn == null) {
-			return null;
+			return;
 		}
 		
 		try {
@@ -229,7 +229,7 @@ public class ContacterManager {
 			
 			if (card.getJabberId() != null && !card.getJabberId().equals(user.getJID())) {
 				Log.e(TAG, "User(" + user.getJID() + ") does not match VCard(" + card.getJabberId() + ")!");
-				return null;
+				return;
 			}
 
 			if (card.getJabberId() == null) {
@@ -273,26 +273,22 @@ public class ContacterManager {
 			}
 			
 			card.save(conn);
-
-			return getUserVCard(conn, user.getName());
 		} catch (XMPPException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return;
 	}
 
-	
-	
-	public static VCard saveUserVCard(XMPPConnection conn, User user) {
+	public static void saveUserVCard(XMPPConnection conn, User user) {
 		VCard card = new VCard();
 		try {
 			card.load(conn);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return;
 		}
 			
-		return saveUserVCard(conn, user, card);
+		saveUserVCard(conn, user, card);
 	}
 	
 	/**

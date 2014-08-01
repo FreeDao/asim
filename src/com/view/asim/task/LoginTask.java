@@ -189,17 +189,21 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 				mUser.setPublicKey(keyMan.encodePublicKey());
 				*/
 				
-				VCard r = ContacterManager.saveUserVCard(manager.getConnection(), mUser);
-				Log.d(TAG, "register new user succ: " + r);
+				mUser.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
+				ContacterManager.saveUserVCard(manager.getConnection(), mUser);
+				Log.d(TAG, "register new user succ: " + mUser);
 			} else {
 				// 正常登录，从服务器获取登录用户的信息
-				mUser = ContacterManager.getUserByName(manager.getConnection(), username);
+				VCard vcard = ContacterManager.getUserVCard(manager.getConnection(), username);
+
+				mUser = ContacterManager.getUserByNameAndVCard(username, vcard);
+				mUser.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
+				XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
+				ContacterManager.saveUserVCard(conn, mUser, vcard);
 				Log.d(TAG, "login user succ: " + mUser);
 			}
 			
 			ContacterManager.setUserMe(mUser);
-			updateSecurityStatus();
-			
 	        NoticeManager.getInstance(activity, loginConfig).init();
 	        MessageManager.getInstance(activity, loginConfig).init();
 	        CallLogManager.getInstance(activity, loginConfig).init();
@@ -234,27 +238,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			}
 		}
 	}
-	
-	private void updateSecurityStatus() {
-		ContacterManager.userMe.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
 		
-		/*
-		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
-		ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
-		Presence presence = new Presence(Presence.Type.available);
-		presence.setStatus("update");
-		
-		Collection<RosterEntry> rosters = conn.getRoster()
-				.getEntries();
-		for (RosterEntry rosterEntry : rosters) {
-			Log.d(TAG, "presence updated to " + rosterEntry.getUser());
-			presence.setTo(rosterEntry.getUser());
-			conn.sendPacket(presence);
-		}
-		*/
-
-	}
-	
 	private void initUserCacheFolder(User u) {
 		
 		File videoFolder = new File(FileUtil.getUserVideoPath());

@@ -10,6 +10,7 @@ import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.avos.avoscloud.AVAnalytics;
 import com.csipsimple.api.ISipService;
 import com.csipsimple.api.MediaState;
 import com.csipsimple.api.SipCallSession;
@@ -1037,9 +1038,21 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 		
 		if (mInitLocalUKeyState.equals(AUKeyManager.ATTACHED) && mInitPeerUKeyState.equals(AUKeyManager.ATTACHED)) {
 			callInfo.setSecurity(IMMessage.ENCRYPTION);
+			if (callInfo.isIncoming()) {
+				AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_VOIP_INCOMING_CALL_ENCRYPTED, 1);
+			}
+			else {
+				AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_VOIP_OUTGOING_CALL_ENCRYPTED, 1);
+			}
 		}
 		else {
 			callInfo.setSecurity(IMMessage.PLAIN);
+			if (callInfo.isIncoming()) {
+				AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_VOIP_INCOMING_CALL_PLAIN, 1);
+			}
+			else {
+				AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_VOIP_OUTGOING_CALL_PLAIN, 1);
+			}
 		}
 		
 		// CallLog

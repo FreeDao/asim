@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVOSCloud;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -43,10 +45,16 @@ public class AsimApplication extends Application {
     public void onCreate() {  
         super.onCreate();
         
+        initAVOSCloud();
         initCrashHandler();
         initImageLoader();
         initVCamera();
     }  
+	
+	private void initAVOSCloud() {
+		AVOSCloud.initialize(this, "dfhujsucfnoecty9pl6fop0s7ta0bdtvl58a7pqh5pm2yau3", "dxery5x1wr0v40p6ceagxv99cftni0nivr5uc1yo72liejgf");
+        AVAnalytics.enableCrashReport(this, true);
+	}
 	
 	private void initVCamera() {
 		/*

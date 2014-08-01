@@ -121,16 +121,23 @@ public class BurnMsgViewActivity extends ActivitySupport {
 	}
 	
 	@Override
-	public void onBackPressed() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
-			if (burnThread != null) {
-				burnThread.cancel();
-			}
-			burnMessage();
-			
-		}
-		super.onBackPressed();
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+		message = (ChatMessage) intent.getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
+        super.onNewIntent(intent);
 	}
+	
+//	@Override
+//	public void onBackPressed() {
+//		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+//			if (burnThread != null) {
+//				burnThread.cancel();
+//			}
+//			burnMessage();
+//			
+//		}
+//		super.onBackPressed();
+//	}
 	
 	@Override
 	public void onResume() {
@@ -155,6 +162,8 @@ public class BurnMsgViewActivity extends ActivitySupport {
 		
 					@Override
 					public void onEnd() {
+						destroyTimerStarting = false;
+
 						runOnUiThread(new Runnable()    
 				        {    
 				            public void run()    
@@ -321,11 +330,16 @@ public class BurnMsgViewActivity extends ActivitySupport {
 	@Override
 	public void onPause() {
 		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
-			if (burnThread != null) {
-				burnThread.cancel();
+			if (burnThread == null) {
+				burnMessage();
 			}
-			burnMessage();
+			else
+			if (burnThread != null && destroyTimerStarting) {
+				burnThread.cancel();
+				burnMessage();
+			}
 			
+			destroyTimerStarting = false;
 		}
 		super.onPause();
 	}

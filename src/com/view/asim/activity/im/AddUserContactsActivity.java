@@ -56,6 +56,7 @@ public class AddUserContactsActivity extends ActivitySupport {
 	private ContactUsersAdapter mUsersAdapter = null;
 	private List<User> mContactUsers = new ArrayList<User>();
 	private View noContactersLayout = null;
+	private SearchContactsTask mTask = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +83,18 @@ public class AddUserContactsActivity extends ActivitySupport {
 		mFriendsList.setAdapter(mUsersAdapter);
 		//mFriendsList.setOnItemClickListener(inviteListClick);
 		
-		SearchContactsTask task = new SearchContactsTask(AddUserContactsActivity.this);
-		task.execute();
+		mTask = new SearchContactsTask(AddUserContactsActivity.this);
+		mTask.execute();
 
 	}
 
+//	@Override
+//	public void onBackPressed() {
+//		if (mTask != null) {
+//			mTask.stopProgress();
+//		}
+//		super.onBackPressed();
+//	}
 	
 	private OnClickListener addUserClick = new OnClickListener() {
 		@Override

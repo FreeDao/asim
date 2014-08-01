@@ -12,9 +12,12 @@ import java.util.Map;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.packet.Message;
 
+import com.avos.avoscloud.AVAnalytics;
 import com.csipsimple.api.ISipService;
 import com.csipsimple.api.SipManager;
 import com.view.asim.comm.Constant;
+import com.view.asim.db.DBManager;
+import com.view.asim.db.SQLiteTemplate;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
@@ -28,17 +31,20 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.util.DateUtil;
+import com.view.asim.util.StringUtil;
 import com.view.asim.worker.MessageSentResultListener;
 import com.view.asim.worker.Worker;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -245,13 +251,17 @@ public abstract class AChatActivity extends ActivitySupport {
 	
 
 	protected List<ChatMessage> getMessages() {
+		Log.i(TAG, "get all messages(update status and sort) start on " + DateUtil.getCurDateStr());
+
 		boolean needEncr = AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED);
 
 		if (mMessagePool == null)
 			throw new RuntimeException("message pool is null");
 
 		List<ChatMessage> msgList = new ArrayList<ChatMessage>();
-
+		SQLiteDatabase db = DBManager.getInstance().openDatabase();
+		db.beginTransaction();
+		
 		for (String key : mMessagePool.keySet()) {
 			ChatMessage m = mMessagePool.get(key);
 			
@@ -260,10 +270,41 @@ public abstract class AChatActivity extends ActivitySupport {
 				continue;
 			}
 			
+			if (m.getReadStatus().equals(IMMessage.UNREAD)) {
+				Log.i(TAG, "update msg " + m.getId() + " start on " + DateUtil.getCurDateStr());
+				m.setReadStatus(IMMessage.READ);
+				updateReadStatus(db, Long.parseLong(m.getId()), IMMessage.READ);
+				Log.i(TAG, "update msg " + m.getId() + " start end " + DateUtil.getCurDateStr());
+				
+			}
 			msgList.add(m);
 		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
+		
+		DBManager.getInstance().closeDatabase(db, null);
+		Log.i(TAG, "update msg status all end " + DateUtil.getCurDateStr());
+
 		Collections.sort(msgList);
+		Log.i(TAG, "sort all msg end " + DateUtil.getCurDateStr());
+
 		return msgList;
+	}
+	
+	public void updateReadStatus(SQLiteDatabase db, long id, String readStatus) {
+		ContentValues contentValues = new ContentValues();
+		contentValues.put("readStatus", readStatus);
+		updateById(db, "im_msg_his", "" + id, contentValues);
+	}
+	
+	public int updateById(SQLiteDatabase db, String table, String id, ContentValues values) {
+		try {
+			return db.update(table, values, "_id=?",
+					new String[] { id });
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 
@@ -273,6 +314,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		String time = DateUtil.getCurDateStr();
 		
 		ChatMessage newMessage = new ChatMessage();
+		newMessage.setReadStatus(IMMessage.READ);
 		newMessage.setDir(IMMessage.SEND);
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_TEXT);
@@ -289,14 +331,19 @@ public abstract class AChatActivity extends ActivitySupport {
 		long msgId = MessageManager.getInstance().saveIMMessage(newMessage);
 		newMessage.setId("" + msgId);
 		
-		MessageManager.getInstance().updateReadStatus(msgId, IMMessage.READ);
-		
 		mMessagePool.put(newMessage.getId(), newMessage);
 
 		Intent intent = new Intent();
 		intent.setAction(Constant.SEND_MESSAGE_ACTION);
 		intent.putExtra(Constant.SEND_MESSAGE_KEY_MESSAGE, newMessage);
 		sendBroadcast(intent);
+		
+		if (newMessage.getSecurity().equals(IMMessage.ENCRYPTION)) {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_TEXT_ENCRYPTED, 1);
+		}
+		else {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_TEXT_PLAIN, 1);
+		}
 		
 		// 刷新视图
 		refreshMessage();
@@ -393,7 +440,13 @@ public abstract class AChatActivity extends ActivitySupport {
 		Intent intent = new Intent(Constant.SEND_FILE_ACTION);
 		intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, newMessage);
 		sendBroadcast(intent);
-		
+
+		if (newMessage.getSecurity().equals(IMMessage.ENCRYPTION)) {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_PIC_ENCRYPTED, 1);
+		}
+		else {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_PIC_PLAIN, 1);
+		}
 		// 刷新视图
 		refreshMessageView();
 
@@ -412,6 +465,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		String time = DateUtil.getCurDateStr();
 		
 		ChatMessage newMessage = new ChatMessage();
+		newMessage.setReadStatus(IMMessage.READ);
 		newMessage.setDir(IMMessage.SEND);
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_VIDEO);
@@ -437,6 +491,14 @@ public abstract class AChatActivity extends ActivitySupport {
 		Intent intent = new Intent(Constant.SEND_FILE_ACTION);
 		intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, newMessage);
 		sendBroadcast(intent);
+
+		
+		if (newMessage.getSecurity().equals(IMMessage.ENCRYPTION)) {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_VIDEO_ENCRYPTED, 1);
+		}
+		else {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_VIDEO_PLAIN, 1);
+		}
 		
 		// 刷新视图
 		refreshMessageView();
@@ -479,6 +541,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		String time = DateUtil.getCurDateStr();
 		
 		ChatMessage newMessage = new ChatMessage();
+		newMessage.setReadStatus(IMMessage.READ);
 		newMessage.setDir(IMMessage.SEND);
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_AUDIO);
@@ -505,6 +568,13 @@ public abstract class AChatActivity extends ActivitySupport {
 		intent.putExtra(Constant.SEND_FILE_KEY_MESSAGE, newMessage);
 		sendBroadcast(intent);
 		
+		if (newMessage.getSecurity().equals(IMMessage.ENCRYPTION)) {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_AUDIO_ENCRYPTED, 1);
+		}
+		else {
+			AVAnalytics.onEvent(this, StringUtil.getCellphoneByName(ContacterManager.userMe.getName()), Constant.EVENT_TAG_IM_SEND_AUDIO_PLAIN, 1);
+		}
+
 		// 刷新视图
 		refreshMessageView();
 
@@ -519,6 +589,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		String time = DateUtil.getCurDateStr();
 		
 		ChatMessage newMessage = new ChatMessage();
+		newMessage.setReadStatus(IMMessage.READ);
 		newMessage.setDir(IMMessage.SEND);
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_FILE);

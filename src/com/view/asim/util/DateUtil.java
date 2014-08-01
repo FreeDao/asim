@@ -133,7 +133,7 @@ public class DateUtil {
 	
 	public static String getMDHM(long time) {
 
-		return new SimpleDateFormat("M月dd日 HH:mm").format(time);
+		return new SimpleDateFormat("M月d日 H:mm").format(time);
 
 	}
 }

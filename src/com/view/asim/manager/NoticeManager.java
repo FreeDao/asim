@@ -632,10 +632,17 @@ public class NoticeManager {
 	 * @param msg
 	 */
 
-	public void dispatchIMMessageNotify(User user) {
+	public void dispatchIMMessageNotify(User user, boolean doUpdate) {
 		int userId = user.getName().hashCode();
+		
 		int unreadCount = MessageManager.getInstance().getMsgCountByWithAndReadStatus(user.getJID(), IMMessage.UNREAD);
 
+//		if (unreadCount == 0) {
+//			Log.i(TAG, "no more unread message from user: " + user + ", notify nothing, clean");
+//			clearIMMessageNotify(user);
+//			return;
+//
+//		}
 		User fromUser = user.clone();
 		Log.i(TAG, "notify new message from user:" + user + ", notify user info:" + fromUser);
 
@@ -645,7 +652,7 @@ public class NoticeManager {
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		String ticker = user.getNickName() + "发来1条新消息";
-		String content = "发来" + (unreadCount + 1) + "条新消息";
+		String content = "发来" + (unreadCount == 0 ? 1: unreadCount) + "条新消息";
 		
 		Bitmap avatar = null;
 		if (user.getHeadImg() != null) {
@@ -667,7 +674,7 @@ public class NoticeManager {
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
 		dispatchSystemNotify(userId, avatar, user.getNickName(), content,
-				ticker, notifyIntent, true);
+				ticker, notifyIntent, false, false, doUpdate);
 	}
 
 	/**
@@ -719,7 +726,7 @@ public class NoticeManager {
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
 		// 好友添加通知使用统一的 ID 0
-		dispatchSystemNotify(0, avatar, title, content, ticker, notifyIntent, true);
+		dispatchSystemNotify(0, avatar, title, content, ticker, notifyIntent, true, true, false);
 	}
 
 	/**
@@ -762,7 +769,7 @@ public class NoticeManager {
 
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
-		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, true);
+		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, true, true, false);
 	}
 	
 	public void dispatchInCallNotify(User user) {
@@ -796,7 +803,7 @@ public class NoticeManager {
 
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
-		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, false);
+		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, false, false, false);
 	}
 	
 	
@@ -852,7 +859,7 @@ public class NoticeManager {
 	 * @param intent
 	 */
 	protected void dispatchSystemNotify(int id, Bitmap avatar, String title,
-			String content, String ticker, Intent intent, boolean canBeClean) {
+			String content, String ticker, Intent intent, boolean autoCancel, boolean canBeClean, boolean alertOne) {
 
 		/* 创建PendingIntent作为设置递延运行的Activity */
 		PendingIntent appIntent = PendingIntent
@@ -866,7 +873,8 @@ public class NoticeManager {
 		mBuilder.setTicker(ticker);
 		mBuilder.setLargeIcon(avatar);
 		mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-		mBuilder.setAutoCancel(true);
+		//mBuilder.setAutoCancel(autoCancel);
+		mBuilder.setOnlyAlertOnce(alertOne);
 		mBuilder.setContentIntent(appIntent);
 
 		Notification n = mBuilder.build();
