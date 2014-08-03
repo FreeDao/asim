@@ -187,8 +187,7 @@ public class OTAService extends Service {
 				long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
 				if(mOTAStatus.status.equals(OTAStatusInfo.STATUS_DOWNLOADING)) {
 					if(id == mOTAStatus.downloadId) {
-						String name = Constant.SDCARD_ROOT_PATH + 
-	                			FileUtil.getGlobalCachePath() + 
+						String name = FileUtil.getGlobalCachePath() + 
 	                			mOTAStatus.filename;
 						
 	                	Uri localUri = Uri.parse("file://" + name);
