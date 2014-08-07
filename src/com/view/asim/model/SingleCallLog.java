@@ -1,6 +1,6 @@
 package com.view.asim.model;
 
-import com.view.asim.util.DateUtil;
+import com.view.asim.utils.DateUtil;
 
 /**
  * 

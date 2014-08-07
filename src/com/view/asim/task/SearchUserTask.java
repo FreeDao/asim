@@ -1,5 +1,6 @@
 package com.view.asim.task;
 
+
 import java.util.Collection;
 import java.util.List;
 
@@ -9,16 +10,16 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.activity.im.UserInfoActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

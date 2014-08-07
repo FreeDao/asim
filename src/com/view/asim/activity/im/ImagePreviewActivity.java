@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -24,9 +25,9 @@ import com.view.asim.model.ChatMessage;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.ImageUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.ImageUtil;
+import com.view.asim.utils.StringUtil;
 import com.view.asim.view.EndAnimationDrawable;
 import com.view.asim.view.OnAnimationChangeListener;
 import com.view.asim.worker.ExpiryTimerListener;

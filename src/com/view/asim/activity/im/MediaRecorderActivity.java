@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.File;
 
 import android.app.Activity;
@@ -33,9 +34,9 @@ import android.widget.Toast;
 
 import com.view.asim.R;
 import com.view.asim.activity.ActivitySupport;
-import com.view.asim.util.ConvertToUtils;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.NetworkUtils;
+import com.view.asim.utils.ConvertToUtils;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.NetworkUtils;
 import com.view.asim.view.ProgressView;
 import com.view.asim.view.ThemeRadioButton;
 import com.yixia.camera.FFMpegUtils;

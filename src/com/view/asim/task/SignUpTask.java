@@ -1,5 +1,6 @@
 package com.view.asim.task;
 
+
 import java.util.Collection;
 
 import org.jivesoftware.smack.PacketCollector;
@@ -16,12 +17,12 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Registration;
 import org.jivesoftware.smack.packet.XMPPError;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.activity.SignUpActivity;
 import com.view.asim.activity.SplashActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;

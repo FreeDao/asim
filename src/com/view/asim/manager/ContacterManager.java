@@ -1,5 +1,6 @@
 package com.view.asim.manager;
 
+
 import java.io.ByteArrayInputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -25,11 +26,11 @@ import org.jivesoftware.smackx.packet.VCard;
 import com.view.asim.comm.Constant;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.User;
-import com.view.asim.util.CharacterParser;
-import com.view.asim.util.CryptoUtil;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.ImageUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.CharacterParser;
+import com.view.asim.utils.CryptoUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.ImageUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.content.ContentResolver;
 import android.content.Context;

@@ -16,8 +16,8 @@ import com.view.asim.model.ChatMessageItem;
 import com.view.asim.model.ChatMessage;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
-import com.view.asim.util.FaceConversionUtil;
-import com.view.asim.util.ImageUtil;
+import com.view.asim.utils.FaceConversionUtil;
+import com.view.asim.utils.ImageUtil;
 
 
 import com.view.asim.R;

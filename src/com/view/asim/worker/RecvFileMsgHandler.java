@@ -1,5 +1,6 @@
 package com.view.asim.worker;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,10 +20,10 @@ import com.view.asim.model.ChatMessage;
 import com.view.asim.model.CtrlMessage;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.ImageUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.ImageUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.content.Context;
 import android.graphics.Bitmap;

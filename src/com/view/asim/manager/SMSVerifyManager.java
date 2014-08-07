@@ -5,6 +5,7 @@ package com.view.asim.manager;
  * @author xuweinan
  */
 
+
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +13,8 @@ import java.util.Random;
 
 
 import com.view.asim.comm.Constant;
-import com.view.asim.util.CryptoUtil;
-import com.view.asim.util.ImageUtil;
+import com.view.asim.utils.CryptoUtil;
+import com.view.asim.utils.ImageUtil;
 
 import android.content.Context;
 import android.util.Log;

@@ -37,12 +37,13 @@ import android.provider.CallLog;
 import android.support.v4.database.DatabaseUtilsCompat;
 import android.text.TextUtils;
 
-import com.csipsimple.api.SipManager;
-import com.csipsimple.api.SipMessage;
-import com.csipsimple.api.SipProfile;
-import com.csipsimple.api.SipProfileState;
-import com.csipsimple.utils.Log;
 import com.view.asim.comm.Constant;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.sip.api.SipMessage;
+import com.view.asim.sip.api.SipProfile;
+import com.view.asim.sip.api.SipProfileState;
+import com.view.asim.utils.Log;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

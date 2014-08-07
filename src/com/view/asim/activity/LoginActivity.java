@@ -6,8 +6,8 @@ import org.jivesoftware.smack.SmackAndroid;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.task.LoginTask;
-import com.view.asim.util.StringUtil;
-import com.view.asim.util.ValidateUtil;
+import com.view.asim.utils.StringUtil;
+import com.view.asim.utils.ValidateUtil;
 
 import com.view.asim.view.ClearEditText;
 

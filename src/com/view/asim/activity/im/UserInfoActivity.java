@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
@@ -9,9 +10,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
-import com.csipsimple.api.ISipService;
-import com.csipsimple.api.SipManager;
-import com.csipsimple.api.SipProfileState;
+import com.view.asim.sip.api.ISipService;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
@@ -25,8 +24,10 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.sip.api.SipProfileState;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -95,10 +96,6 @@ public class UserInfoActivity extends ActivitySupport {
         	Log.i(TAG, "connect sip service OK");
             service = ISipService.Stub.asInterface(arg1);
             mServiceConnected = true;
-            /*
-             * timings.addSplit("Service connected"); if(configurationService !=
-             * null) { timings.dumpToLog(); }
-             */
         }
 
         @Override
@@ -511,6 +508,11 @@ public class UserInfoActivity extends ActivitySupport {
         	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
         	if (state == null || !state.isValidForCall()) {
         		showToast("ÍøÂç×´Ì¬Òì³££¬ÎÞ·¨½øÐÐÓïÒôºô½Ð¡£");
+        		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
+        		Log.w(TAG, "network status may be unavailable, cannot make call. (XMPP connection: " + 
+        			conn + ", status: " + (conn != null ? conn.isConnected() : null) + 
+        			", auth: " + (conn != null ? conn.isAuthenticated() : null) +
+        			", sip status: " + (state != null ? state.isValidForCall() : null) + ")");
         		return;
         	}
         	Log.i(TAG, "my sip state: " + state.isValidForCall());

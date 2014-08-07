@@ -1,5 +1,6 @@
 package com.view.asim.activity;
 
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,21 +8,21 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 
 import com.avos.avoscloud.AVAnalytics;
-import com.csipsimple.api.SipManager;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
-import com.view.asim.R;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.service.AUKeyService;
 import com.view.asim.service.IMChatService;
 import com.view.asim.service.IMContactService;
 import com.view.asim.service.OTAService;
 import com.view.asim.service.ConnectService;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.StringUtil;
 import com.yixia.camera.model.MediaObject;
 import com.yixia.camera.model.MediaObject.MediaPart;
 import com.yixia.camera.util.FileUtils;
@@ -52,7 +53,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 /**
- * Actity 工具支持类
+ * Actity 工�?��?????�??
  * 
  * @author xuweinan
  * 
@@ -159,7 +160,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	
 	@Override
 	public void startConnService() {
-		// XMPP连接管理服务
+		// XMPP�????��?��????????
 		Intent xmpp = new Intent(context, ConnectService.class);
 		context.startService(xmpp);
 
@@ -167,19 +168,19 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	@Override
 	public void startGeneralService() {
-		// OTA在线升级服务
+		// OTA??�线???级�?????
 		Intent ota = new Intent(context, OTAService.class);
 		context.startService(ota);
 		
-		// 好友联系人服务
+		// 好�?????系人??????
 		Intent server = new Intent(context, IMContactService.class);
 		context.startService(server);
 		
-		// 聊天服务
+		// ???天�?????
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.startService(chatServer);
 		
-		// 安司盾监控管理服务
+		// �????��?��????��?��????????
 		Intent keyService = new Intent(context, AUKeyService.class);
 		context.startService(keyService);
 
@@ -188,37 +189,37 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	/**
 	 * 
-	 * 销毁服务.
+	 * ???�????????.
 	 * 
 	 * @author xuweinan
 	 */
 	@Override
 	public void stopService() {
-		// OTA在线升级服务
+		// OTA??�线???级�?????
 		Intent ota = new Intent(context, OTAService.class);
 		context.stopService(ota);
 		
-		// 好友联系人服务
+		// 好�?????系人??????
 		Intent server = new Intent(context, IMContactService.class);
 		context.stopService(server);
 		
-		// 聊天服务
+		// ???天�?????
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.stopService(chatServer);
 		
-		// XMPP连接管理服务
+		// XMPP�????��?��????????
 		Intent xmpp = new Intent(context, ConnectService.class);
 		context.stopService(xmpp);
 		
-		// 安司盾监控管理服务
+		// �????��?��????��?��????????
 		Intent keyService = new Intent(context, AUKeyService.class);
 		context.stopService(keyService);
 	}
 
 	@Override
 	public void isExit() {
-		new AlertDialog.Builder(context).setTitle("确定退出吗?")
-				.setNeutralButton("确定", new DialogInterface.OnClickListener() {
+		new AlertDialog.Builder(context).setTitle("�??�???????��???")
+				.setNeutralButton("�??�??", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						stopService();
@@ -226,7 +227,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 						eimApplication.exit();
 					}
 				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				.setNegativeButton("???�??", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();
@@ -322,7 +323,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	/**
 	 * 
-	 * 显示toast
+	 * ??�示toast
 	 * 
 	 * @param text
 	 * @param longint
@@ -341,7 +342,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	
 	/**
 	 * 
-	 * 关闭键盘事件
+	 * ??��????????�??�??
 	 * 
 	 * @author xuweinan
 	 */

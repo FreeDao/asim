@@ -1,5 +1,6 @@
 package com.view.asim.activity;
 
+
 import java.util.Collection;
 import java.util.List;
 
@@ -28,8 +29,8 @@ import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
 import com.view.asim.task.LoginTask;
 import com.view.asim.task.SignUpTask;
-import com.view.asim.util.StringUtil;
-import com.view.asim.util.ValidateUtil;
+import com.view.asim.utils.StringUtil;
+import com.view.asim.utils.ValidateUtil;
 import com.view.asim.worker.BaseHandler;
 import com.view.asim.worker.CommonResultListener;
 import com.view.asim.worker.ExpiryTimerListener;

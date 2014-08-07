@@ -6,7 +6,7 @@ import java.util.Date;
  * 通用消息对象
  */
 
-import com.view.asim.util.DateUtil;
+import com.view.asim.utils.DateUtil;
 
 import android.os.Parcel;
 import android.os.Parcelable;

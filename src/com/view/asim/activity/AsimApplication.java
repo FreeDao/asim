@@ -1,5 +1,6 @@
 package com.view.asim.activity;
 
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +19,7 @@ import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.CrashHandler;
 import com.view.asim.manager.XmppConnectionManager;
-import com.view.asim.util.FileUtil;
+import com.view.asim.utils.FileUtil;
 import com.yixia.camera.VCamera;
 import com.yixia.camera.util.DeviceUtils;
 
@@ -32,7 +33,7 @@ import android.util.Log;
 
 /**
  * 
- * 完整的退出应用.
+ * �????��???????��?????.
  * 
  * @author xuweinan
  */
@@ -46,7 +47,7 @@ public class AsimApplication extends Application {
         super.onCreate();
         
         initAVOSCloud();
-        initCrashHandler();
+        initRootPath();
         initImageLoader();
         initVCamera();
     }  
@@ -86,13 +87,6 @@ public class AsimApplication extends Application {
 		ImageLoader.getInstance().init(config);
 	}
 	
-	private void initCrashHandler() {
-        initRootPath();
-        
-        CrashHandler crashHandler = CrashHandler.getInstance();  
-        //crashHandler.init(this);
-	}
-	
 	private void initRootPath() {
 		SharedPreferences preferences = getSharedPreferences(Constant.IM_SET_PREF, 0);
 
@@ -103,7 +97,7 @@ public class AsimApplication extends Application {
 		else {
 			String oldPath = preferences.getString(Constant.DATA_ROOT_PATH, null);
 			
-			/* 如果是第一次运行 App，将可用的 SD 卡路径保存在配置中 */
+			/* �????????�??�??次�??�?? App�??�???????��?? SD ??�路�??�??�????��??�??�?? */
 			if (oldPath == null) {
 				Log.d(TAG, "save sdcard path: " + sdcardPath);
 
@@ -116,7 +110,7 @@ public class AsimApplication extends Application {
 				if(!oldPath.equals(sdcardPath)) {
 					Log.d(TAG, "sdcard path " + sdcardPath + " has changed, the saved path is " + oldPath);
 
-					/* 如果本次运行发现 SD 卡路径和之前记录的不同，判断之前的路径是否可用，如果不可用，退出 App */
+					/* �????????次�??�???????? SD ??�路�?????�?????记�?????�?????�????��??�????????�??�??????????????�??�?????�????????�???????? App */
 					if(!FileUtil.checkPathValid(oldPath)) {
 						Constant.SDCARD_ROOT_PATH = sdcardPath;
 					}
@@ -136,17 +130,17 @@ public class AsimApplication extends Application {
 
 	}
 	
-	// 添加Activity到容器中
+	// 添�??Activity??��?��?�中
 	public void addActivity(Activity activity) {
 		activityList.add(activity);
 	}
 	
-	// 添加Service到容器中
+	// 添�??Service??��?��?�中
 	public void addService(Service service) {
 		serviceList.add(service);
 	}
 
-	// 安全彻底的退出整个 App
+	// �????�彻�??????????��?�个 App
 	public void exit() {
 		if (XmppConnectionManager.getInstance() != null) {
 			XmppConnectionManager.getInstance().disconnect();

@@ -1,5 +1,6 @@
 package com.view.asim.service;
 
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -15,9 +16,9 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.OfflineMessageManager;
 
 import com.avos.avoscloud.AVAnalytics;
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.im.ChatActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -28,8 +29,8 @@ import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.StringUtil;
 import com.view.asim.worker.BaseHandler;
 import com.view.asim.worker.GroupInfoUpdateHandler;
 import com.view.asim.worker.InviteGroupChatHandler;

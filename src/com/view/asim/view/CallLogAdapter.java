@@ -10,9 +10,9 @@ import com.view.asim.model.ChatHisBean;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
-import com.view.asim.util.CallUtil;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.FaceConversionUtil;
+import com.view.asim.utils.CallUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.FaceConversionUtil;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

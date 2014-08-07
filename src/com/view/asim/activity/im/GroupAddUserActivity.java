@@ -1,23 +1,24 @@
 package com.view.asim.activity.im;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.jivesoftware.smack.packet.Presence;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.LoginActivity;
 import com.view.asim.activity.MainActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.PinyinComparator;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.PinyinComparator;
+import com.view.asim.utils.StringUtil;
 import com.view.asim.view.ContactsAdapter;
 import com.view.asim.view.HorizontalListAdapter;
 import com.view.asim.view.HorizontalListView;

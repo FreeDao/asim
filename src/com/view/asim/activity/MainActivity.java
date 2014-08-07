@@ -1,5 +1,6 @@
 package com.view.asim.activity;
 
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,15 +17,6 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.packet.VCard;
 
-import com.csipsimple.api.SipConfigManager;
-import com.csipsimple.api.SipManager;
-import com.csipsimple.api.SipProfile;
-import com.csipsimple.api.SipUri;
-import com.csipsimple.utils.CustomDistribution;
-import com.csipsimple.utils.PreferencesProviderWrapper;
-import com.csipsimple.utils.PreferencesWrapper;
-import com.view.asim.comm.Constant;
-import com.view.asim.db.DBProvider;
 import com.view.asim.activity.im.AContacterActivity;
 import com.view.asim.activity.im.AddUserMainActivity;
 import com.view.asim.activity.im.ChatActivity;
@@ -33,6 +25,8 @@ import com.view.asim.activity.im.SettingsActivity;
 import com.view.asim.activity.im.UserInfoActivity;
 import com.view.asim.activity.im.UserInfoModActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
+import com.view.asim.comm.Constant;
+import com.view.asim.db.DBProvider;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
@@ -49,11 +43,18 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.FaceConversionUtil;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.PinyinComparator;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipConfigManager;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.sip.api.SipProfile;
+import com.view.asim.sip.api.SipUri;
+import com.view.asim.utils.CustomDistribution;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.FaceConversionUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.PinyinComparator;
+import com.view.asim.utils.PreferencesProviderWrapper;
+import com.view.asim.utils.PreferencesWrapper;
+import com.view.asim.utils.StringUtil;
 import com.view.asim.view.CallLogsAdapter;
 import com.view.asim.view.ContactsAdapter;
 import com.view.asim.view.LayoutChangeListener;
@@ -191,7 +192,6 @@ public class MainActivity extends AContacterActivity implements
 	private TextView mMyInfoVideoChatTxt = null;
 	
     private PreferencesProviderWrapper prefProviderWrapper;
-
 		
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -266,6 +266,9 @@ public class MainActivity extends AContacterActivity implements
 	
 	private void resumeSip() {
         Log.d(TAG, "WE CAN NOW start SIP service");
+    	if (prefProviderWrapper == null) {
+    		prefProviderWrapper = new PreferencesProviderWrapper(this);
+    	}
         prefProviderWrapper.setPreferenceBooleanValue(PreferencesWrapper.HAS_BEEN_QUIT, false);
         
         startSipService();
@@ -289,6 +292,10 @@ public class MainActivity extends AContacterActivity implements
 
     private void postStartSipService() {
         // If we have never set fast settings
+    	if (prefProviderWrapper == null) {
+    		prefProviderWrapper = new PreferencesProviderWrapper(this);
+    	}
+    	
         if (CustomDistribution.showFirstSettingScreen()) {
             if (!prefProviderWrapper.getPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, false)) {
             	
@@ -307,8 +314,9 @@ public class MainActivity extends AContacterActivity implements
 
 		getEimApplication().addActivity(this);
         FaceConversionUtil.getInstace().getFileText(this);
-        prefProviderWrapper = new PreferencesProviderWrapper(this);
 
+        prefProviderWrapper = new PreferencesProviderWrapper(this);
+        
         // Ö÷½çÃæ
 		inflater = LayoutInflater.from(context);
 		mLayout = (ScrollLayout) findViewById(R.id.scrolllayout);

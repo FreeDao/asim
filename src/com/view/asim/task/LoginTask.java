@@ -1,5 +1,6 @@
 package com.view.asim.task;
 
+
 import java.io.File;
 import java.util.Collection;
 
@@ -10,10 +11,10 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.packet.VCard;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
@@ -22,8 +23,8 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.app.ProgressDialog;
 import android.content.Context;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.content.Context;
 import android.view.LayoutInflater;

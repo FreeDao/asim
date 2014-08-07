@@ -1,5 +1,6 @@
 package com.view.asim.service;
 
+
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -8,8 +9,8 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.IActivitySupport;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;

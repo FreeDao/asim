@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.util.List;
 
 import org.jivesoftware.smack.PacketCollector;
@@ -15,9 +16,9 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Registration;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
-import com.view.asim.activity.voip.UserCallLogsActivity;
+import com.view.asim.activity.sip.UserCallLogsActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatMessage;
@@ -25,7 +26,7 @@ import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

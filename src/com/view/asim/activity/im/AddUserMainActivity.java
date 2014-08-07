@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
@@ -19,8 +20,8 @@ import com.view.asim.model.LoginConfig;
 import com.view.asim.task.LoginTask;
 import com.view.asim.task.SearchUserTask;
 import com.view.asim.task.SignUpTask;
-import com.view.asim.util.StringUtil;
-import com.view.asim.util.ValidateUtil;
+import com.view.asim.utils.StringUtil;
+import com.view.asim.utils.ValidateUtil;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

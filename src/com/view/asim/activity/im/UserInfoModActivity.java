@@ -1,6 +1,7 @@
 package com.view.asim.activity.im;
 
 
+
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
@@ -11,16 +12,16 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Registration;
 
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.ActivitySupport;
+import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
 import com.view.asim.task.LoginTask;
 import com.view.asim.task.SignUpTask;
-import com.view.asim.util.StringUtil;
-import com.view.asim.util.ValidateUtil;
+import com.view.asim.utils.StringUtil;
+import com.view.asim.utils.ValidateUtil;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

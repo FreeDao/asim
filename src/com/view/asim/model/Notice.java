@@ -1,10 +1,11 @@
 package com.view.asim.model;
 
+
 import java.io.Serializable;
 import java.util.Date;
 
 import com.view.asim.comm.Constant;
-import com.view.asim.util.DateUtil;
+import com.view.asim.utils.DateUtil;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;

@@ -1,5 +1,6 @@
 package com.view.asim.service;
 
+
 import java.util.Collection;
 import java.util.List;
 
@@ -21,8 +22,8 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;

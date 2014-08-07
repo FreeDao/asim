@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -16,8 +17,8 @@ import com.view.asim.manager.MessageManager;
 import com.view.asim.model.Attachment;
 import com.view.asim.model.ChatMessage;
 import com.view.asim.model.IMMessage;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.ImageUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.ImageUtil;
 import com.view.asim.view.VideoView;
 import com.view.asim.view.VideoView.OnPlayStateListener;
 import com.view.asim.worker.ExpiryTimerListener;
@@ -48,7 +49,7 @@ import com.yixia.camera.util.DeviceUtils;
 
 /**
  * 
- * 视频文件预览.
+ * �??�?????件�??�??.
  * 
  * @author xuweinan
  */
@@ -149,7 +150,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 		mVideoView.setVisibility(View.GONE);
 		mPreviewImg.setVisibility(View.VISIBLE);
 
-		// 先显示缩略图和进度指示
+		// ?????�示缩�?��?��??�??�?????�??
 		imageLoader.displayImage("file://" + message.getAttachment().getThumbUri(), mPreviewImg, options, new ImageLoadingListener() {
 			@Override
 			public void onLoadingStarted(String imageUri, View view) {
@@ -194,7 +195,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 
 	}
 	
-	// 自动销毁倒计时线程
+	// ?????��??�?????计�?�线�??
 	private class BurnTimerThread extends Thread {
 		private int expiry = -1;
 		private ExpiryTimerListener listener;
@@ -257,7 +258,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 			        {    
 			            public void run()    
 			            {    
-			            	mTimerBtn.setText("销毁");
+			            	mTimerBtn.setText("???�??");
 			            	Burn();
 			            }    
 			        });				
@@ -391,7 +392,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	
 	private void burnMessage() {
     	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
-    	showToast("消息已销毁");
+    	showToast("�?????已�??�??");
     	MessageManager.getInstance().delChatHisById(message.getId());
 	}
 	

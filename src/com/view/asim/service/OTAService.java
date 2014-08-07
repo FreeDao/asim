@@ -1,12 +1,13 @@
 package com.view.asim.service;
 
+
 import java.io.File;
 import java.util.Calendar;
 
 import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.model.UpgradeRule;
-import com.view.asim.util.FileUtil;
+import com.view.asim.utils.FileUtil;
 import com.view.asim.worker.BaseHandler;
 import com.view.asim.worker.CheckOTAStatusHandler;
 import com.view.asim.worker.OTACheckResultListener;

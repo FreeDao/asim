@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,10 +12,9 @@ import java.util.Set;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPException;
 
-import com.csipsimple.api.ISipService;
-import com.csipsimple.api.SipProfileState;
+import com.view.asim.sip.api.ISipService;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-import com.view.asim.util.SoundMeter;
+import com.view.asim.sip.api.SipProfileState;
 import com.view.asim.activity.LoginActivity;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.comm.Constant;
@@ -29,9 +29,10 @@ import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.FileUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.FileUtil;
+import com.view.asim.utils.SoundMeter;
+import com.view.asim.utils.StringUtil;
 import com.view.asim.view.FaceRelativeLayout;
 import com.view.asim.view.MessageListAdapter;
 

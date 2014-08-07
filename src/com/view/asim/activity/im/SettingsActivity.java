@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -8,8 +9,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
-import com.csipsimple.api.ISipService;
-import com.csipsimple.api.SipManager;
+import com.view.asim.sip.api.ISipService;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
@@ -21,7 +21,8 @@ import com.view.asim.manager.UserManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.utils.StringUtil;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -193,6 +194,8 @@ public class SettingsActivity extends ActivitySupport {
 		@Override
 		public void run() {
 			Log.d(TAG, "SecurityExitThread");
+			NoticeManager.getInstance().clearAllMessageNotify();
+			
 			mLoginCfg.setUsername(null);
 			mLoginCfg.setPassword(null);
 			mLoginCfg.setOnline(false);

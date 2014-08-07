@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.view.asim.util.DateUtil;
+import com.view.asim.utils.DateUtil;
 
 import android.util.Log;
 

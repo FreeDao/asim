@@ -1,5 +1,6 @@
 package com.view.asim.worker;
 
+
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -30,8 +31,8 @@ import com.view.asim.model.CtrlMessage;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.content.ContentResolver;
 import android.content.Context;

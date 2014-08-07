@@ -9,8 +9,8 @@ import com.view.asim.model.ChatMessage;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.FaceConversionUtil;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.FaceConversionUtil;
 
 import android.content.Context;
 import android.text.SpannableString;

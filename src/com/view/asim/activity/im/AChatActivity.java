@@ -1,5 +1,6 @@
 package com.view.asim.activity.im;
 
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,12 +14,11 @@ import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.packet.Message;
 
 import com.avos.avoscloud.AVAnalytics;
-import com.csipsimple.api.ISipService;
-import com.csipsimple.api.SipManager;
+import com.view.asim.sip.api.ISipService;
+import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
 import com.view.asim.db.DBManager;
 import com.view.asim.db.SQLiteTemplate;
-import com.view.asim.activity.ActivitySupport;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
@@ -30,8 +30,9 @@ import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.utils.DateUtil;
+import com.view.asim.utils.StringUtil;
 import com.view.asim.worker.MessageSentResultListener;
 import com.view.asim.worker.Worker;
 

@@ -1,7 +1,7 @@
 package com.view.asim.db;
 
-import com.csipsimple.api.SipManager;
-import com.csipsimple.api.SipProfile;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.sip.api.SipProfile;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,7 +17,7 @@ import android.provider.CallLog;
  * @author xuweinan
  * 
  */
-public class DataBaseHelper extends SDCardSQLiteOpenHelper {
+public class DataBaseHelper extends SQLiteOpenHelper {
 	
 	private static DataBaseHelper INSTANCE = null;
 	

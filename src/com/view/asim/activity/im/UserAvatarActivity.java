@@ -1,8 +1,10 @@
 package com.view.asim.activity.im;
 
+
 import java.io.InputStream;
 
 import org.jivesoftware.smack.XMPPException;
+
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
@@ -10,7 +12,7 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.UserManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

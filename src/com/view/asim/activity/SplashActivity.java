@@ -1,11 +1,13 @@
 package com.view.asim.activity;
 
+
 import java.util.Random;
 
+import com.newrelic.agent.android.NewRelic;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.task.LoginTask;
-import com.view.asim.util.FileUtil;
+import com.view.asim.utils.FileUtil;
 
 import android.graphics.drawable.AnimationDrawable;
 
@@ -69,6 +71,10 @@ public class SplashActivity extends ActivitySupport {
 		setContentView(R.layout.splash);
 
 		init();
+		
+		NewRelic.withApplicationToken(
+				"AAc7c172dbf5c033a5830953ce5e4fe10b75a4e595"
+				).start(getEimApplication());
 	}
 
 	/**

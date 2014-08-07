@@ -15,7 +15,7 @@ import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatMessage;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.User;
-import com.view.asim.util.DateUtil;
+import com.view.asim.utils.DateUtil;
 
 import android.util.Log;
 

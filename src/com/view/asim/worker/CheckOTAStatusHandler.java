@@ -1,12 +1,13 @@
 package com.view.asim.worker;
 
+
 import java.util.List;
 import android.content.Context;
 import android.util.Log;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.model.UpgradeRule;
-import com.view.asim.util.ImageUtil;
+import com.view.asim.utils.ImageUtil;
 
 /**
  * ¼ì²é OTA ×´Ì¬ handler

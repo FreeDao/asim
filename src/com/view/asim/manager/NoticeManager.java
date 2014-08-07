@@ -1,13 +1,13 @@
 package com.view.asim.manager;
 
+
 import java.util.List;
 import java.util.UUID;
 
-import com.csipsimple.api.SipManager;
-import com.view.asim.comm.Constant;
 import com.view.asim.activity.im.ChatActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
-import com.view.asim.activity.voip.UserCallLogsActivity;
+import com.view.asim.activity.sip.UserCallLogsActivity;
+import com.view.asim.comm.Constant;
 import com.view.asim.db.DBManager;
 import com.view.asim.db.SQLiteTemplate;
 import com.view.asim.db.SQLiteTemplate.RowMapper;
@@ -15,8 +15,9 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.ImageUtil;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.utils.ImageUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -28,6 +29,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import com.view.asim.R;
 
@@ -888,7 +890,7 @@ public class NoticeManager {
 		PendingIntent appIntent = PendingIntent
 				.getActivity(mCntx, UUID.randomUUID().hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Notification.Builder mBuilder = new Notification.Builder(mCntx);
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mCntx);
 
 		mBuilder.setSmallIcon(R.drawable.ic_group_mainpage_chat_nor);
 		mBuilder.setContentTitle(title);

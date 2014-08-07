@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.view.asim.model.ChatEmoji;
-import com.view.asim.util.FaceConversionUtil;
+import com.view.asim.utils.FaceConversionUtil;
 
 import com.view.asim.R;
 

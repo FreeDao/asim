@@ -1,8 +1,8 @@
 package com.view.asim.manager;
 
+
 import java.util.List;
 
-import com.csipsimple.api.SipManager;
 import com.view.asim.comm.Constant;
 import com.view.asim.db.DBManager;
 import com.view.asim.db.SQLiteTemplate;
@@ -11,7 +11,8 @@ import com.view.asim.model.CallLogs;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.SingleCallLog;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.sip.api.SipManager;
+import com.view.asim.utils.StringUtil;
 
 import android.content.Context;
 import android.content.SharedPreferences;

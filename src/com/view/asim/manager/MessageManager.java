@@ -1,5 +1,6 @@
 package com.view.asim.manager;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +16,7 @@ import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
-import com.view.asim.util.StringUtil;
+import com.view.asim.utils.StringUtil;
 
 import android.content.ContentValues;
 import android.content.Context;
