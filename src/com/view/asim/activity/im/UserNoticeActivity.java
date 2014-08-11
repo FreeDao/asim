@@ -120,12 +120,7 @@ public class UserNoticeActivity extends ActivitySupport {
 		noticeManager = NoticeManager.getInstance();
 		noticeAdapter = new NoticeAdapter(context, inviteNotices, acceptClick);
 		noticeList.setAdapter(noticeAdapter);
-		
-		new Thread() {
-			public void run() {
-				NoticeManager.getInstance().updateAllReadStatus(Notice.READ);
-			}
-		}.start();
+
 	}
 
 	private class ContacterReceiver extends BroadcastReceiver {
@@ -187,6 +182,8 @@ public class UserNoticeActivity extends ActivitySupport {
 		inviteNotices = noticeManager.getAllNoticeListByDispStatus(Notice.DISPLAY);
 		Log.d(TAG, "get all notices from db end on " + DateUtil.getCurDateStr());
 
+		updateReadStatus(inviteNotices);
+		
 		if(inviteNotices.size() > 0) {
 			noticeAdapter.setNoticeList(inviteNotices);
 			noticeAdapter.notifyDataSetChanged();
@@ -199,6 +196,14 @@ public class UserNoticeActivity extends ActivitySupport {
 		}
 		
 		refreshViewOnAUKeyStatusChange();
+	}
+	
+	private void updateReadStatus(List<Notice> notices) {
+		for (Notice n: notices) {
+			if (n.getReadStatus().equals(Notice.UNREAD)) {
+				NoticeManager.getInstance().updateReadStatusById(n.getId(), Notice.READ);
+			}
+		}
 	}
 	
 	private void refreshViewOnAUKeyStatusChange() {

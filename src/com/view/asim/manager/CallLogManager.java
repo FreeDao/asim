@@ -4,9 +4,8 @@ package com.view.asim.manager;
 import java.util.List;
 
 import com.view.asim.comm.Constant;
-import com.view.asim.db.DBManager;
-import com.view.asim.db.SQLiteTemplate;
-import com.view.asim.db.SQLiteTemplate.RowMapper;
+import com.view.asim.db.DataBaseHelper;
+import com.view.asim.db.DataBaseHelper.RowMapper;
 import com.view.asim.model.CallLogs;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.SingleCallLog;
@@ -28,39 +27,34 @@ import android.util.Log;
  */
 public class CallLogManager {
 	protected static final String TAG = "CallLogManager";
-	private static CallLogManager INSTANCE = null;
-	private static DBManager manager = null;
-
-	private CallLogManager(Context context, LoginConfig cfg) {
-//		SharedPreferences sharedPre = context.getSharedPreferences(
-//				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
-		String databaseName = cfg.getUsername();//sharedPre.getString(Constant.USERNAME, null);
-		Log.d(TAG, "init database " + databaseName);
-
-		manager = DBManager.getInstance(context, databaseName);
-	}
-
-	public static CallLogManager getInstance(Context context, LoginConfig cfg) {
-
-		if (INSTANCE == null) {
-			Log.d(TAG, "new CallLogManager");
-
-			INSTANCE = new CallLogManager(context, cfg);
-		}
-
-		return INSTANCE;
-	}
+	private DataBaseHelper mDBHelper = null;
 	
+	 private static class Loader {
+         static CallLogManager INSTANCE = new CallLogManager();
+     }
+
+	private CallLogManager() {
+//		LoginConfig cfg = AppConfigManager.getInstance().getLoginConfig();
+//		String name = cfg.getUsername();
+//		Log.d(TAG, "init database " + name);
+//
+//		mDBHelper = DataBaseHelper.getInstance(name, Constant.DB_VERSION);
+	}
+
 	public static CallLogManager getInstance() {
-		return INSTANCE;
+		return Loader.INSTANCE;
 	}
 
 	public void destroy() {
-		INSTANCE = null;
-		manager = null;
+		if (mDBHelper != null) {
+			mDBHelper.closeDatabase(null);
+			mDBHelper = null;
+		}
 	}
 
-	public void init() {
+	public void init(DataBaseHelper helper) {
+		mDBHelper = helper;
+		
 		if (ContacterManager.contacters == null) {
 			return;
 		}
@@ -77,8 +71,7 @@ public class CallLogManager {
 	}
 	
 	protected List<String> getAllUsersFromCallLogs() {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<String> list = st.queryForList(
+		List<String> list = mDBHelper.queryForList(
 				new RowMapper<String>() {
 					@Override
 					public String mapRow(Cursor cursor, int index) {
@@ -127,8 +120,7 @@ public class CallLogManager {
 		}
 		
 		int fromIndex = (pageNum - 1) * pageSize;
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<SingleCallLog> list = st.queryForList(
+		List<SingleCallLog> list = mDBHelper.queryForList(
 				new RowMapper<SingleCallLog>() {
 					@Override
 					public SingleCallLog mapRow(Cursor cursor, int index) {
@@ -161,9 +153,8 @@ public class CallLogManager {
 		if (StringUtil.empty(name)) {
 			return 0;
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.deleteByCondition(SipManager.CALLLOGS_TABLE_NAME, CallLog.Calls.CACHED_NAME + "=?",
-				new String[] { "" + StringUtil.getCellphoneByName(name) });
+		return mDBHelper.deleteByCondition(SipManager.CALLLOGS_TABLE_NAME, CallLog.Calls.CACHED_NAME + "=?",
+				new String[] { "" + StringUtil.getCellphoneByName(name)});
 	}
 
 
@@ -178,8 +169,7 @@ public class CallLogManager {
 		if (StringUtil.empty(id)) {
 			return 0;
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.deleteByCondition(SipManager.CALLLOGS_TABLE_NAME, CallLog.Calls._ID + "=?",
+		return mDBHelper.deleteByCondition(SipManager.CALLLOGS_TABLE_NAME, CallLog.Calls._ID + "=?",
 				new String[] { "" + id });
 	}
 	
@@ -202,7 +192,9 @@ public class CallLogManager {
 					"security " +
 					"from " + SipManager.CALLLOGS_TABLE_NAME + 
 					" group by " +
-					CallLog.Calls.CACHED_NAME;
+					CallLog.Calls.CACHED_NAME +
+					" order by " + 
+					CallLog.Calls.DATE + " desc";
 		}
 		else {
 			sql = "select max(" + CallLog.Calls._ID + ") as maxid, " +
@@ -214,11 +206,12 @@ public class CallLogManager {
 					"from " + SipManager.CALLLOGS_TABLE_NAME + 
 					" where security=\"plain\" " +
 					"group by " +
-					CallLog.Calls.CACHED_NAME;
+					CallLog.Calls.CACHED_NAME +
+					" order by " + 
+					CallLog.Calls.DATE + " desc";
 		}
 		
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<CallLogs> list = st
+		List<CallLogs> list = mDBHelper
 				.queryForList(
 						new RowMapper<CallLogs>() {
 
@@ -243,13 +236,13 @@ public class CallLogManager {
 			int count = 0;
 			if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
 
-				count = st
+				count = mDBHelper
 						.getCount(
 								"select _id from " + SipManager.CALLLOGS_TABLE_NAME + " where " + CallLog.Calls.CACHED_NAME + "=?",
 								new String[] { "" + StringUtil.getCellphoneByName(StringUtil.getUserNameByJid(b.getWith())) });
 			}
 			else {
-				count = st
+				count = mDBHelper
 						.getCount(
 								"select _id from " + SipManager.CALLLOGS_TABLE_NAME + " where " + CallLog.Calls.CACHED_NAME + "=? and security=\"plain\" ",
 								new String[] { "" + StringUtil.getCellphoneByName(StringUtil.getUserNameByJid(b.getWith())) });

@@ -75,7 +75,7 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 
 	@Override
 	protected Integer doInBackground(String... params) {
-		ContacterManager.initPhoneContacts(activity);
+		ContacterManager.initPhoneContacts();
 		return search();
 	}
 

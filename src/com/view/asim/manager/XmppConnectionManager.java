@@ -49,6 +49,7 @@ import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jivesoftware.smackx.search.UserSearch;
 
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.model.LoginConfig;
 
@@ -92,32 +93,20 @@ public class XmppConnectionManager {
     private Context context;
     private String status = DISCONNECTED;
 
-	private XmppConnectionManager(Context cntx) {
+	private XmppConnectionManager() {
         mConnectionChangeListeners = new HashMap<String, XmppConnectionChangeListener>();
-        context = cntx;
+        context = ApplicationContext.get();
 	}
+	
+	private static class Loader {
+        static XmppConnectionManager INSTANCE = new XmppConnectionManager();
+    }
 
-	public static XmppConnectionManager getInstance(Context cntx) {
-		if (xmppConnectionManager == null) {
-			try {
-                lock.lock();   //先上锁，来保证下面这个代码不会同时被执行
-                if (xmppConnectionManager == null) {
-					Log.i(TAG, "XmppConnectionManager instanced by context " + cntx);
-					xmppConnectionManager = new XmppConnectionManager(cntx);
-                }
-			} finally {
-				lock.unlock();
-			}
-		}
-		return xmppConnectionManager;
-	}
-
-	public static XmppConnectionManager getInstance() {
-		return xmppConnectionManager;
+	public static XmppConnectionManager getInstance() {		
+		return Loader.INSTANCE;
 	}
 	
 	public void destroy() {
-		xmppConnectionManager = null;
 	}
 	
     public void registerConnectionChangeListener(String desc, XmppConnectionChangeListener listener) {

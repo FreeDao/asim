@@ -6,6 +6,7 @@ import java.util.Random;
 import com.newrelic.agent.android.NewRelic;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.task.LoginTask;
 import com.view.asim.utils.FileUtil;
 
@@ -187,13 +188,13 @@ public class SplashActivity extends ActivitySupport {
 			return false;
 		}
 		else {
-			String oldPath = getDataRootPath();
+			String oldPath = AppConfigManager.getInstance().getDataRootPath();
 			
 			/* 如果是第一次运行 App，将可用的 SD 卡路径保存在配置中 */
 			if (oldPath == null) {
 				Log.d(TAG, "save sdcard path: " + Constant.SDCARD_ROOT_PATH);
 				mLoginCfg.setRootPath(Constant.SDCARD_ROOT_PATH);
-				saveLoginConfig(mLoginCfg);
+				AppConfigManager.getInstance().saveLoginConfig(mLoginCfg);
 			}
 			else {
 				if(oldPath.equals(Constant.SDCARD_ROOT_PATH)) {
@@ -299,7 +300,7 @@ public class SplashActivity extends ActivitySupport {
 			@Override
 			public void onClick(View v) {
 				mLoginCfg.setRootPath(path);
-				saveLoginConfig(mLoginCfg);
+				AppConfigManager.getInstance().saveLoginConfig(mLoginCfg);
 				Constant.SDCARD_ROOT_PATH = path;
 				normalOperation();
 			}

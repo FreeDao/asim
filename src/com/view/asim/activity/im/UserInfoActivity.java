@@ -18,7 +18,6 @@ import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
-import com.view.asim.manager.UserManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;

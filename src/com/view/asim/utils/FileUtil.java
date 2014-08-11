@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.model.User;
@@ -348,10 +349,10 @@ public class FileUtil {
 		return string.toString();
 	}
 	
-	public static List<String> getEmojiFile(Context context) {
+	public static List<String> getEmojiFile() {
 		try {
 			List<String> list = new ArrayList<String>();
-			InputStream in = context.getResources().getAssets().open("emoji");
+			InputStream in = ApplicationContext.get().getResources().getAssets().open("emoji");
 			BufferedReader br = new BufferedReader(new InputStreamReader(in,
 					"UTF-8"));
 			String str = null;

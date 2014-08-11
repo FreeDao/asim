@@ -313,7 +313,6 @@ public class MainActivity extends AContacterActivity implements
 	private void init() {
 
 		getEimApplication().addActivity(this);
-        FaceConversionUtil.getInstace().getFileText(this);
 
         prefProviderWrapper = new PreferencesProviderWrapper(this);
         
@@ -989,7 +988,7 @@ public class MainActivity extends AContacterActivity implements
 			Log.i(TAG, "chat his bean: " + c.getWith() + ", content: " + c.getContent());
 		}
 		
-		Collections.sort(mInviteNotices);
+		//Collections.sort(mInviteNotices);
 		mNoticeAdapter.refreshList(mInviteNotices);
 		
 		/**
@@ -1015,7 +1014,7 @@ public class MainActivity extends AContacterActivity implements
 			Log.i(TAG, "chat logs: " + c.getWith() + ", time: " + c.getTime());
 		}
 
-		Collections.sort(mCalllogsList);
+		//Collections.sort(mCalllogsList);
 		mCalllogsAdapter.refreshList(mCalllogsList);
 		
 		/**

@@ -80,6 +80,7 @@ public abstract class SDCardSQLiteOpenHelper {
 	 */
 	public synchronized SQLiteDatabase getWritableDatabase() {
 		if (mDatabase != null && mDatabase.isOpen() && !mDatabase.isReadOnly()) {
+			Log.i(TAG, "get old writable db: " + mDatabase);
 			return mDatabase; // The database is already open for business
 
 		}
@@ -128,6 +129,8 @@ public abstract class SDCardSQLiteOpenHelper {
 
 			onOpen(db);
 			success = true;
+			Log.i(TAG, "get new writable db: " + db);
+
 			return db;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -146,6 +149,9 @@ public abstract class SDCardSQLiteOpenHelper {
 					db.close();
 			}
 		}
+		
+		Log.i(TAG, "get new writable db: " + db);
+
 		return db;
 	}
 
@@ -165,6 +171,8 @@ public abstract class SDCardSQLiteOpenHelper {
 	 */
 	public synchronized SQLiteDatabase getReadableDatabase() {
 		if (mDatabase != null && mDatabase.isOpen()) {
+			Log.i(TAG, "get old readable db: " + mDatabase);
+
 			return mDatabase; // The database is already open for business
 
 		}
@@ -200,6 +208,8 @@ public abstract class SDCardSQLiteOpenHelper {
 			onOpen(db);
 			Log.w(TAG, "Opened " + mName + " in read-only mode");
 			mDatabase = db;
+			Log.i(TAG, "get new readable db: " + mDatabase);
+
 			return mDatabase;
 		} finally {
 			mIsInitializing = false;

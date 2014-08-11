@@ -13,6 +13,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.service.AUKeyService;
 import com.view.asim.service.IMChatService;
@@ -63,8 +64,6 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	private static final String TAG = "ActivitySupport";
 
 	protected Context context = null;
-	protected SharedPreferences preferences;
-	protected SharedPreferences sipPreferences;
 	protected AsimApplication eimApplication;
 	protected ProgressDialog pg = null;
 	protected LoginConfig mLoginCfg = null;
@@ -74,14 +73,12 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this;
-		preferences = getSharedPreferences(Constant.IM_SET_PREF, 0);
-		sipPreferences = getSharedPreferences(Constant.SIP_SET_PREF, 0);
 		pg = new ProgressDialog(context);
 		pg.setCancelable(false);
 		eimApplication = (AsimApplication) getApplication();
 		eimApplication.addActivity(this);
 		
-		mLoginCfg = getLoginConfig();
+		mLoginCfg = AppConfigManager.getInstance().getLoginConfig();
 		Log.d(this.toString(), "onCreate on " + DateUtil.getCurDateStr());
 
 	}
@@ -359,74 +356,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		return context;
 	}
 
-	@Override
-	public SharedPreferences getLoginUserSharedPre() {
-		return preferences;
-	}
-
-	@Override
-	public void saveLoginConfig(LoginConfig loginConfig) {
-		preferences.edit()
-				.putString(Constant.XMPP_HOST, loginConfig.getXmppHost())
-				.commit();
-		preferences.edit()
-				.putInt(Constant.XMPP_PORT, loginConfig.getXmppPort()).commit();
-		preferences
-				.edit()
-				.putString(Constant.XMPP_SERVICE_NAME,
-						loginConfig.getXmppServiceName()).commit();
-		preferences.edit()
-				.putString(Constant.USERNAME, loginConfig.getUsername())
-				.commit();
-		preferences.edit()
-				.putString(Constant.PASSWORD, loginConfig.getPassword())
-				.commit();
-		preferences.edit()
-				.putBoolean(Constant.IS_ONLINE, loginConfig.isOnline())
-				.commit();
-		preferences.edit()
-				.putString(Constant.DATA_ROOT_PATH, loginConfig.getRootPath())
-				.commit();
-	}
-
-	@Override
-	public LoginConfig getLoginConfig() {
-		LoginConfig loginConfig = new LoginConfig();
-		loginConfig.setXmppHost(preferences.getString(Constant.XMPP_HOST,
-				Constant.IM_SERVICE_HOST));
-		loginConfig.setXmppPort(preferences.getInt(Constant.XMPP_PORT,
-				Constant.IM_SERVICE_PORT));
-		loginConfig.setUsername(preferences.getString(Constant.USERNAME, null));
-		loginConfig.setPassword(preferences.getString(Constant.PASSWORD, null));
-		loginConfig.setXmppServiceName(preferences.getString(
-				Constant.XMPP_SERVICE_NAME,
-				Constant.IM_SERVICE_NAME));
-		loginConfig.setRootPath(preferences.getString(Constant.DATA_ROOT_PATH, null));
-		return loginConfig;
-	}
-
-	@Override
-	public boolean getUserOnlineState() {
-		return preferences.getBoolean(Constant.IS_ONLINE, true);
-	}
-
-	@Override
-	public void setUserOnlineState(boolean isOnline) {
-		preferences.edit().putBoolean(Constant.IS_ONLINE, isOnline).commit();
-
-	}
 	
-	@Override
-	public String getDataRootPath() {
-		return preferences.getString(Constant.DATA_ROOT_PATH, null);
-	}
-
-	@Override
-	public void setDataRootPath(String path) {
-		preferences.edit().putString(Constant.DATA_ROOT_PATH, path).commit();
-
-	}
-
 	@Override
 	public AsimApplication getEimApplication() {
 		return eimApplication;

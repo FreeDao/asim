@@ -442,12 +442,16 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			mInCallLayout.setVisibility(View.GONE);
 			mCallingCancelBtn.setVisibility(View.GONE);
 			mCalledLayout.setVisibility(View.VISIBLE);
+			NoticeManager.getInstance().dispatchInCallNotify(mUser, state);
+
 			break;
 			
 		case SipCallSession.InvState.CALLING:
 			mInCallLayout.setVisibility(View.GONE);
 			mCallingCancelBtn.setVisibility(View.VISIBLE);
 			mCalledLayout.setVisibility(View.GONE);
+			NoticeManager.getInstance().dispatchInCallNotify(mUser, state);
+
 			break;
 			
 		case SipCallSession.InvState.CONNECTING:
@@ -460,7 +464,7 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 			mMuteBtn.setVisibility(View.VISIBLE);
 			mSpeakerBtn.setVisibility(View.VISIBLE);
 
-			NoticeManager.getInstance().dispatchInCallNotify(mUser);
+			NoticeManager.getInstance().dispatchInCallNotify(mUser, state);
 			break;
 			
 		case SipCallSession.InvState.NULL:

@@ -415,7 +415,7 @@ public class IMChatService extends Service {
 
 			String from = message.getFrom().substring(0,
 					message.getFrom().indexOf("/"));
-			long noticeId = -1;
+			String type = null;
 
 			if (message != null && message.getBody() != null
 					&& !message.getBody().equals("null")) {
@@ -425,7 +425,7 @@ public class IMChatService extends Service {
 					return;
 				}
 				
-				String type = (String) message.getProperty(IMMessage.PROP_TYPE);
+				type = (String) message.getProperty(IMMessage.PROP_TYPE);
 				if (type.equals(IMMessage.PROP_TYPE_CHAT)) {
 					handler = (RecvTextMsgHandler) new RecvTextMsgHandler(message, 
 							new MessageRecvResultListener() {
@@ -462,6 +462,7 @@ public class IMChatService extends Service {
 
 						Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
 						sendBroadcast(intent);
+						return;
 					}
 					else {
 						handler = (RecvFileMsgHandler) new RecvFileMsgHandler(context, message, 
@@ -503,33 +504,6 @@ public class IMChatService extends Service {
 						return;
 					}
 				}
-				
-				/*
-				Notice notice = new Notice();
-				notice.setTitle("会话信息");
-				notice.setNoticeType(Notice.CHAT_MSG);
-				notice.setContent(message.getBody());
-				notice.setFrom(from);
-				notice.setStatus(Notice.UNREAD);
-				notice.setNoticeTime((String) message.getProperty(IMMessage.PROP_TIME));
-				noticeId = noticeManager.saveNotice(notice);
-				
-				
-				if (noticeId != -1) {
-					notice.setId(String.valueOf(noticeId));
-
-					if (curUser != null && curUser.getJID().equals(from)) {
-						Log.d(TAG, "new message notice from " + from + " won't dispatch");
-						return;
-						
-					} else {
-						Log.d(TAG, "new message notice from " + from + " dispatch");
-
-						User u = ContacterManager.contacters.get(from);
-						NoticeManager.getInstance().dispatchIMMessageNotify(u);
-					}
-				}
-				*/
 				
 				if (curUser != null && curUser.getJID().equals(from)) {
 					Log.d(TAG, "new message notice from " + from + " won't dispatch");

@@ -24,6 +24,7 @@ import com.view.asim.activity.SignUpActivity;
 import com.view.asim.activity.SplashActivity;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
@@ -84,7 +85,7 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 		SignUpActivity signup;
 		switch (result) {
 		case Constant.SERVER_SUCCESS: // 注册成功
-			activity.saveLoginConfig(loginConfig);// 保存用户配置信息
+			AppConfigManager.getInstance().saveLoginConfig(loginConfig);// 保存用户配置信息
 
 			signup = (SignUpActivity)activity;
 			signup.notifySignUpSucc();
@@ -125,7 +126,7 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 		
 		try {
 			// 注册
-			XmppConnectionManager manager = XmppConnectionManager.getInstance(activity);
+			XmppConnectionManager manager = XmppConnectionManager.getInstance();
 			manager.connectOnly(loginConfig);
 			
 			//XMPPConnection connection = XmppConnectionManager.getInstance()

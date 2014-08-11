@@ -22,7 +22,6 @@ import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
-import com.view.asim.manager.UserManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.CallLogs;
 import com.view.asim.model.ChatHisBean;
@@ -279,7 +278,7 @@ public class UserCallLogsActivity extends ActivitySupport {
 		
 		mCalllogList.clear();
 		mCalllogList = CallLogManager.getInstance().getCalllogsByName(mUser.getName(), 1, 500);
-		Collections.sort(mCalllogList);
+		//Collections.sort(mCalllogList);
 		mCalllogsAdapter.refreshList(mCalllogList);
 		
 		refreshViewOnAUKeyStatusChange();

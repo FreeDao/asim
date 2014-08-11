@@ -274,7 +274,7 @@ public class OTAService extends Service {
 	
 	private void clearOldDownloadTask() {
 		Log.d(TAG, "clearOldDownloadTask, status info: " + mOTAStatus);
-		String name;
+		String name = null;
 		int status;
 		long id;
 	    DownloadManager.Query query = new DownloadManager.Query();
@@ -286,7 +286,7 @@ public class OTAService extends Service {
 	        	status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
 	        	id = c.getLong(c.getColumnIndex(DownloadManager.COLUMN_ID));
 
-	        	if (name.contains("asim")) {
+	        	if (name != null && name.contains("asim")) {
 	        		Log.d(TAG, "find a downloading task " + id + " on status " + status + ", named " + name + ", cancel it.");
 	        		downloadManager.remove(id);
 	        	}

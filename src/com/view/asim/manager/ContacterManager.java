@@ -23,6 +23,7 @@ import org.jivesoftware.smackx.ReportedData.Row;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smackx.packet.VCard;
 
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.User;
@@ -71,11 +72,11 @@ public class ContacterManager {
 	/**
 	 * 初始化联系人列表
 	 */
-	public static void init(XmppConnectionManager man, Context cntx) {
+	public static void init(XmppConnectionManager man) {
 		contacters = new HashMap<String, User>();
 		groupUsers = new HashMap<String, GroupUser>();
 		phoneContacters = new HashMap<String, String>();
-		initPhoneContacts(cntx);
+		initPhoneContacts();
 		man.registerConnectionChangeListener(TAG + ":init roster task", new XmppConnectionChangeListener() {
 
 			@Override
@@ -106,11 +107,11 @@ public class ContacterManager {
 		}		
 	}
 
-	public static void initPhoneContacts(Context cntx) {
+	public static void initPhoneContacts() {
 		Log.d(TAG, "init phone contacters start on " + DateUtil.getCurDateStr());
 
 		phoneContacters.clear();
-		ContentResolver resolver = cntx.getContentResolver();  
+		ContentResolver resolver = ApplicationContext.get().getContentResolver();  
 		  
 	    // 获取手机联系人  
 	    Cursor phoneCursor = resolver.query(Phone.CONTENT_URI, PHONES_PROJECTION, null, null, null);  

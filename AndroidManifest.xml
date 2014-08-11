@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.view.asim"
     android:versionCode="1"
-    android:versionName="0.8.2" >
+    android:versionName="0.8.7" >
 
     <uses-sdk
         android:minSdkVersion="12"
@@ -175,6 +175,13 @@
             android:launchMode="standard"
             android:screenOrientation="portrait" >
         </activity>
+        
+         <!-- 设置界面 -->
+        <activity
+            android:name="com.view.asim.activity.im.AboutAsimActivity"
+            android:launchMode="standard"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <!-- 选择联系人界面 -->
         <activity
@@ -193,7 +200,7 @@
         <!-- 用户信息 -->
         <activity
             android:name="com.view.asim.activity.im.UserInfoActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" >
         </activity>
         <!-- 聊天 -->

@@ -15,7 +15,9 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.comm.Constant;
+import com.view.asim.db.DataBaseHelper;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
@@ -23,6 +25,7 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
+import com.view.asim.utils.FaceConversionUtil;
 import com.view.asim.utils.FileUtil;
 import com.view.asim.utils.StringUtil;
 
@@ -74,6 +77,9 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			*/
 			loginAnim.start();
 		}
+		
+		AppConfigManager.getInstance().saveLoginConfig(loginConfig);// 保存用户配置信息
+
 		super.onPreExecute();
 	}
 
@@ -97,7 +103,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			
 			Intent intent = new Intent();
 			intent.setClass(activity, MainActivity.class);
-			activity.saveLoginConfig(loginConfig);// 保存用户配置信息
+			AppConfigManager.getInstance().saveLoginConfig(loginConfig);// 保存用户配置信息
 			activity.startActivity(intent);
 			activity.finish();
 			
@@ -113,7 +119,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			loginConfig.setUsername(null);
 			loginConfig.setPassword(null);
 			loginConfig.setOnline(false);
-			activity.saveLoginConfig(loginConfig);
+			AppConfigManager.getInstance().saveLoginConfig(loginConfig);
 			
 			loginAnim.setVisible(false, false);
 			//activity.finish();
@@ -130,7 +136,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			loginConfig.setUsername(null);
 			loginConfig.setPassword(null);
 			loginConfig.setOnline(false);
-			activity.saveLoginConfig(loginConfig);
+			AppConfigManager.getInstance().saveLoginConfig(loginConfig);
 			
 			loginAnim.setVisible(false, false);
 
@@ -162,11 +168,11 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 		String username = loginConfig.getUsername();
 		//String password = loginConfig.getPassword();
 		try {
-			XmppConnectionManager manager = XmppConnectionManager.getInstance(activity);
+			XmppConnectionManager manager = XmppConnectionManager.getInstance();
 					//.getConnection();
 			
 			// 登录成功后，初始化联系人列表
-			ContacterManager.init(manager, activity);
+			ContacterManager.init(manager);
 
 			/*
 			if (mUser != null) {
@@ -205,12 +211,21 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			}
 			
 			ContacterManager.setUserMe(mUser);
-	        NoticeManager.getInstance(activity, loginConfig).init();
-	        MessageManager.getInstance(activity, loginConfig).init();
-	        CallLogManager.getInstance(activity, loginConfig).init();
 			
-	        NoticeManager.getInstance().clearAllMessageNotify();
+			Log.d(TAG, "init database " + username);
+			DataBaseHelper helper = DataBaseHelper.getInstance(username, Constant.DB_VERSION);
+
+			NoticeManager nm = NoticeManager.getInstance();
+			MessageManager mm = MessageManager.getInstance();
+			CallLogManager clm = CallLogManager.getInstance();
+
+	        nm.init(helper);
+	        mm.init(helper);
+	        clm.init(helper);
 	        
+	        nm.clearAllMessageNotify();
+	        FaceConversionUtil.getInstace().getFileText();
+
 			loginConfig.setOnline(true);
 			initUserCacheFolder(mUser);
 			

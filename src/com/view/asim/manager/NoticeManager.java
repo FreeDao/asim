@@ -7,14 +7,15 @@ import java.util.UUID;
 import com.view.asim.activity.im.ChatActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
 import com.view.asim.activity.sip.UserCallLogsActivity;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
-import com.view.asim.db.DBManager;
-import com.view.asim.db.SQLiteTemplate;
-import com.view.asim.db.SQLiteTemplate.RowMapper;
+import com.view.asim.db.DataBaseHelper;
+import com.view.asim.db.DataBaseHelper.RowMapper;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
+import com.view.asim.sip.api.SipCallSession;
 import com.view.asim.sip.api.SipManager;
 import com.view.asim.utils.ImageUtil;
 import com.view.asim.utils.StringUtil;
@@ -41,45 +42,42 @@ import com.view.asim.R;
  */
 public class NoticeManager {
 	private final static String TAG = "NoticeManager";
-	private static NoticeManager noticeManager = null;
-	private static DBManager manager = null;
+	private DataBaseHelper mDBHelper = null;
+
 	private String mCurrentChatUser = null;
 	private Context mCntx = null;
 	private NotificationManager mNotificationManager = null;
 
-	private NoticeManager(Context context, LoginConfig cfg) {
-//		SharedPreferences sharedPre = context.getSharedPreferences(
-//				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
-//		String databaseName = sharedPre.getString(Constant.USERNAME, null);
-		String databaseName = cfg.getUsername();
-		Log.d(TAG, "init database " + databaseName);
-		manager = DBManager.getInstance(context, databaseName);
-
-		this.mCntx = context;
+	private static class Loader {
+         static NoticeManager INSTANCE = new NoticeManager();
+    }
+	 
+	private NoticeManager() {
+//		LoginConfig cfg = AppConfigManager.getInstance().getLoginConfig();
+//		String name = cfg.getUsername();
+//		Log.d(TAG, "init database " + name);
+//
+//		mDBHelper = DataBaseHelper.getInstance(name, Constant.DB_VERSION);
+		
+		this.mCntx = ApplicationContext.get();
 		mNotificationManager = (NotificationManager) mCntx
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 
-	public static NoticeManager getInstance(Context context, LoginConfig cfg) {
-
-		if (noticeManager == null) {
-			noticeManager = new NoticeManager(context, cfg);
-			//noticeManager.init();
-		}
-
-		return noticeManager;
-	}
-	
 	public static NoticeManager getInstance() {
-		return noticeManager;
+		return Loader.INSTANCE;
 	}
 	
 	public void destroy() {
-		noticeManager = null;
-		manager = null;
+		if (mDBHelper != null) {
+			mDBHelper.closeDatabase(null);
+			mDBHelper = null;
+		}
 	}
 
-	public void init() {
+	public void init(DataBaseHelper helper) {
+		mDBHelper = helper;
+		
 		if (ContacterManager.contacters == null) {
 			return;
 		}
@@ -116,7 +114,6 @@ public class NoticeManager {
 	 * @update 2014-4-16
 	 */
 	public long saveNotice(Notice notice) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		if (StringUtil.notEmpty(notice.getContent())) {
 			contentValues.put("content", StringUtil.doEmpty(notice.getContent()));
@@ -128,7 +125,7 @@ public class NoticeManager {
 		contentValues.put("time", notice.getTime());
 		contentValues.put("avatar_img",
 				ImageUtil.bitmapToByte(notice.getAvatar()));
-		return st.insert("im_notice", contentValues);
+		return mDBHelper.insert("im_notice", contentValues);
 	}
 
 	/**
@@ -175,10 +172,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateStatusById(String id, String status) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("status", status);
-		st.updateById("im_notice", id, contentValues);
+		mDBHelper.updateById("im_notice", id, contentValues);
 	}
 	
 	/**
@@ -189,10 +185,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateTimeById(String id, String time) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("time", time);
-		st.updateById("im_notice", id, contentValues);
+		mDBHelper.updateById("im_notice", id, contentValues);
 	}
 
 	/**
@@ -233,8 +228,7 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public Notice getNoticeById(String id) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.queryForObject(new RowMapper<Notice>() {
+		return mDBHelper.queryForObject(new RowMapper<Notice>() {
 
 			@Override
 			public Notice mapRow(Cursor cursor, int index) {
@@ -264,8 +258,7 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public List<Notice> getNoticeByWithAndStatus(String with, String status) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.queryForList(new RowMapper<Notice>() {
+		return mDBHelper.queryForList(new RowMapper<Notice>() {
 
 			@Override
 			public Notice mapRow(Cursor cursor, int index) {
@@ -295,8 +288,7 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public List<Notice> getNoticeByWith(String with) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.queryForList(new RowMapper<Notice>() {
+		return mDBHelper.queryForList(new RowMapper<Notice>() {
 
 			@Override
 			public Notice mapRow(Cursor cursor, int index) {
@@ -366,8 +358,7 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public Integer getNoticeCountByStatus(String status) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.getCount(
+		return mDBHelper.getCount(
 				"select _id from im_notice where status=?",
 				new String[] { status });
 	}
@@ -380,8 +371,7 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public Integer getUnreadNoticeCount() {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.getCount(
+		return mDBHelper.getCount(
 				"select _id from im_notice where readStatus=?",
 				new String[] { Notice.UNREAD });
 	}
@@ -410,10 +400,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateStatusByWith(String with, String status) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues values = new ContentValues();
 		values.put("status", status);
-		st.update("im_notice", values, "with=?", new String[] { with });
+		mDBHelper.update("im_notice", values, "with=?", new String[] { with });
 	}
 	
 	/**
@@ -424,10 +413,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateAllReadStatus(String readStatus) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues values = new ContentValues();
 		values.put("readStatus", readStatus);
-		st.update("im_notice", values, null, null);
+		mDBHelper.update("im_notice", values, null, null);
 	}
 	
 	/**
@@ -438,10 +426,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateAllDispStatus(String dispStatus) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues values = new ContentValues();
 		values.put("dispStatus", dispStatus);
-		st.update("im_notice", values, null, null);
+		mDBHelper.update("im_notice", values, null, null);
 	}
 	
 	/**
@@ -452,10 +439,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateDispStatusById(String id, String dispStatus) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues values = new ContentValues();
 		values.put("dispStatus", dispStatus);
-		st.updateById("im_notice", id, values);
+		mDBHelper.updateById("im_notice", id, values);
 	}
 	
 	/**
@@ -466,10 +452,9 @@ public class NoticeManager {
 	 * @author xuweinan
 	 */
 	public void updateReadStatusById(String id, String readStatus) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues values = new ContentValues();
 		values.put("readStatus", readStatus);
-		st.updateById("im_notice", id, values);
+		mDBHelper.updateById("im_notice", id, values);
 	}
 
 	/**
@@ -533,8 +518,7 @@ public class NoticeManager {
 		sb.append("select * from im_notice where dispStatus=? order by time desc");
 		String[] paras = new String[] { dispStatus };
 
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<Notice> list = st.queryForList(new RowMapper<Notice>() {
+		List<Notice> list = mDBHelper.queryForList(new RowMapper<Notice>() {
 
 			@Override
 			public Notice mapRow(Cursor cursor, int index) {
@@ -568,8 +552,7 @@ public class NoticeManager {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select * from im_notice order by time desc");
 
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<Notice> list = st.queryForList(new RowMapper<Notice>() {
+		List<Notice> list = mDBHelper.queryForList(new RowMapper<Notice>() {
 
 			@Override
 			public Notice mapRow(Cursor cursor, int index) {
@@ -598,8 +581,7 @@ public class NoticeManager {
 	 * @param noticeId
 	 */
 	public void delNoticeById(String noticeId) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		st.deleteById("im_notice", noticeId);
+		mDBHelper.deleteById("im_notice", noticeId);
 	}
 
 	/**
@@ -609,8 +591,7 @@ public class NoticeManager {
 	 * @update 2013-4-15 下午6:33:19
 	 */
 	public void delAllNotice() {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		st.execSQL("delete from im_notice");
+		mDBHelper.execSQL("delete from im_notice");
 	}
 
 	/**
@@ -622,8 +603,7 @@ public class NoticeManager {
 		if (StringUtil.empty(with)) {
 			return 0;
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.deleteByCondition("im_notice", "with=?",
+		return mDBHelper.deleteByCondition("im_notice", "with=?",
 				new String[] { with });
 	}
 
@@ -643,12 +623,6 @@ public class NoticeManager {
 		
 		int unreadCount = MessageManager.getInstance().getMsgCountByWithAndReadStatus(user.getJID(), IMMessage.UNREAD);
 
-//		if (unreadCount == 0) {
-//			Log.i(TAG, "no more unread message from user: " + user + ", notify nothing, clean");
-//			clearIMMessageNotify(user);
-//			return;
-//
-//		}
 		User fromUser = user.clone();
 		Log.i(TAG, "notify new message from user:" + user + ", notify user info:" + fromUser);
 
@@ -785,7 +759,7 @@ public class NoticeManager {
 		dispatchSystemNotify(userId, avatar, title, content, ticker, notifyIntent, true, true, false);
 	}
 	
-	public void dispatchInCallNotify(User user) {
+	public void dispatchInCallNotify(User user, int state) {
 		if (user == null) {
 			Log.w(TAG, "dispatchInCallNotify null user");
 			return;
@@ -796,6 +770,7 @@ public class NoticeManager {
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 		Bitmap avatar = null;
+		String gender = "他";
 		if (user.getHeadImg() != null) {
 			avatar = user.getHeadImg();
 		} else {
@@ -811,12 +786,29 @@ public class NoticeManager {
 			}
 
 		}
+		
+		if (user.getGender().equals(User.FEMALE)) {
+			gender = "她";
+		}
 
-		String ticker = "与" + user.getNickName() + "通话中";
+		String ticker = null;
 		String content = null;
+
+		if (state == SipCallSession.InvState.INCOMING) {
+			ticker = "有" + user.getNickName() + "的来电...";
+			content = "正在呼叫您，请求语音通话...";
+		}
+		else if (state == SipCallSession.InvState.CALLING) {
+			ticker = "开始呼叫" + user.getNickName() + "...";
+			content = "正在呼叫" + gender + "，请求语音通话...";
+		}
+		else if (state == SipCallSession.InvState.CONFIRMED) {
+			ticker = "与" + user.getNickName() + "通话中";
+			content = "正在与您进行语音通话";
+		}
+		
 		String title = null;
 		title = user.getNickName();
-		content = "正在与您进行语音通话";
 
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 

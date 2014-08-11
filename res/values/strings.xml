@@ -53,6 +53,7 @@
     <string name="settings">设置</string>
     <string name="contacter">手机通讯录</string>
     <string name="user_info">密友资料</string>
+    <string name="about">关于密信</string>
 	<string name="user_calllog_info">通话记录</string>    
     <string name="user_notify">密友推荐</string>
     <string name="user_group">密友群聊</string>

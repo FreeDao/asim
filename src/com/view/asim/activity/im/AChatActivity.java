@@ -3,37 +3,26 @@ package com.view.asim.activity.im;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.packet.Message;
 
 import com.avos.avoscloud.AVAnalytics;
 import com.view.asim.sip.api.ISipService;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
-import com.view.asim.db.DBManager;
-import com.view.asim.db.SQLiteTemplate;
+import com.view.asim.db.DataBaseHelper;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
-import com.view.asim.manager.NoticeManager;
-import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.Attachment;
 import com.view.asim.model.ChatMessage;
 import com.view.asim.model.GroupUser;
 import com.view.asim.model.IMMessage;
-import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.sip.api.SipManager;
 import com.view.asim.utils.DateUtil;
 import com.view.asim.utils.StringUtil;
-import com.view.asim.worker.MessageSentResultListener;
 import com.view.asim.worker.Worker;
 
 import android.content.BroadcastReceiver;
@@ -123,7 +112,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		mWorker = new Worker();
 		mWorker.initilize("Chat Activity Worker");
 
-		mMessagePool = new HashMap<String, ChatMessage>();
+		mMessagePool = new LinkedHashMap<String, ChatMessage>();
 		/*
 		chat = XmppConnectionManager.getInstance().getConnection()
 				.getChatManager().createChat(mUser.getJID(), null);
@@ -265,8 +254,9 @@ public abstract class AChatActivity extends ActivitySupport {
 			throw new RuntimeException("message pool is null");
 
 		List<ChatMessage> msgList = new ArrayList<ChatMessage>();
-		SQLiteDatabase db = DBManager.getInstance().openDatabase();
-		db.beginTransaction();
+		//DataBaseHelper helper = DataBaseHelper.getInstance(mLoginCfg.getUsername(), Constant.DB_VERSION);
+		//SQLiteDatabase db = helper.getWritableDatabase();
+		//db.beginTransaction();
 		
 		for (String key : mMessagePool.keySet()) {
 			ChatMessage m = mMessagePool.get(key);
@@ -279,38 +269,21 @@ public abstract class AChatActivity extends ActivitySupport {
 			if (m.getReadStatus().equals(IMMessage.UNREAD)) {
 				Log.i(TAG, "update msg " + m.getId() + " start on " + DateUtil.getCurDateStr());
 				m.setReadStatus(IMMessage.READ);
-				updateReadStatus(db, Long.parseLong(m.getId()), IMMessage.READ);
+				MessageManager.getInstance().updateReadStatus(Long.parseLong(m.getId()), IMMessage.READ);
 				Log.i(TAG, "update msg " + m.getId() + " start end " + DateUtil.getCurDateStr());
 				
 			}
 			msgList.add(m);
 		}
-		db.setTransactionSuccessful();
-		db.endTransaction();
+		//db.setTransactionSuccessful();
+		//db.endTransaction();
 		
-		DBManager.getInstance().closeDatabase(db, null);
+		//helper.closeDatabase(db, null);
 		Log.i(TAG, "update msg status all end " + DateUtil.getCurDateStr());
 
-		Collections.sort(msgList);
 		Log.i(TAG, "sort all msg end " + DateUtil.getCurDateStr());
 
 		return msgList;
-	}
-	
-	public void updateReadStatus(SQLiteDatabase db, long id, String readStatus) {
-		ContentValues contentValues = new ContentValues();
-		contentValues.put("readStatus", readStatus);
-		updateById(db, "im_msg_his", "" + id, contentValues);
-	}
-	
-	public int updateById(SQLiteDatabase db, String table, String id, ContentValues values) {
-		try {
-			return db.update(table, values, "_id=?",
-					new String[] { id });
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return 0;
 	}
 
 

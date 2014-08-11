@@ -47,25 +47,24 @@ public class AUKeyManager {
 	public final static String CIP_ALGO = "RSA";
 	public final static String PASS_ALGO = "AES";
 
-	private static AUKeyManager aUkeyManager;
 	private String mStatus;
 	
 	private PrivateKey mMyPrivKey = null;
 	private PublicKey mMyPubKey = null;
+	
+	private static class Loader {
+        static AUKeyManager INSTANCE = new AUKeyManager();
+    }
 		
 	private AUKeyManager() {
 		mStatus = DETACHED;
 	}
 
 	public static AUKeyManager getInstance() {
-		if (aUkeyManager == null) {
-			aUkeyManager = new AUKeyManager();
-		}
-		return aUkeyManager;
+		return Loader.INSTANCE;
 	}
 
 	public void destroy() {
-		aUkeyManager = null;
 	}
 
 	public void setAUKeyStatus(Context cntx, String status) {

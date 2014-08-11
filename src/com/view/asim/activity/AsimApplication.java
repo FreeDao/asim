@@ -16,8 +16,10 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.view.asim.R;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.CrashHandler;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.utils.FileUtil;
 import com.yixia.camera.VCamera;
@@ -33,7 +35,7 @@ import android.util.Log;
 
 /**
  * 
- * �????��???????��?????.
+ * 密信 App
  * 
  * @author xuweinan
  */
@@ -46,11 +48,18 @@ public class AsimApplication extends Application {
     public void onCreate() {  
         super.onCreate();
         
+        ApplicationContext.getInstance().init(this);
+        
         initAVOSCloud();
         initRootPath();
         initImageLoader();
         initVCamera();
+        initAppConfig();
     }  
+	
+	private void initAppConfig() {
+		AppConfigManager.getInstance();
+	}
 	
 	private void initAVOSCloud() {
 		AVOSCloud.initialize(this, "dfhujsucfnoecty9pl6fop0s7ta0bdtvl58a7pqh5pm2yau3", "dxery5x1wr0v40p6ceagxv99cftni0nivr5uc1yo72liejgf");
@@ -97,7 +106,6 @@ public class AsimApplication extends Application {
 		else {
 			String oldPath = preferences.getString(Constant.DATA_ROOT_PATH, null);
 			
-			/* �????????�??�??次�??�?? App�??�???????��?? SD ??�路�??�??�????��??�??�?? */
 			if (oldPath == null) {
 				Log.d(TAG, "save sdcard path: " + sdcardPath);
 
@@ -110,7 +118,6 @@ public class AsimApplication extends Application {
 				if(!oldPath.equals(sdcardPath)) {
 					Log.d(TAG, "sdcard path " + sdcardPath + " has changed, the saved path is " + oldPath);
 
-					/* �????????次�??�???????? SD ??�路�?????�?????记�?????�?????�????��??�????????�??�??????????????�??�?????�????????�???????? App */
 					if(!FileUtil.checkPathValid(oldPath)) {
 						Constant.SDCARD_ROOT_PATH = sdcardPath;
 					}
@@ -130,17 +137,14 @@ public class AsimApplication extends Application {
 
 	}
 	
-	// 添�??Activity??��?��?�中
 	public void addActivity(Activity activity) {
 		activityList.add(activity);
 	}
 	
-	// 添�??Service??��?��?�中
 	public void addService(Service service) {
 		serviceList.add(service);
 	}
 
-	// �????�彻�??????????��?�个 App
 	public void exit() {
 		if (XmppConnectionManager.getInstance() != null) {
 			XmppConnectionManager.getInstance().disconnect();

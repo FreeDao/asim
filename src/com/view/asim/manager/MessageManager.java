@@ -6,9 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.view.asim.comm.Constant;
-import com.view.asim.db.DBManager;
-import com.view.asim.db.SQLiteTemplate;
-import com.view.asim.db.SQLiteTemplate.RowMapper;
+import com.view.asim.db.DataBaseHelper;
+import com.view.asim.db.DataBaseHelper.RowMapper;
 import com.view.asim.model.Attachment;
 import com.view.asim.model.ChatHisBean;
 import com.view.asim.model.ChatMessage;
@@ -32,40 +31,34 @@ import android.util.Log;
  */
 public class MessageManager {
 	protected static final String TAG = "MessageManager";
-	private static MessageManager messageManager = null;
-	private static DBManager manager = null;
+	private DataBaseHelper mDBHelper = null;
 
-	private MessageManager(Context context, LoginConfig cfg) {
-//		SharedPreferences sharedPre = context.getSharedPreferences(
-//				Constant.IM_SET_PREF, Context.MODE_PRIVATE);
-		String databaseName = cfg.getUsername();//sharedPre.getString(Constant.USERNAME, null);
-		Log.d(TAG, "init database " + databaseName);
-
-		manager = DBManager.getInstance(context, databaseName);
+	 private static class Loader {
+         static MessageManager INSTANCE = new MessageManager();
+     }
+	 
+	private MessageManager() {
+//		LoginConfig cfg = AppConfigManager.getInstance().getLoginConfig();
+//		String name = cfg.getUsername();
+//		Log.d(TAG, "init database " + name);
+//
+//		mDBHelper = DataBaseHelper.getInstance(name, Constant.DB_VERSION);
 	}
 
-	public static MessageManager getInstance(Context context, LoginConfig cfg) {
-
-		if (messageManager == null) {
-			Log.d(TAG, "new MessageManager");
-
-			messageManager = new MessageManager(context, cfg);
-			//messageManager.init();
-		}
-
-		return messageManager;
-	}
-	
 	public static MessageManager getInstance() {
-		return messageManager;
+		return Loader.INSTANCE;
 	}
 
 	public void destroy() {
-		messageManager = null;
-		manager = null;
+		if (mDBHelper != null) {
+			mDBHelper.closeDatabase(null);
+			mDBHelper = null;
+		}
 	}
 	
-	public void init() {
+	public void init(DataBaseHelper helper) {
+		mDBHelper = helper;
+		
 		if (ContacterManager.contacters == null) {
 			return;
 		}
@@ -82,8 +75,7 @@ public class MessageManager {
 	}
 	
 	protected List<String> getAllUsersFromMessages() {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<String> list = st.queryForList(
+		List<String> list = mDBHelper.queryForList(
 				new RowMapper<String>() {
 					@Override
 					public String mapRow(Cursor cursor, int index) {
@@ -117,7 +109,6 @@ public class MessageManager {
 	 * @update 2012-5-16 下午3:23:15
 	 */
 	public long saveIMMessage(ChatMessage msg) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("unique_id", msg.getUniqueId());
 		contentValues.put("status", msg.getStatus());
@@ -134,7 +125,7 @@ public class MessageManager {
 		if (msg.getAttachment() != null) {
 			contentValues.put("attachment", msg.getAttachment().dumps());
 		}
-		return st.insert("im_msg_his", contentValues);
+		return mDBHelper.insert("im_msg_his", contentValues);
 	}
 	
 	/**
@@ -146,7 +137,6 @@ public class MessageManager {
 	 * @update 2012-5-16 下午3:23:15
 	 */
 	public void updateIMMessage(ChatMessage msg) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("unique_id", msg.getUniqueId());
 		contentValues.put("status", msg.getStatus());
@@ -163,7 +153,7 @@ public class MessageManager {
 			contentValues.put("attachment", msg.getAttachment().dumps());
 		}
 		
-		st.updateById("im_msg_his", msg.getId(), contentValues);
+		mDBHelper.updateById("im_msg_his", msg.getId(), contentValues);
 	}
 
 	/**
@@ -173,18 +163,11 @@ public class MessageManager {
 	 * @author xuweinan
 	 */
 	public void updateReadStatus(long id, String readStatus) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("readStatus", readStatus);
-		st.updateById("im_msg_his", "" + id, contentValues);
+		mDBHelper.updateById("im_msg_his", "" + id, contentValues);
 	}
-	
-	public void updateReadStatus(SQLiteTemplate st, long id, String readStatus) {
-		ContentValues contentValues = new ContentValues();
-		contentValues.put("readStatus", readStatus);
-		st.updateById("im_msg_his", "" + id, contentValues);
-	}
-	
+		
 	/**
 	 * 
 	 * 更新状态.
@@ -192,10 +175,9 @@ public class MessageManager {
 	 * @author xuweinan
 	 */
 	public void updateReadStatus(String name, String readStatus) {
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
 		ContentValues contentValues = new ContentValues();
 		contentValues.put("readStatus", readStatus);
-		st.update("im_msg_his", contentValues, "with=?", new String[] { ""
+		mDBHelper.update("im_msg_his", contentValues, "with=?", new String[] { ""
 				+ name });
 	}
 
@@ -229,8 +211,7 @@ public class MessageManager {
 			return null;
 		}
 		int fromIndex = (pageNum - 1) * pageSize;
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<ChatMessage> list = st.queryForList(
+		List<ChatMessage> list = mDBHelper.queryForList(
 				new RowMapper<ChatMessage>() {
 					@Override
 					public ChatMessage mapRow(Cursor cursor, int index) {
@@ -255,7 +236,7 @@ public class MessageManager {
 						return msg;
 					}
 				},
-				"select * from im_msg_his where with=? order by time desc limit ? , ? ",
+				"select * from im_msg_his where with=? order by time asc limit ? , ? ",
 				new String[] { "" + name, "" + fromIndex, "" + pageSize });
 		return list;
 
@@ -272,8 +253,7 @@ public class MessageManager {
 		if (StringUtil.empty(id)) {
 			return 0;
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.deleteByCondition("im_msg_his", "unique_id=?",
+		return mDBHelper.deleteByCondition("im_msg_his", "unique_id=?",
 				new String[] { "" + id });
 	}
 	
@@ -302,8 +282,7 @@ public class MessageManager {
 			paras = new String[] { with, readStatus };
 					
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.getCount(sqlCmd, paras);
+		return mDBHelper.getCount(sqlCmd, paras);
 
 	}
 
@@ -319,8 +298,7 @@ public class MessageManager {
 		if (StringUtil.empty(name)) {
 			return 0;
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.deleteByCondition("im_msg_his", "with=?",
+		return mDBHelper.deleteByCondition("im_msg_his", "with=?",
 				new String[] { "" + name });
 	}
 
@@ -336,8 +314,7 @@ public class MessageManager {
 		if (StringUtil.empty(id)) {
 			return 0;
 		}
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		return st.deleteByCondition("im_msg_his", "_id=?",
+		return mDBHelper.deleteByCondition("im_msg_his", "_id=?",
 				new String[] { "" + id });
 	}
 	
@@ -352,16 +329,15 @@ public class MessageManager {
 	public List<ChatHisBean> getRecentContactsWithLastMsg() {
 		String sql = null;
 		if (AUKeyManager.getInstance().getAUKeyStatus().equals(AUKeyManager.ATTACHED)) {
-			sql = "select max(_id) as maxid, type, content, time, with, src, chatType, security, destroy, dir from im_msg_his group by with";
+			sql = "select max(_id) as maxid, type, content, time, with, src, chatType, security, destroy, dir from im_msg_his group by with order by time desc";
 			//"select m.[_id],m.[content],m.[time],m.[with],m.[src],m.[chatType] from im_msg_his m join (select with, max(_id) as mt from im_msg_his group by with) as tem on tem.mt=m._id and tem.with=m.with ";
 		}
 		else {
-			sql = "select max(_id) as maxid, type, content, time, with, src, chatType, security, destroy, dir from im_msg_his where security=\"plain\" group by with";
+			sql = "select max(_id) as maxid, type, content, time, with, src, chatType, security, destroy, dir from im_msg_his where security=\"plain\" group by with order by time desc";
 			//"select m.[_id],m.[content],m.[time],m.[with],m.[src],m.[chatType] from im_msg_his m join (select with, max(_id) as mt from im_msg_his group by with) as tem on tem.mt=m._id and tem.with=m.with where security=\"plain\" ";
 		}
 		
-		SQLiteTemplate st = SQLiteTemplate.getInstance(manager, false);
-		List<ChatHisBean> list = st
+		List<ChatHisBean> list = mDBHelper
 				.queryForList(
 						new RowMapper<ChatHisBean>() {
 
@@ -395,7 +371,7 @@ public class MessageManager {
 		
 		
 		for (ChatHisBean b : list) {
-			int count = st
+			int count = mDBHelper
 					.getCount(
 							"select _id from im_msg_his where readStatus=? and with=?",
 							new String[] { "" + IMMessage.UNREAD, b.getWith() });

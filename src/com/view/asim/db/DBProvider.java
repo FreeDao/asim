@@ -1,23 +1,3 @@
-/**
- * Copyright (C) 2010-2012 Regis Montoya (aka r3gis - www.r3gis.fr)
- * This file is part of CSipSimple.
- *
- *  CSipSimple is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *  If you own a pjsip commercial license you can also redistribute it
- *  and/or modify it under the terms of the GNU Lesser General Public License
- *  as an android library.
- *
- *  CSipSimple is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with CSipSimple.  If not, see <http://www.gnu.org/licenses/>.
- */
 package com.view.asim.db;
 
 import android.content.ContentProvider;
@@ -38,6 +18,8 @@ import android.support.v4.database.DatabaseUtilsCompat;
 import android.text.TextUtils;
 
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AppConfigManager;
+import com.view.asim.model.LoginConfig;
 import com.view.asim.sip.api.SipManager;
 import com.view.asim.sip.api.SipMessage;
 import com.view.asim.sip.api.SipProfile;
@@ -55,7 +37,7 @@ import java.util.Set;
 
 public class DBProvider extends ContentProvider {
 	
-	private DataBaseHelper mOpenHelper = null;;
+	private DataBaseHelper mDBHelper = null;;
 	private static final String UNKNOWN_URI_LOG = "Unknown URI ";
     
 	// Ids for matcher
@@ -272,19 +254,12 @@ public class DBProvider extends ContentProvider {
     +") )";
 
     private DataBaseHelper getDatabaseHelper() {
-		if(mOpenHelper == null) {
-			String database = "";
-			int ver = Constant.DB_VERSION;
-			if (DBManager.getInstance() == null) {
-				SharedPreferences preferences = getContext().getSharedPreferences(Constant.IM_SET_PREF, 0);
-				database = preferences.getString(Constant.USERNAME, null);
-			} else {
-				database = DBManager.getInstance().databaseName;
-			}
-			
-			mOpenHelper = new DataBaseHelper(getContext(), database, null, ver);
+		if(mDBHelper == null) {
+			LoginConfig cfg = AppConfigManager.getInstance().getLoginConfig();
+			String name = cfg.getUsername();
+			mDBHelper = DataBaseHelper.getInstance(name, Constant.DB_VERSION);
 		}
-		return mOpenHelper;
+		return mDBHelper;
     }
     
 	@Override

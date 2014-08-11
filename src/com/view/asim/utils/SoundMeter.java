@@ -33,9 +33,13 @@ public  class SoundMeter {
     }  
   
     public void stop() {  
-        if (mRecorder != null) {  
-            mRecorder.stop();  
-            mRecorder.release();  
+        if (mRecorder != null) {
+        	try {
+	            mRecorder.stop();  
+	            mRecorder.release();
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
             mRecorder = null;  
         }  
     }  

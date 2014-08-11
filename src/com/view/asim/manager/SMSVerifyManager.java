@@ -21,7 +21,6 @@ import android.util.Log;
 
 public class SMSVerifyManager {
 	private static final String TAG = "SMSVerifyManager";
-	private static SMSVerifyManager INSTANCE = null;
 	private Map<String, String> mVerificationCodeMap = null;
 	
 	/* 目前使用短信宝(smsbao.com)的服务 */
@@ -38,18 +37,21 @@ public class SMSVerifyManager {
 	private static final String SMS_API_CONTENT_PREFIX = "您好，您正在注册密信帐号，验证码：";
 	private static final String SMS_API_CONTENT_SUFFIX = "，请勿泄露。【密信】";
 
+	private static class Loader {
+        static SMSVerifyManager INSTANCE = new SMSVerifyManager();
+    }
+
+	public static SMSVerifyManager getInstance() {
+		return Loader.INSTANCE;
+	}
+
+	public void destroy() {
+	}
 
 	private SMSVerifyManager() {
 		mVerificationCodeMap = new HashMap<String, String>();
 	}
 
-	public static SMSVerifyManager getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new SMSVerifyManager();
-		}
-		return INSTANCE;
-	}
-	
 	private String genCode() {
 		int min = 1000;
 		int max = 9999;

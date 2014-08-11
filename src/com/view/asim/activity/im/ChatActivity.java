@@ -805,7 +805,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		ChatMessage msg2 = null;
 		ChatMessageItem item = null;
 		List<ChatMessage> allMsgs = getMessages();
-		Collections.sort(allMsgs);
+		//Collections.sort(allMsgs);
 		
 		if (allMsgs == null) {
 			return;
@@ -947,6 +947,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			//mNoticeManager.clearIMMessageNotify(mGroup.getName());
 		}
 
+		Log.d(TAG, "onResume end on " + DateUtil.getCurDateStr());
 	}
 
 	@Override

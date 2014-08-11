@@ -14,10 +14,10 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
-import com.view.asim.manager.UserManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.User;
@@ -62,6 +62,7 @@ public class SettingsActivity extends ActivitySupport {
 	private Button mLogoutBtn;
 	private Button mExitBtn;
 	private TextView mBackTxtBtn;
+	private View mAboutAsimView;
 	private AlertDialog alertDg = null;
     protected ISipService service;
     protected ServiceConnection connection = new ServiceConnection() {
@@ -170,6 +171,16 @@ public class SettingsActivity extends ActivitySupport {
 			}
 		});
 		
+		mAboutAsimView = findViewById(R.id.about_asim_txt);
+		mAboutAsimView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(context, AboutAsimActivity.class);
+				startActivity(intent);
+			}
+		});
+		
         Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
         serviceIntent.setPackage(getPackageName());
         bindService(serviceIntent, connection,
@@ -199,7 +210,7 @@ public class SettingsActivity extends ActivitySupport {
 			mLoginCfg.setUsername(null);
 			mLoginCfg.setPassword(null);
 			mLoginCfg.setOnline(false);
-			saveLoginConfig(mLoginCfg);
+			AppConfigManager.getInstance().saveLoginConfig(mLoginCfg);
 			try {
 				service.forceStopService();
 				Thread.sleep(2000);

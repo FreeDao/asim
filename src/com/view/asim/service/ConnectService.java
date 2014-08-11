@@ -10,8 +10,10 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
 import com.view.asim.R;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
@@ -41,10 +43,8 @@ import android.util.Log;
  */
 public class ConnectService extends Service {
 	private static final String TAG = "ConnectService";
-	private Context mContext;
 	private ConnectivityManager connectivityManager;
 	private NetworkInfo info;
-	protected SharedPreferences preferences;
 	protected LoginConfig mLoginCfg = null;
 	private Worker mConnWorker = null;
 	private XmppConnectionManager mXmppManager = null;
@@ -54,21 +54,19 @@ public class ConnectService extends Service {
 	public void onCreate() {
 		Log.d(TAG, "service create");
 
-		mContext = this;
 		IntentFilter mFilter = new IntentFilter();
 		mFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 		mFilter.addAction(Constant.ACTION_RECONNECT_STATE);
 
 		registerReceiver(reConnectionBroadcastReceiver, mFilter);
 		
-		preferences = getSharedPreferences(Constant.IM_SET_PREF, 0);
-		mLoginCfg = getLoginConfig();
+		mLoginCfg = AppConfigManager.getInstance().getLoginConfig();
 		
 		mConnWorker = new Worker();
 		mConnWorker.initilize("XMPP Connection");
 
-		mXmppManager = XmppConnectionManager.getInstance(mContext);
-		mSmackAndroid = SmackAndroid.init(mContext);
+		mXmppManager = XmppConnectionManager.getInstance();
+		mSmackAndroid = SmackAndroid.init(ApplicationContext.get());
 
 		/*
 		connection = XmppConnectionManager.getInstance().getConnection();
@@ -109,21 +107,6 @@ public class ConnectService extends Service {
 		}
 		*/
 		super.onCreate();
-	}
-	
-	public LoginConfig getLoginConfig() {
-		LoginConfig loginConfig = new LoginConfig();
-		loginConfig.setXmppHost(preferences.getString(Constant.XMPP_HOST,
-				Constant.IM_SERVICE_HOST));
-		loginConfig.setXmppPort(preferences.getInt(Constant.XMPP_PORT,
-				Constant.IM_SERVICE_PORT));
-		loginConfig.setUsername(preferences.getString(Constant.USERNAME, null));
-		loginConfig.setPassword(preferences.getString(Constant.PASSWORD, null));
-		loginConfig.setXmppServiceName(preferences.getString(
-				Constant.XMPP_SERVICE_NAME,
-				Constant.IM_SERVICE_NAME));
-		loginConfig.setRootPath(preferences.getString(Constant.DATA_ROOT_PATH, null));
-		return loginConfig;
 	}
 
 	@Override
