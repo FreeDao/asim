@@ -25,19 +25,20 @@ import android.util.Log;
 
 /**
  * 
- * ÏûÏ¢ÀúÊ·¼ÇÂ¼£¬
+ * é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·å²é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·
  * 
  * @author xuweinan
  */
 public class MessageManager {
 	protected static final String TAG = "MessageManager";
 	private DataBaseHelper mDBHelper = null;
-
+	private  boolean mDBHelperIsInit = false;
 	 private static class Loader {
          static MessageManager INSTANCE = new MessageManager();
      }
 	 
 	private MessageManager() {
+		mDBHelperIsInit = false;
 //		LoginConfig cfg = AppConfigManager.getInstance().getLoginConfig();
 //		String name = cfg.getUsername();
 //		Log.d(TAG, "init database " + name);
@@ -58,12 +59,12 @@ public class MessageManager {
 	
 	public void init(DataBaseHelper helper) {
 		mDBHelper = helper;
-		
+		mDBHelperIsInit = true;
 		if (ContacterManager.contacters == null) {
 			return;
 		}
 		
-		// ºË²éºÃÓÑÁĞ±íºÍÏûÏ¢ÊÇ·ñ¶ÔÓ¦£¬É¾³ı²»´æÔÚµÄºÃÓÑµÄÏûÏ¢
+		// é”Ÿå‰¿è¯§æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ–œé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿè§’å‡¤æ‹·é”Ÿæ¥ï¿½é”Ÿæ–¤æ‹·åˆ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸèŠ‚çš„çŒ´æ‹·é”Ÿçª–ç¢‰æ‹·é”Ÿæ–¤æ‹·æ¯
 		List<String> users = getAllUsersFromMessages();
 		Log.d(TAG, "find " + users.size() + " contacters in message list");
 		for(String u: users) {
@@ -73,7 +74,9 @@ public class MessageManager {
 			}
 		}
 	}
-	
+	public boolean isInit(){
+		return mDBHelperIsInit;
+	};
 	protected List<String> getAllUsersFromMessages() {
 		List<String> list = mDBHelper.queryForList(
 				new RowMapper<String>() {
@@ -90,7 +93,7 @@ public class MessageManager {
 	
 	/**
 	 * 
-	 * ±£´æÏûÏ¢.
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯.
 	 * [status] NVARCHAR, 
 	 * [readStatus] NVARCHAR
 	 * [content] NVARCHAR, 
@@ -106,7 +109,7 @@ public class MessageManager {
 	 * 
 	 * @param msg
 	 * @author xuweinan
-	 * @update 2012-5-16 ÏÂÎç3:23:15
+	 * @update 2012-5-16 é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·3:23:15
 	 */
 	public long saveIMMessage(ChatMessage msg) {
 		ContentValues contentValues = new ContentValues();
@@ -130,11 +133,11 @@ public class MessageManager {
 	
 	/**
 	 * 
-	 * ¸üĞÂÏûÏ¢.
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯.
 	 * 
 	 * @param msg
 	 * @author xuweinan
-	 * @update 2012-5-16 ÏÂÎç3:23:15
+	 * @update 2012-5-16 é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·3:23:15
 	 */
 	public void updateIMMessage(ChatMessage msg) {
 		ContentValues contentValues = new ContentValues();
@@ -158,7 +161,7 @@ public class MessageManager {
 
 	/**
 	 * 
-	 * ¸üĞÂ×´Ì¬.
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€.
 	 * 
 	 * @author xuweinan
 	 */
@@ -170,7 +173,7 @@ public class MessageManager {
 		
 	/**
 	 * 
-	 * ¸üĞÂ×´Ì¬.
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€.
 	 * 
 	 * @author xuweinan
 	 */
@@ -183,7 +186,7 @@ public class MessageManager {
 
 	/**
 	 * 
-	 * ²éÕÒÓëÄ³ÈËµÄÁÄÌì¼ÇÂ¼ÁÄÌì¼ÇÂ¼
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æŸé”Ÿå‰¿ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•
 	 * 
 	 * [status] NVARCHAR, 
 	 * [readStatus] NVARCHAR
@@ -199,9 +202,9 @@ public class MessageManager {
 	 * [attachment] NVARCHAR,
 	 * 
 	 * @param pageNum
-	 *            µÚ¼¸Ò³(from 1)
+	 *            é”ŸèŠ‚ç¡·æ‹·é¡µ(from 1)
 	 * @param pageSize
-	 *            Òª²éµÄ¼ÇÂ¼ÌõÊı
+	 *            è¦é”Ÿæ–¤æ‹·å‹Ÿé”Ÿé“°ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	 * @return
 	 * @author xuweinan
 	 */
@@ -243,7 +246,7 @@ public class MessageManager {
 	}
 	
 	/**
-	 * ¸ù¾İ uniqueId É¾³ıÒ»ÌõÏûÏ¢ 
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· uniqueId åˆ é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯ 
 	 * 
 	 * @param  unique_id
 	 * 
@@ -257,14 +260,24 @@ public class MessageManager {
 				new String[] { "" + id });
 	}
 	
+	public void updateDestroyStatusByUniqueId(String id, String destroy) {
+		if (StringUtil.empty(id)) {
+			return;
+		}
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put("destroy", destroy);
+		mDBHelper.update("im_msg_his", contentValues, "unique_id=?",
+				new String[] { "" + id });
+	}
 
 	/**
 	 * 
-	 * ²éÕÒÓëÄ³ÈËµÄÁÄÌì¼ÇÂ¼×ÜÊı
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æŸé”Ÿå‰¿ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	 * 
 	 * @return
 	 * @author xuweinan
-	 * @update 2012-7-2 ÉÏÎç9:31:04
+	 * @update 2012-7-2 é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·9:31:04
 	 */
 	public int getMsgCountByWithAndReadStatus(String with, String readStatus) {
 		if (StringUtil.empty(with)) {
@@ -288,7 +301,7 @@ public class MessageManager {
 
 
 	/**
-	 * É¾³ıÓëÄ³ÈËµÄÁÄÌì¼ÇÂ¼ 
+	 * åˆ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æŸé”Ÿå‰¿ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ï¿½ 
 	 * 
 	 * @param fromUser
 	 * 
@@ -304,7 +317,7 @@ public class MessageManager {
 
 
 	/**
-	 * É¾³ıÒ»ÌõÁÄÌì¼ÇÂ¼ 
+	 * åˆ é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ï¿½ 
 	 * 
 	 * @param fromUser
 	 * 
@@ -320,7 +333,7 @@ public class MessageManager {
 	
 	/**
 	 * 
-	 * »ñÈ¡×î½üÁÄÌìÈËÁÄÌì×îºóÒ»ÌõÏûÏ¢ºÍÎ´¶ÁÏûÏ¢×ÜÊı
+	 * é”Ÿæ–¤æ‹·å–é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·æœªé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 * 
 	 * @return
 	 * @author xuweinan
@@ -361,7 +374,7 @@ public class MessageManager {
 								}
 								else {
 									User u = ContacterManager.contacters.get(notice.getWith());
-									notice.setContent(u.getNickName() + "£º" + cursor.getString(cursor.getColumnIndex("content")));
+									notice.setContent(u.getNickName() + ": " + cursor.getString(cursor.getColumnIndex("content")));
 								}
 
 								return notice;
@@ -378,6 +391,11 @@ public class MessageManager {
 			b.setUnreadCount(count);
 		}
 		return list;
+	}
+
+	public void resetInit() {
+		// TODO Auto-generated method stub
+		mDBHelperIsInit = false;
 	}
 
 }

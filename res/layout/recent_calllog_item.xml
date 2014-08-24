@@ -46,18 +46,19 @@
 
             <TextView
                 android:id="@+id/contact_name_txt"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:gravity="left"
                 android:layout_weight="1"
                 android:text="123"
+                android:singleLine="true"
                 android:textColor="@color/darkgray"
                 android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/last_call_time_txt"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginRight="10dp"

@@ -737,11 +737,11 @@ public final class Compatibility {
                         .setPreferenceFloatValue(SipConfigManager.SND_SPEAKER_LEVEL, (float) 0.2);
             }
 
-            if (TextUtils.isEmpty(prefWrapper
-                    .getPreferenceStringValue(SipConfigManager.STUN_SERVER))) {
-                prefWrapper.setPreferenceStringValue(SipConfigManager.STUN_SERVER,
-                        Constant.VOIP_STUN_SERVER);
-            }
+//            if (TextUtils.isEmpty(prefWrapper
+//                    .getPreferenceStringValue(SipConfigManager.STUN_SERVER))) {
+//                prefWrapper.setPreferenceStringValue(SipConfigManager.STUN_SERVER,
+//                        Constant.VOIP_STUN_SERVER);
+//            }
         }
         if (lastSeenVersion < 15) {
             prefWrapper.setPreferenceBooleanValue(SipConfigManager.ENABLE_STUN, false);

@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.view.asim"
     android:versionCode="1"
-    android:versionName="0.8.7" >
+    android:versionName="0.8.21" >
 
     <uses-sdk
         android:minSdkVersion="12"
         android:targetSdkVersion="19" />
-    
+
     <!-- 访问Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- - 访问网络状态 -->
@@ -46,6 +46,7 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.USE_SIP" />
+
     <permission
         android:name="android.permission.USE_SIP"
         android:description="@string/permdesc_useSip"
@@ -98,13 +99,13 @@
 
     <application
         android:name="com.view.asim.activity.AsimApplication"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/ic_group_mainpage_chat_nor"
         android:label="@string/app_name"
-        android:hardwareAccelerated="true"
         android:largeHeap="true" >
         <uses-library android:name="android.test.runner" />
-
-        <activity
+        <!--
+		 <activity
             android:name="com.view.asim.activity.SplashActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
@@ -114,7 +115,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!--
+           
  		    <intent-filter>
             	<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             	<action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
@@ -123,8 +124,12 @@
                android:resource="@xml/device_filter" />
             <meta-data android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"
                android:resource="@xml/device_filter" />
-            -->
+            
         </activity>
+
+        -->
+
+
         <!-- 登录界面 -->
         <activity
             android:name="com.view.asim.activity.LoginActivity"
@@ -175,8 +180,8 @@
             android:launchMode="standard"
             android:screenOrientation="portrait" >
         </activity>
-        
-         <!-- 设置界面 -->
+
+        <!-- 设置界面 -->
         <activity
             android:name="com.view.asim.activity.im.AboutAsimActivity"
             android:launchMode="standard"
@@ -189,10 +194,17 @@
             android:launchMode="standard"
             android:screenOrientation="portrait" >
         </activity>
-        
+
         <!-- 用户信息 -->
         <activity
             android:name="com.view.asim.activity.sip.UserCallLogsActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <!-- 登录冲突界面 -->
+        <activity
+            android:name="com.view.asim.activity.im.UserConflictActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" >
         </activity>
@@ -219,9 +231,10 @@
         <activity
             android:name="com.view.asim.activity.im.VideoPreviewActivity"
             android:launchMode="singleInstance"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+             >
         </activity>
-        
+
         <!-- 阅后即焚预览界面 -->
         <activity
             android:name="com.view.asim.activity.im.BurnMsgViewActivity"
@@ -235,8 +248,13 @@
             android:name="com.view.asim.activity.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-        
+
         <!-- 语音通话界面 -->
         <activity
             android:name="com.view.asim.activity.sip.InCallScreen"
@@ -244,10 +262,11 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:permission="android.permission.CONFIGURE_SIP"
-            android:taskAffinity="" 
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:taskAffinity="" >
             <intent-filter android:priority="10" >
                 <action android:name="com.view.asim.sip.phone.action.INCALL" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -260,7 +279,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/CameraTheme" >
         </activity>
-
+        <!-- alert dialog -->
+        <activity
+            android:name="com.view.asim.activity.AlertDialogNotifyActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/Transparent" >
+        </activity>
         <!-- 联系人服务 -->
         <service android:name="com.view.asim.service.IMContactService" >
         </service>
@@ -283,15 +307,15 @@
         <service
             android:name="com.view.asim.sip.service.SipService"
             android:exported="true"
-            android:permission="android.permission.CONFIGURE_SIP">
+            android:permission="android.permission.CONFIGURE_SIP" >
             <intent-filter>
                 <action android:name="com.view.asim.sip.SipService" />
                 <action android:name="com.view.asim.sip.SipConfiguration" />
             </intent-filter>
         </service>
-        
-        <receiver
-            android:name="com.view.asim.sip.receiver.DeviceStateReceiver">
+
+        <receiver android:name="com.view.asim.sip.receiver.DeviceStateReceiver" >
+
             <!-- Here filter for protected-broadcasts -->
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -307,14 +331,13 @@
         </receiver>
         <receiver
             android:name="com.view.asim.sip.receiver.DeviceStateReceiver"
-            android:permission="android.permission.CONFIGURE_SIP">
+            android:permission="android.permission.CONFIGURE_SIP" >
             <intent-filter>
                 <action android:name="com.view.asim.sip.accounts.activate" />
             </intent-filter>
         </receiver>
-        
         <receiver android:name="com.view.asim.sip.receiver.HeadsetButtonReceiver" />
-        
+
         <provider
             android:name="com.view.asim.sip.service.PreferenceProvider"
             android:authorities="com.view.asim.prefs"
@@ -323,13 +346,12 @@
             android:name="com.view.asim.db.DBProvider"
             android:authorities="com.view.asim.db"
             android:permission="android.permission.CONFIGURE_SIP" />
-        
     </application>
-    
+
     <!-- 启动测试器 -->
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
         android:label="Tests for pysfclient"
         android:targetPackage="com.view.asim" />
-        
+
 </manifest>

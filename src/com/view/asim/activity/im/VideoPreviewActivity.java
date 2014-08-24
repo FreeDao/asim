@@ -27,6 +27,7 @@ import com.view.asim.worker.FileRecvResultListener;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -49,7 +50,7 @@ import com.yixia.camera.util.DeviceUtils;
 
 /**
  * 
- * �??�?????件�??�??.
+ * 锟�??锟�?????浠讹拷??锟�??.
  * 
  * @author xuweinan
  */
@@ -76,9 +77,9 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		setContentView(R.layout.video_preview);
 		init();
+		
 	}
 	
 	@Override
@@ -150,7 +151,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 		mVideoView.setVisibility(View.GONE);
 		mPreviewImg.setVisibility(View.VISIBLE);
 
-		// ?????�示缩�?��?��??�??�?????�??
+		// ?????锟界ず缂╋拷?锟斤拷?锟斤拷??锟�??锟�?????锟�??
 		imageLoader.displayImage("file://" + message.getAttachment().getThumbUri(), mPreviewImg, options, new ImageLoadingListener() {
 			@Override
 			public void onLoadingStarted(String imageUri, View view) {
@@ -195,7 +196,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 
 	}
 	
-	// ?????��??�?????计�?�线�??
+	// ?????锟斤拷??锟�?????璁★拷?锟界嚎锟�??
 	private class BurnTimerThread extends Thread {
 		private int expiry = -1;
 		private ExpiryTimerListener listener;
@@ -234,7 +235,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	}
 	
 	private void startBurnTimer() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (!message.getDestroy().equals(IMMessage.NEVER_BURN) && message.getDir().equals(IMMessage.RECV)) {
 			mSaveBtn.setVisibility(View.GONE);
 			mTimerBtn.setVisibility(View.VISIBLE);
 			new BurnTimerThread(timer, new ExpiryTimerListener() {
@@ -258,7 +259,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 			        {    
 			            public void run()    
 			            {    
-			            	mTimerBtn.setText("???�??");
+			            	mTimerBtn.setText(getResources().getString(R.string.video_will_be_destoried));
 			            	Burn();
 			            }    
 			        });				
@@ -282,10 +283,9 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	private void init() {
 		getEimApplication().addActivity(this);
 		message = (ChatMessage) getIntent().getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
-		
 		mPreviewImg = (ImageView) findViewById(R.id.preview_img);
 		mVideoView = (VideoView) findViewById(R.id.video_preview);
-		mVideoView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		//mVideoView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		mVideoView.setOnPreparedListener(this);
 		mVideoView.setOnCompletionListener(this);
 		mWindowWidth = DeviceUtils.getScreenWidth(this);
@@ -368,7 +368,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	
 	@Override
 	public void onBackPressed() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (message.getDestroy().equals(IMMessage.SHOULD_BURN)) {
 			if (burnThread != null) {
 				burnThread.cancel();
 			}
@@ -380,7 +380,7 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	
 	@Override
 	public void onStop() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (message.getDestroy().equals(IMMessage.SHOULD_BURN)) {
 			if (burnThread != null) {
 				burnThread.cancel();
 			}
@@ -391,9 +391,17 @@ public class VideoPreviewActivity extends ActivitySupport implements OnCompletio
 	}
 	
 	private void burnMessage() {
+		if (message.getDir().equals(IMMessage.RECV)) {
     	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
-    	showToast("�?????已�??�??");
-    	MessageManager.getInstance().delChatHisById(message.getId());
+    	showToast(getResources().getString(R.string.video_had_destoried));
+	    	
+			Intent intent = new Intent();
+			intent.setAction(Constant.DESTROY_RECEIPTS_ACTION);
+			intent.putExtra(Constant.DESTROY_RECEIPTS_KEY_MESSAGE, message);
+			sendBroadcast(intent);
+			
+	    	MessageManager.getInstance().delChatHisById(message.getId());
+		}
 	}
 	
 }

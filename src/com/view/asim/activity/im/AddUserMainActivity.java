@@ -92,7 +92,7 @@ public class AddUserMainActivity extends ActivitySupport {
 				if (checkData()) {
 					String input = mSearchText.getText().toString();
 					if (input.equals(StringUtil.getCellphoneByName(ContacterManager.userMe.getName()))) {
-						showToast("ËÑË÷×Ô¼º£¬Ì«ÎÞÁÄÀ² :)");
+						showToast(getResources().getString(R.string.searching_yourself_that_boring));
 						mSearchText.setText("");
 					}
 					else {
@@ -172,7 +172,7 @@ public class AddUserMainActivity extends ActivitySupport {
 	 */
 	private boolean checkData() {
 		boolean checked = false;
-		checked = (!ValidateUtil.isEmpty(mSearchText, "ËÑË÷ÄÚÈÝ"));
+		checked = (!ValidateUtil.isEmpty(mSearchText, getResources().getString(R.string.searching_content)));
 		return checked;
 	}
 

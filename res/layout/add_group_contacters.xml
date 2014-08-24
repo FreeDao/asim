@@ -85,7 +85,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@drawable/green_button"
-            android:text="确定"
+            android:text="@string/confirm"
             android:textColor="@color/white"
             android:textSize="14sp" />
         

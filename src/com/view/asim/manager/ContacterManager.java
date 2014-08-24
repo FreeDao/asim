@@ -26,6 +26,7 @@ import org.jivesoftware.smackx.packet.VCard;
 import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.model.GroupUser;
+import com.view.asim.model.Server;
 import com.view.asim.model.User;
 import com.view.asim.utils.CharacterParser;
 import com.view.asim.utils.CryptoUtil;
@@ -47,30 +48,30 @@ public class ContacterManager {
 
 	private static final String TAG = "ContacterManager";
 	
-	/**»ñÈ¡¿âPhone±í×Ö¶Î**/  
+	/**ï¿½ï¿½È¡ï¿½ï¿½Phoneï¿½ï¿½ï¿½Ö¶ï¿½**/  
     private static final String[] PHONES_PROJECTION = new String[] {  
         Phone.DISPLAY_NAME, Phone.NUMBER };  
      
-    /**ÁªÏµÈËÏÔÊ¾Ãû³Æ**/  
+    /**ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½**/  
     private static final int PHONES_DISPLAY_NAME_INDEX = 0;  
       
-    /**µç»°ºÅÂë**/  
+    /**ï¿½ç»°ï¿½ï¿½ï¿½ï¿½**/  
     private static final int PHONES_NUMBER_INDEX = 1;  
     
-    // µÇÂ¼ÓÃ»§×ÔÉí
+    // ï¿½ï¿½Â¼ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½
     public static User userMe = null;
     
-	// ÃÜĞÅÁªÏµÈË
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 	public static Map<String, User> contacters = null;
 	
-	// ÈºÁÄ×é
+	// Èºï¿½ï¿½ï¿½ï¿½
 	public static Map<String, GroupUser> groupUsers = null;
 	
-	// ÊÖ»úÍ¨Ñ¶Â¼ÁªÏµÈË
+	// ï¿½Ö»ï¿½Í¨Ñ¶Â¼ï¿½ï¿½Ïµï¿½ï¿½
 	public static Map<String, String> phoneContacters = null;
 
 	/**
-	 * ³õÊ¼»¯ÁªÏµÈËÁĞ±í
+	 * ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½Ğ±ï¿½
 	 */
 	public static void init(XmppConnectionManager man) {
 		contacters = new HashMap<String, User>();
@@ -88,7 +89,7 @@ public class ContacterManager {
 					Log.d(TAG, "init roster entry:" + entry.getUser() + ", item status is " + entry.getStatus() +
 							", item type is " + entry.getType());
 					
-					// Èç¹ûÊÇÎ´Ìí¼Ó³É¹¦µÄºÃÓÑ£¬²»ÏÔÊ¾
+					// ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½Ó³É¹ï¿½ï¿½Äºï¿½ï¿½Ñ£ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
 					if (entry.getType().equals(ItemType.none)) {
 						continue;
 					}
@@ -113,18 +114,18 @@ public class ContacterManager {
 		phoneContacters.clear();
 		ContentResolver resolver = ApplicationContext.get().getContentResolver();  
 		  
-	    // »ñÈ¡ÊÖ»úÁªÏµÈË  
+	    // ï¿½ï¿½È¡ï¿½Ö»ï¿½ï¿½ï¿½Ïµï¿½ï¿½  
 	    Cursor phoneCursor = resolver.query(Phone.CONTENT_URI, PHONES_PROJECTION, null, null, null);  
 	  
 	    if (phoneCursor != null) {  
 	        while (phoneCursor.moveToNext()) {  
-		        //µÃµ½ÊÖ»úºÅÂë  
+		        //ï¿½Ãµï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½  
 		        String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
-		        //µ±ÊÖ»úºÅÂëÎª¿ÕµÄ»òÕßÎª¿Õ×Ö¶Î Ìø¹ıµ±Ç°Ñ­»·  
+		        //ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ÕµÄ»ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ö¶ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°Ñ­ï¿½ï¿½  
 		        if (TextUtils.isEmpty(phoneNumber.trim()))  
 		            continue;  
 		          
-		        //µÃµ½ÁªÏµÈËÃû³Æ  
+		        //ï¿½Ãµï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  
 		        String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
 		        		        
 		        if(phoneNumber.contains("-")) {
@@ -151,7 +152,7 @@ public class ContacterManager {
 	}
 	
 	/**
-	 * »ñµÃËùÓĞµÄÁªÏµÈËÁĞ±í
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½Ğ±ï¿½
 	 * 
 	 * @return
 	 */
@@ -168,7 +169,7 @@ public class ContacterManager {
 	}
 
 	/**
-	 * »ñµÃËùÓĞµÄÈºÁÄ×éÁĞ±í
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½Èºï¿½ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½
 	 * 
 	 * @return
 	 */
@@ -185,7 +186,7 @@ public class ContacterManager {
 	}
 	
 	/**
-	 * ¸ù¾İ±¾ÈËºÍ³ÉÔ±ÁĞ±íÉú³ÉÈºÁÄ×éÓÃ»§
+	 * ï¿½ï¿½ï¿½İ±ï¿½ï¿½ËºÍ³ï¿½Ô±ï¿½Ğ±ï¿½ï¿½ï¿½ï¿½ï¿½Èºï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½
 	 * @param members
 	 * @return
 	 */
@@ -195,7 +196,7 @@ public class ContacterManager {
 		String grpNick = userMe.getNickName();
 		for(User u: members) {
 			grpName += ":" + u.getName();
-			grpNick += "¡¢" + u.getNickName();
+			grpNick += "ï¿½ï¿½" + u.getNickName();
 			grpUser.addMember(u);
 		}
  
@@ -207,13 +208,13 @@ public class ContacterManager {
 		}
 		
 		grpUser.setName(grpName);
-		grpUser.setNickName(grpNick + "µÄÈºÁÄ");
+		grpUser.setNickName(grpNick + "ï¿½ï¿½Èºï¿½ï¿½");
 		grpUser.setOwnerName(userMe.getName());
 		return grpUser;
 	}
 	
     /** 
-     * ±£´æ±¾ÓÃ»§µÄ VCard ĞÅÏ¢
+     * ï¿½ï¿½ï¿½æ±¾ï¿½Ã»ï¿½ï¿½ï¿½ VCard ï¿½ï¿½Ï¢
      *  
      * @param conn 
      * @param user 
@@ -226,7 +227,7 @@ public class ContacterManager {
 		}
 		
 		try {
-			// êÇ³Æ²»ÔÊĞíÎª¿Õ
+			// ï¿½Ç³Æ²ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½
 			card.setNickName(user.getNickName());
 			
 			if (card.getJabberId() != null && !card.getJabberId().equals(user.getJID())) {
@@ -294,7 +295,7 @@ public class ContacterManager {
 	}
 	
 	/**
-	 * ´Ó·şÎñÆ÷¸üĞÂºÃÓÑĞÅÏ¢Ìí¼Óµ½±¾µØ»º´æ
+	 * ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âºï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½Ø»ï¿½ï¿½ï¿½
 	 * @param jid
 	 */
 	public static void loadAndUpdateContacter(String jid) {
@@ -303,9 +304,20 @@ public class ContacterManager {
 
 		contacters.put(jid, user);
 	}
-	
+	/**
+	 * æ ¹æ®jidè·å–Userä¿¡æ¯
+	 * @param jid
+	 */
+	public static User getUserInfoByJid(String jid){
+		if(contacters.containsKey(jid)){
+			return contacters.get(jid);
+		}else{
+			loadAndUpdateContacter(jid);
+			return contacters.get(jid);
+		}
+	}
     /** 
-     * »ñÈ¡ÓÃ»§ VCard ĞÅÏ¢ 
+     * ï¿½ï¿½È¡ï¿½Ã»ï¿½ VCard ï¿½ï¿½Ï¢ 
      *  
      * @param conn 
      * @param name 
@@ -326,7 +338,7 @@ public class ContacterManager {
     }
     
     /** 
-     * »ñÈ¡×ÔÉí VCard ĞÅÏ¢ 
+     * ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ VCard ï¿½ï¿½Ï¢ 
      *  
      * @param conn 
      * @param name 
@@ -347,7 +359,7 @@ public class ContacterManager {
     }
 
     /** 
-     * »ñÈ¡ÓÃ»§Í·ÏñĞÅÏ¢ 
+     * ï¿½ï¿½È¡ï¿½Ã»ï¿½Í·ï¿½ï¿½ï¿½ï¿½Ï¢ 
      *  
      * @param conn 
      * @param name 
@@ -377,7 +389,7 @@ public class ContacterManager {
     
 
     /** 
-     * »ñÈ¡ÓÃ»§Í·ÏñĞÅÏ¢ 
+     * ï¿½ï¿½È¡ï¿½Ã»ï¿½Í·ï¿½ï¿½ï¿½ï¿½Ï¢ 
      *  
      * @param conn 
      * @param card 
@@ -401,16 +413,19 @@ public class ContacterManager {
     
     public static User getUserByNameAndVCard(String name, VCard vcard) {
 		User user = new User();
+		Server srv = AppConfigManager.getInstance().getServer();
 		
 		user.setName(name);
-		user.setJID(StringUtil.getJidByName(name, Constant.IM_SERVICE_NAME));
+		user.setJID(StringUtil.getJidByName(name, srv.getXmppServiceName()));
 		user.setNickName(vcard.getNickName());
 		user.setGender(vcard.getField(User.VCARD_FIELD_GENDER));
 		user.setGlobalID(vcard.getField(User.VCARD_FIELD_GLOBALID));
 		user.setLocation(vcard.getAddressFieldHome(User.VCARD_FIELD_LOCATION));
 		user.setRemark(vcard.getField(User.VCARD_FIELD_REMARK));
 		user.setSecurity(vcard.getField(User.VCARD_FIELD_SECURITY));
-		user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
+		
+		// FIXME:
+		//user.loadGroupList(vcard.getField(User.VCARD_FIELD_GROUPINFO));
 		
 		String cellphone = StringUtil.getCellphoneByName(user.getName());
 		if (phoneContacters != null && phoneContacters.containsKey(cellphone)) {
@@ -442,7 +457,7 @@ public class ContacterManager {
     
     
 	/**
-	 * ¸ù¾İRosterEntry´´½¨Ò»¸öÍêÕûUser
+	 * ï¿½ï¿½ï¿½ï¿½RosterEntryï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½User
 	 * 
 	 * @param entry
 	 * @return
@@ -493,7 +508,7 @@ public class ContacterManager {
 	}
 
 	/**
-	 * ¸ù¾İname´´½¨Ò»¸öUser
+	 * ï¿½ï¿½ï¿½ï¿½nameï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½User
 	 * 
 	 * @param name
 	 * @return
@@ -543,7 +558,7 @@ public class ContacterManager {
 		*/
 	}
 	/**
-	 * ĞŞ¸ÄÕâ¸öºÃÓÑµÄêÇ³Æ
+	 * ï¿½Ş¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñµï¿½ï¿½Ç³ï¿½
 	 * 
 	 * @param user
 	 * @param nickname
@@ -556,7 +571,7 @@ public class ContacterManager {
 	 */
 
 	/**
-	 * °ÑÒ»¸öºÃÓÑÌí¼Óµ½Ò»¸ö×éÖĞ
+	 * ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param user
 	 * @param groupName
@@ -564,12 +579,12 @@ public class ContacterManager {
 			final XMPPConnection connection) {
 		if (groupName == null || user == null)
 			return;
-		// ½«Ò»¸örosterEntryÌí¼Óµ½groupÖĞÊÇPacketCollector£¬»á×èÈûÏß³Ì
+		// ï¿½ï¿½Ò»ï¿½ï¿½rosterEntryï¿½ï¿½Óµï¿½groupï¿½ï¿½ï¿½ï¿½PacketCollectorï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½
 		new Thread() {
 			@Override
 			public void run() {
 				RosterGroup group = connection.getRoster().getGroup(groupName);
-				// Õâ¸ö×éÒÑ¾­´æÔÚ¾ÍÌí¼Óµ½Õâ¸ö×é£¬²»´æÔÚ´´½¨Ò»¸ö×é
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½Ú¾ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½é£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
 				RosterEntry entry = connection.getRoster().getEntry(
 						user.getJID());
 				try {
@@ -591,7 +606,7 @@ public class ContacterManager {
 	 */
 
 	/**
-	 * °ÑÒ»¸öºÃÓÑ´Ó×éÖĞÉ¾³ı
+	 * ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½
 	 * 
 	 * @param user
 	 * @param groupName
@@ -657,13 +672,13 @@ public class ContacterManager {
 	
 	/**
 	 * 
-	 * ¸ù¾İjid»ñµÃÓÃ»§êÇ³Æ
+	 * ï¿½ï¿½ï¿½ï¿½jidï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ç³ï¿½
 	 * 
 	 * @param Jid
 	 * @param connection
 	 * @return
 	 * @author shimiso
-	 * @update 2012-6-28 ÉÏÎç10:49:14
+	 * @update 2012-6-28 ï¿½ï¿½ï¿½ï¿½10:49:14
 	public static User getNickname(String Jid, XMPPConnection connection) {
 		Roster roster = connection.getRoster();
 		for (RosterEntry entry : roster.getEntries()) {
@@ -678,20 +693,20 @@ public class ContacterManager {
 	 */
 
 	/**
-	 * Ìí¼Ó·Ö×é .
+	 * ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ .
 	 * 
 	 * @param user
 	 * @param groupName
 	 * @param connection
 	 * @author shimiso
-	 * @update 2012-6-28 ÏÂÎç3:30:32
+	 * @update 2012-6-28 ï¿½ï¿½ï¿½ï¿½3:30:32
 	public static void addGroup(final String groupName,
 			final XMPPConnection connection) {
 		if (StringUtil.empty(groupName)) {
 			return;
 		}
 
-		// ½«Ò»¸örosterEntryÌí¼Óµ½groupÖĞÊÇPacketCollector£¬»á×èÈûÏß³Ì
+		// ï¿½ï¿½Ò»ï¿½ï¿½rosterEntryï¿½ï¿½Óµï¿½groupï¿½ï¿½ï¿½ï¿½PacketCollectorï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½
 		new Thread() {
 			@Override
 			public void run() {
@@ -711,7 +726,7 @@ public class ContacterManager {
 	 */
 
 	/**
-	 * »ñµÃËùÓĞ×éÃû
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @return
 	public static List<String> getGroupNames(Roster roster) {
@@ -727,14 +742,14 @@ public class ContacterManager {
 
 	
 	/**
-	 * Ìí¼ÓÒ»¸öÁªÏµÈË
+	 * ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 	 * 
 	 * @param userJid
-	 *            ÁªÏµÈËJID
+	 *            ï¿½ï¿½Ïµï¿½ï¿½JID
 	 * @param nickname
-	 *            ÁªÏµÈËêÇ³Æ
+	 *            ï¿½ï¿½Ïµï¿½ï¿½ï¿½Ç³ï¿½
 	 * @param groups
-	 *            ÁªÏµÈËÌí¼Óµ½ÄÄĞ©×é
+	 *            ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½Ğ©ï¿½ï¿½
 	 * @throws XMPPException
 	 */
 	public static void createSubscriber(String userJid, String nickname,
@@ -745,10 +760,10 @@ public class ContacterManager {
 	}
 
 	/**
-	 * É¾³ıÒ»¸öÁªÏµÈË
+	 * É¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 	 * 
 	 * @param userJid
-	 *            ÁªÏµÈËµÄJID
+	 *            ï¿½ï¿½Ïµï¿½Ëµï¿½JID
 	 * @throws XMPPException
 	 */
 	public static void removeSubscriber(String userJid) throws XMPPException {
@@ -760,7 +775,7 @@ public class ContacterManager {
 	}
 	
 	/**
-	 * »Ø¸´Ò»¸öpresenceĞÅÏ¢¸øÓÃ»§
+	 * ï¿½Ø¸ï¿½Ò»ï¿½ï¿½presenceï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Ã»ï¿½
 	 * 
 	 * @param type
 	 * @param to
@@ -773,7 +788,7 @@ public class ContacterManager {
 	}
 	/**
 	 * 
-	 * ¸ù¾İêÇ³ÆËÑË÷ÓÃ»§
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ç³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½
 	 * 
 	 * @param  searchUserByName
 	 * @author xuweinan
@@ -809,7 +824,7 @@ public class ContacterManager {
 	
 	/**
 	 * 
-	 * ¸ù¾İÊÖ»úºÅÂëËÑË÷ÓÃ»§
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½
 	 * 
 	 * @param  searchUserByName
 	 * @author xuweinan

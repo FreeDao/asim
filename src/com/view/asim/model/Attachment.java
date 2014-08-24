@@ -209,7 +209,7 @@ public class Attachment implements Parcelable{
 		    att.setThumbUri(resp.getString("thumbUri"));
 		    att.setAudioLength(resp.getInt("audioLength"));
 
-		} catch (JSONException e) {  
+		} catch (Exception e) {  
 			e.printStackTrace();
 			return null;
 		}

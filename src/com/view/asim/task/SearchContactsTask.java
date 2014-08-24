@@ -16,6 +16,7 @@ import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.activity.im.AddUserContactsActivity;
 import com.view.asim.activity.im.UserInfoActivity;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
@@ -65,8 +66,8 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 	@Override
 	protected void onPreExecute() {
 		// 如果是注册后的自动登录，不再显示进度对话框
-		pd.setTitle("请稍等");
-		pd.setMessage("正在搜索通讯录");
+		pd.setTitle(ApplicationContext.get().getString(R.string.please_wait));
+		pd.setMessage(ApplicationContext.get().getString(R.string.searching_contacts));
 		pd.setCancelable(true);
 		pd.setCanceledOnTouchOutside(false);
 		pd.show();
@@ -81,7 +82,7 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 
 	@Override
 	protected void onProgressUpdate(Integer... values) {
-		pd.setMessage("正在搜索通讯录 (" + values[0] + "%)");
+		pd.setMessage(ApplicationContext.get().getString(R.string.searching_contacts)+" (" + values[0] + "%)");
 	}
 
 	@Override
@@ -109,9 +110,9 @@ public class SearchContactsTask extends AsyncTask<String, Integer, Integer> {
 			break;
 		case Constant.NONE_RESULTS:// 不存在
 			new AlertDialog.Builder(activity)
-			.setMessage("请检查号码或用户名是否正确")
-			.setTitle("该密友不存在")
-			.setNeutralButton("确定", 
+			.setMessage(ApplicationContext.get().getString(R.string.searched_nothing))
+			.setTitle(ApplicationContext.get().getString(R.string.search_result))
+			.setNeutralButton(ApplicationContext.get().getString(R.string.ok), 
 					new DialogInterface.OnClickListener() {
 
 						@Override

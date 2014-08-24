@@ -3,6 +3,8 @@ package com.view.asim.activity;
 
 import org.jivesoftware.smack.SmackAndroid;
 
+import com.view.asim.comm.ApplicationContext;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.task.LoginTask;
@@ -31,7 +33,7 @@ import com.view.asim.R;
 
 /**
  * 
- * µÇÂ¼.
+ * ï¿½ï¿½Â¼.
  * 
  * @author allen
  */
@@ -52,10 +54,9 @@ public class LoginActivity extends ActivitySupport {
 
 	/**
 	 * 
-	 * ³õÊ¼»¯.
+	 * ï¿½ï¿½Ê¼ï¿½ï¿½.
 	 * 
 	 * @author xuweinan
-	 * @update 2012-5-16 ÉÏÎç9:13:01
 	 */
 	protected void init() {
 		getEimApplication().addActivity(this);
@@ -65,9 +66,9 @@ public class LoginActivity extends ActivitySupport {
 		mLoginCfmBtn = (Button) findViewById(R.id.login_cfm_btn);
 		loginImg = (ImageView) findViewById(R.id.loading_img);
 
-		// ³õÊ¼»¯¸÷×é¼þµÄÄ¬ÈÏ×´Ì¬
-		mUsernameText.setText(mLoginCfg.getUsername());
-		mPasswdText.setText(mLoginCfg.getPassword());
+		// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½×´Ì¬
+		mUsernameText.setText(AppConfigManager.getInstance().getUsername());
+		mPasswdText.setText(AppConfigManager.getInstance().getPassword());
 
 		mLoginCfmBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -76,40 +77,44 @@ public class LoginActivity extends ActivitySupport {
 					String password = mPasswdText.getText().toString().trim();
 					String username = StringUtil.getNameByCellphone(mUsernameText.getText().toString().trim());
 
-					// ÏÈ¼ÇÂ¼ÏÂ¸÷×é¼þµÄÄ¿Ç°×´Ì¬,µÇÂ¼³É¹¦ºó²Å±£´æ
-					mLoginCfg.setPassword(password);
-					mLoginCfg.setUsername(username);
+					// ï¿½È¼ï¿½Â¼ï¿½Â¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Ç°×´Ì¬,ï¿½ï¿½Â¼ï¿½É¹ï¿½ï¿½ï¿½Å±ï¿½ï¿½ï¿½
+					AppConfigManager.getInstance().setPassword(password);
+					AppConfigManager.getInstance().setUsername(username);
 
 					loginImg.setVisibility(View.VISIBLE);
-					LoginTask loginTask = new LoginTask(LoginActivity.this,
-							mLoginCfg, (AnimationDrawable) loginImg.getBackground());
+					LoginTask loginTask = new LoginTask(LoginActivity.this, 
+							(AnimationDrawable) loginImg.getBackground());
 					loginTask.execute();
 				}
 			}
 		});
-		
-		//SmackAndroid.init(context);
-
 	}
+	
+	@Override
+	public boolean isLoginActivity() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 
 	/**
 	 * 
-	 * µÇÂ¼Ð£Ñé.
+	 * ï¿½ï¿½Â¼Ð£ï¿½ï¿½.
 	 * 
 	 * @return
 	 * @author shimiso
-	 * @update 2012-5-16 ÉÏÎç9:12:37
+	 * @update 2012-5-16 ï¿½ï¿½ï¿½ï¿½9:12:37
 	 */
 	private boolean checkData() {
 		boolean checked = false;
-		checked = (!ValidateUtil.isEmpty(mUsernameText, "ÊÖ»úºÅÂë") && !ValidateUtil
-				.isEmpty(mPasswdText, "ÃÜÂë"));
+		checked = (!ValidateUtil.isEmpty(mUsernameText, getResources().getString(R.string.mobile_number)) && !ValidateUtil
+				.isEmpty(mPasswdText,  getResources().getString(R.string.password)));
 		return checked;
 	}
 	
 	/**
 	 * 
-	 * ×¢²áÐ£Ñé£¨ÊÖ»úºÅÂë£©.
+	 * ×¢ï¿½ï¿½Ð£ï¿½é£¨ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ë£©.
 	 * 
 	 * @return
 	 * @author xuweinan
@@ -126,7 +131,7 @@ public class LoginActivity extends ActivitySupport {
 	}
 	
 	/**
-	 * °´¼üÊÂ¼þ´¦Àí
+	 * Handle operation of pressing key
 	 */
 	@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -138,15 +143,14 @@ public class LoginActivity extends ActivitySupport {
     }
 
 	/**
-	 * 2ÃëÄÚÁªÏµ°´Á½´Î·µ»Ø¼üÍË³öAPP
+	 * Exit APP by clicking back key in 2 seconds continuously.
 	 */
     public void exit() {
         if ((System.currentTimeMillis() - mExitTime) > 2000) {
-            showToast("ÔÙ°´Ò»´ÎÍË³ö³ÌÐò");
+            showToast( getResources().getString(R.string.exit_app_click_again));
             mExitTime = System.currentTimeMillis();
         } else {
-            finish();
-            System.exit(0);
+        	getEimApplication().exit();
         }
     }
 }

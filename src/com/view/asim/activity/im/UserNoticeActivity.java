@@ -17,6 +17,7 @@ import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
+import com.view.asim.model.User;
 import com.view.asim.utils.DateUtil;
 import com.view.asim.utils.StringUtil;
 import com.view.asim.view.NoticeAdapter;
@@ -46,7 +47,7 @@ import com.view.asim.R;
 
 /**
  * 
- * ºÃÓÑÌí¼ÓÍ¨ÖªÏûÏ¢ÏÔÊ¾½çÃæ
+ * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé…µã„–ï¿½é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·ç¤ºé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
  * 
  * @author xuweinan
  */
@@ -71,7 +72,7 @@ public class UserNoticeActivity extends ActivitySupport {
 
 	@Override
 	protected void onPause() {
-		// Ğ¶ÔØ¹ã²¥½ÓÊÕÆ÷
+		// å¸é”Ÿæˆªå¹¿æ’­é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		unregisterReceiver(receiver);
 		super.onPause();
 	}
@@ -81,9 +82,9 @@ public class UserNoticeActivity extends ActivitySupport {
 
 		super.onResume();
 
-		// ×¢²á¹ã²¥½ÓÊÕÆ÷
+		// æ³¨é”Ÿæ–¤æ‹·æ‚´ãƒ¯æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 		IntentFilter filter = new IntentFilter();
-		// ºÃÓÑÇëÇó
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		filter.addAction(Constant.ROSTER_SUBSCRIPTION);
 		filter.addAction(Constant.ACTION_SYS_MSG);
 		filter.addAction(Constant.AUKEY_STATUS_UPDATE);
@@ -136,20 +137,40 @@ public class UserNoticeActivity extends ActivitySupport {
 	private OnClickListener acceptClick = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			// ½ÓÊÜÇëÇó
-			Notice n = (Notice)v.getTag();
-			Log.d(TAG, "accept the request of user " + n.getWith());
-
-			ContacterManager.sendSubscribe(Presence.Type.subscribed, n.getWith());
-			ContacterManager.sendSubscribe(Presence.Type.subscribe, n.getWith());
-
-			NoticeManager noticeManager = NoticeManager
-					.getInstance();
-			noticeManager.updateStatusById(n.getId(), Notice.STATUS_COMPLETE);
-			
-			new ContacterUpdateThread(n.getWith()).start();
-
-			refresh();		
+			// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+			if(v.getId() == R.id.accept_btn){
+				Notice n = (Notice)v.getTag();
+				Log.d(TAG, "accept the request of user " + n.getWith());
+	
+				ContacterManager.sendSubscribe(Presence.Type.subscribed, n.getWith());
+				ContacterManager.sendSubscribe(Presence.Type.subscribe, n.getWith());
+	
+				NoticeManager noticeManager = NoticeManager
+						.getInstance();
+				noticeManager.updateStatusById(n.getId(), Notice.STATUS_COMPLETE);
+				
+				new ContacterUpdateThread(n.getWith()).start();
+	
+				refresh();		
+			}
+			//ï¿½ï¿½ãƒ§ï¿½ï¿½ç’§ï¿½ï¿½ï¿½ï¿½
+			else if(v.getId() == R.id.new_user_name_txt||v.getId() == R.id.new_user_head_img){
+				Notice n = (Notice)v.getTag();
+				String jid = n.getWith();
+				User user = ContacterManager.getUserInfoByJid(jid);		
+				Intent intent = new Intent();
+				if(n.getStatus().equals(Notice.STATUS_COMPLETE)) {
+					intent.putExtra(User.userKey, ContacterManager.contacters.get(user.getJID()));
+					intent.putExtra(UserInfoActivity.modeKey, UserInfoActivity.FRIEND_MODE);
+				} else {
+					intent.putExtra(User.userKey, user);
+					intent.putExtra(UserInfoActivity.modeKey, UserInfoActivity.STRANDER_MODE);
+				}
+				
+				intent.setClass(UserNoticeActivity.this, UserInfoActivity.class);
+				startActivity(intent);				
+				Log.i(TAG,"Notice :"+n.getContent());
+			}
 		}
 	};
 
@@ -169,7 +190,7 @@ public class UserNoticeActivity extends ActivitySupport {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (resultCode) { // resultCodeÎª»Ø´«µÄ±ê¼Ç
+		switch (resultCode) { // resultCodeä¸ºé”Ÿæˆªè¾¾æ‹·é”Ÿä¾¥æ†‹æ‹·é”Ÿï¿½
 		case 1:
 			refresh();
 		default:

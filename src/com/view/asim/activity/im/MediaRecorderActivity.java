@@ -75,6 +75,7 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 	private TextView mTitleText;
 	private Button mTitleNext;
 	private ImageView mPressText;
+	private TextView mBackButton;
 	private RadioGroup mRecordFilterContainer;
 	private View mRecordFilterLayout;
 
@@ -100,6 +101,7 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 		mRecordFilter = (CheckedTextView) findViewById(R.id.record_filter);
 		mRecordFilter.setChecked(true);
 		mPressText = (ImageView) findViewById(R.id.record_tips_text);
+		mBackButton = (TextView) findViewById(R.id.title_back_btn);
 		mRecordFilterContainer = (RadioGroup) findViewById(R.id.record_filter_container);
 		mRecordFilterLayout = findViewById(R.id.record_filter_layout);
 
@@ -108,7 +110,7 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 		mRecordDelete.setOnClickListener(this);
 		mRecordFilter.setOnClickListener(this);
 		mRecordDelay.setOnClickListener(this);
-
+		mBackButton.setOnClickListener(this);
 		mSurfaceView.getLayoutParams().height = mWindowWidth;
 		//mSurfaceView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		findViewById(R.id.record_layout).getLayoutParams().height = mWindowWidth;
@@ -140,27 +142,8 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 
 	@Override
 	public void onBackPressed() {
-		if (mRecordDelete.isChecked()) {
-			cancelDelete();
-			return;
-		}
-
-		if (mMediaObject != null && mMediaObject.getDuration() > 1) {
-			new AlertDialog.Builder(this).setTitle("提示").setMessage(R.string.record_camera_exit_dialog_message).setNegativeButton("确认", new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					mMediaObject.delete();
-					exitWithResult(RESULT_CANCELED);
-				}
-
-			}).setPositiveButton("取消", null).setCancelable(false).show();
-			return;
-		}
-
-		if (mMediaObject != null)
-			mMediaObject.delete();
-		super.onBackPressed();
+		backOperation();
+		//super.onBackPressed();
 	}
 
 	private void initMediaRecorder() {
@@ -201,7 +184,7 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 					return true;
 				}
 
-				mTitleText.setText(String.format("已录制 %.1f 秒", mMediaObject.getDuration() / 1000F));
+				mTitleText.setText(String.format(getResources().getString(R.string.had_record_x_video), mMediaObject.getDuration() / 1000F));
 
 				startRecord();
 
@@ -294,7 +277,7 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 					if (mProgressView != null)
 						mProgressView.invalidate();
 					if (mPressedStatus)
-						mTitleText.setText(String.format("已录制 %.1f 秒", mMediaObject.getDuration() / 1000F));
+						mTitleText.setText(String.format(getResources().getString(R.string.had_record_x_video), mMediaObject.getDuration() / 1000F));
 					if (mPressedStatus)
 						sendEmptyMessageDelayed(0, 30);
 				}
@@ -473,6 +456,9 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 				mRecordFilter.setChecked(true);
 			}
 			break;
+		case R.id.title_back_btn:
+			backOperation();
+			break;
 		}
 	}
 
@@ -505,6 +491,31 @@ public class MediaRecorderActivity extends ActivitySupport implements OnErrorLis
 		}
 	}
 
+	private void backOperation(){
+		if (mRecordDelete.isChecked()) {
+			cancelDelete();
+			return;
+		}
+
+		if (mMediaObject != null && mMediaObject.getDuration() > 1) {
+			new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.hint)).setMessage(R.string.record_camera_exit_dialog_message).setNegativeButton("确认", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mMediaObject.delete();
+					exitWithResult(RESULT_CANCELED);
+				}
+
+			}).setPositiveButton(getResources().getString(R.string.cancel), null).setCancelable(false).show();
+			return;
+		}
+
+		if (mMediaObject != null){
+			mMediaObject.delete();
+		}
+		
+		finish();
+	}
 	@Override
 	public void onPrepared() {
 		if (mMediaRecorder != null) {

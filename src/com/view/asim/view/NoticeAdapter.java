@@ -70,7 +70,11 @@ public class NoticeAdapter extends BaseAdapter {
 			holder.ivAvatar.setImageBitmap(notice.getAvatar());
 		} else
 			holder.ivAvatar.setImageResource(R.drawable.default_avatar_male);
-		
+		holder.tvName.setTag(notice);
+		holder.ivAvatar.setTag(notice);
+		holder.ivAvatar.setOnClickListener(mListener);
+		holder.tvName.setOnClickListener(mListener);
+
 		if (notice.getStatus().equals(Notice.STATUS_ADD_REQUEST)) {
 			holder.btnAccept.setVisibility(View.VISIBLE);
 			holder.tvAdded.setVisibility(View.GONE);
@@ -78,11 +82,11 @@ public class NoticeAdapter extends BaseAdapter {
 			holder.btnAccept.setOnClickListener(mListener);
 		} else if (notice.getStatus().equals(Notice.STATUS_WAIT_FOR_ACCEPT)) {
 			holder.btnAccept.setVisibility(View.GONE);
-			holder.tvAdded.setText("等待验证");
+			holder.tvAdded.setText(context.getResources().getString(R.string.wait_verification));
 			holder.tvAdded.setVisibility(View.VISIBLE);
 		} else {
 			holder.btnAccept.setVisibility(View.GONE);
-			holder.tvAdded.setText("添加成功");
+			holder.tvAdded.setText(context.getResources().getString(R.string.add_success));
 			holder.tvAdded.setVisibility(View.VISIBLE);
 		}
 		

@@ -151,18 +151,18 @@ public class SettingsActivity extends ActivitySupport {
 			@Override
 			public void onClick(View v) {
 				
-				alertDg = new AlertDialog.Builder(context).setTitle("退出登录")
-				.setNeutralButton("确定", new DialogInterface.OnClickListener() {
+				alertDg = new AlertDialog.Builder(context).setTitle(getResources().getString(R.string.settings_exit_btn))
+				.setNeutralButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						new SecurityExitThread().start();
 						dialog.cancel();
-						pg.setMessage("正在退出密信");
+						pg.setMessage(getResources().getString(R.string.exiting_mixin));
 						pg.show();
 						
 					}
 				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();
@@ -196,10 +196,15 @@ public class SettingsActivity extends ActivitySupport {
 		if (pg != null) {
 			pg.dismiss();
 		}
+		//unbindService(connection);
+		
 		super.onDestroy();
 
 	}
 	
+	/**
+	 * 安全退出线程
+	 */
 	private class SecurityExitThread extends Thread {
 		
 		@Override
@@ -207,10 +212,11 @@ public class SettingsActivity extends ActivitySupport {
 			Log.d(TAG, "SecurityExitThread");
 			NoticeManager.getInstance().clearAllMessageNotify();
 			
-			mLoginCfg.setUsername(null);
-			mLoginCfg.setPassword(null);
-			mLoginCfg.setOnline(false);
-			AppConfigManager.getInstance().saveLoginConfig(mLoginCfg);
+			AppConfigManager.getInstance().setUsername(null);
+			AppConfigManager.getInstance().setPassword(null);
+			AppConfigManager.getInstance().setOnline(false);
+			
+			AppConfigManager.getInstance().saveLoginConfig();
 			try {
 				service.forceStopService();
 				Thread.sleep(2000);

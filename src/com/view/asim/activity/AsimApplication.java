@@ -21,6 +21,8 @@ import com.view.asim.comm.Constant;
 import com.view.asim.dbg.CrashHandler;
 import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.XmppConnectionManager;
+import com.view.asim.model.LoginConfig;
+import com.view.asim.sip.api.SipManager;
 import com.view.asim.utils.FileUtil;
 import com.yixia.camera.VCamera;
 import com.yixia.camera.util.DeviceUtils;
@@ -29,6 +31,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
@@ -49,12 +52,12 @@ public class AsimApplication extends Application {
         super.onCreate();
         
         ApplicationContext.getInstance().init(this);
-        
+
+        initAppConfig();
         initAVOSCloud();
         initRootPath();
         initImageLoader();
         initVCamera();
-        initAppConfig();
     }  
 	
 	private void initAppConfig() {
@@ -97,19 +100,17 @@ public class AsimApplication extends Application {
 	}
 	
 	private void initRootPath() {
-		SharedPreferences preferences = getSharedPreferences(Constant.IM_SET_PREF, 0);
-
 		final String sdcardPath = FileUtil.getSDCardRootDirectory();
 		if (sdcardPath == null) {
 			Constant.SDCARD_ROOT_PATH = null;
 		}
 		else {
-			String oldPath = preferences.getString(Constant.DATA_ROOT_PATH, null);
+			String oldPath = AppConfigManager.getInstance().getRootPath();
 			
 			if (oldPath == null) {
 				Log.d(TAG, "save sdcard path: " + sdcardPath);
 
-				preferences.edit().putString(Constant.DATA_ROOT_PATH, sdcardPath).commit();
+				AppConfigManager.getInstance().setRootPath(sdcardPath);
 				Constant.SDCARD_ROOT_PATH = sdcardPath;
 			}
 			else {
@@ -134,7 +135,6 @@ public class AsimApplication extends Application {
 
 		FileUtil.createDir(cacheFolder);
 		FileUtil.createDir(logFolder);
-
 	}
 	
 	public void addActivity(Activity activity) {
@@ -158,5 +158,20 @@ public class AsimApplication extends Application {
 		for (Service service : serviceList) {
 			service.stopSelf();
 		}
+		System.exit(0);
+	}
+	public void exitUserConflict() {
+		if (XmppConnectionManager.getInstance() != null) {
+			XmppConnectionManager.getInstance().destroy();
+		}
+		for (Activity activity : activityList) {
+			activity.finish();
+		}
+		for (Service service : serviceList) {
+			service.stopSelf();
+		}
+		Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
+        stopService(serviceIntent); 
+		System.exit(0);
 	}
 }

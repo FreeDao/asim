@@ -57,7 +57,7 @@
             android:layout_marginTop="15dp"
             android:drawablePadding="10dp"
             android:gravity="center"
-            android:text="用户名"
+            android:text="@string/user_name"
             android:textColor="@color/white"
             android:textSize="18.0sp" />
         

@@ -22,6 +22,8 @@
             android:drawableLeft="@drawable/common_back_btn_normal"
             android:background="@drawable/title_clickable_background"
             android:gravity="center_vertical"
+            android:maxWidth="200dp"
+            android:singleLine="true"
             android:textColor="@color/black"
             android:textSize="18.0sp" />
         

@@ -36,6 +36,7 @@ public class CtrlMessage extends IMMessage {
 	// 远程销毁消息
 	public static final String REMOTE_DESTROY = "remote_destroy";
 
+	public static final String DESTROY_RECEIPTS = "destroy_receipts";
 	
 	public CtrlMessage() {
 		super();

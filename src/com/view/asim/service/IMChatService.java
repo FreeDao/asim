@@ -19,6 +19,7 @@ import com.avos.avoscloud.AVAnalytics;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.im.ChatActivity;
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
@@ -47,6 +48,7 @@ import com.view.asim.worker.SendTextMsgHandler;
 import com.view.asim.worker.SendGroupFileMsgHandler;
 import com.view.asim.worker.SendFileMsgHandler;
 import com.view.asim.worker.RemoteDestroyMessageHandler;
+import com.view.asim.worker.MessageDestroyReceiptsHandler;
 
 import com.view.asim.worker.Worker;
 import android.app.Notification;
@@ -63,7 +65,7 @@ import com.view.asim.R;
 
 /**
  * 
- * ÁÄÌì·þÎñ.
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
  * 
  * @author xuweinan
  */
@@ -93,9 +95,9 @@ public class IMChatService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		return START_NOT_STICKY;
+		//return START_NOT_STICKY;
 
-		//return super.onStartCommand(intent, flags, startId);
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
@@ -109,6 +111,9 @@ public class IMChatService extends Service {
 		mSendMsgWorker.destroy();
 		mRecvMsgWorker.destroy();
 		unregisterReceiver(receiver);
+		unInitChatManager();
+//		Intent chatServer = new Intent(context, IMChatService.class);
+//		context.startService(chatServer);
 	}
 	
 	private void initBroadcastReceiver() {
@@ -119,6 +124,7 @@ public class IMChatService extends Service {
 		filter.addAction(Constant.SEND_FILE_ACTION);
 		filter.addAction(Constant.SEND_MESSAGE_ACTION);
 		filter.addAction(Constant.REMOTE_DESTROY_ACTION);
+		filter.addAction(Constant.DESTROY_RECEIPTS_ACTION);
 		filter.addAction(Constant.RECV_OFFLINE_MSG_ACTION);
 		filter.addAction(Constant.ACTION_RECONNECT_STATE);
 
@@ -138,6 +144,10 @@ public class IMChatService extends Service {
 			if (action.equals(Constant.REMOTE_DESTROY_ACTION)) {
 				final ChatMessage remoteMsg = (ChatMessage) intent.getParcelableExtra(Constant.REMOTE_DESTROY_KEY_MESSAGE);
 				handler = (RemoteDestroyMessageHandler) new RemoteDestroyMessageHandler(remoteMsg);
+			}
+			else if (action.equals(Constant.DESTROY_RECEIPTS_ACTION)) {
+				final ChatMessage msg = (ChatMessage) intent.getParcelableExtra(Constant.DESTROY_RECEIPTS_KEY_MESSAGE);
+				handler = (MessageDestroyReceiptsHandler) new MessageDestroyReceiptsHandler(msg);
 			}
 			else if (action.equals(Constant.SEND_FILE_ACTION)) {
 				final ChatMessage fileMsg = (ChatMessage) intent.getParcelableExtra(Constant.SEND_FILE_KEY_MESSAGE);
@@ -226,9 +236,8 @@ public class IMChatService extends Service {
 
 			}
 			else if (action.equals(Constant.RECV_OFFLINE_MSG_ACTION)) {
-				//dealOfflineMsg();
-				XmppConnectionManager.getInstance().getConnection()
-					.sendPacket(new Presence(Presence.Type.available));
+				AppConfigManager.getInstance().setOnline(true);
+				XmppConnectionManager.getInstance().UpdateAvailable(true);
 			}
 			else if (action.equals(Constant.GROUP_INVITE_ACTION)) {
 				GroupUser grp = (GroupUser) intent.getParcelableExtra(Constant.GROUP_ACTION_KEY_INFO);
@@ -267,7 +276,7 @@ public class IMChatService extends Service {
 	
 	/**
 	 * 
-	 * ´¦ÀíÀëÏßÏûÏ¢.
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢.
 	 * 
 	 * @author xuweinan
 	 */
@@ -325,6 +334,14 @@ public class IMChatService extends Service {
 											Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
 											sendBroadcast(intent);
 										}
+										else if (msgType.equals(CtrlMessage.DESTROY_RECEIPTS)) {
+											String id = (String) message.getProperty(CtrlMessage.PROP_ID);
+											Log.i(TAG, "recv message destroy receipts command for message unique id:" + id);
+											MessageManager.getInstance().updateDestroyStatusByUniqueId(id, IMMessage.BURNED);
+
+											Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
+											sendBroadcast(intent);
+										}
 										else {
 											h = (RecvFileMsgHandler) new RecvFileMsgHandler(context, message, 
 													new MessageRecvResultListener() {
@@ -369,6 +386,7 @@ public class IMChatService extends Service {
 	}
 	
 	private void initChatManager() {
+		
 		try {
 			XMPPConnection conn = XmppConnectionManager.getInstance()
 					.getConnection();
@@ -378,8 +396,8 @@ public class IMChatService extends Service {
 			
 		} catch(Exception e) {
 			e.printStackTrace();
-			//stopSelf();
 		}
+
 	}
 	
 	private void updateGroupInfo(String info) {
@@ -464,6 +482,16 @@ public class IMChatService extends Service {
 						sendBroadcast(intent);
 						return;
 					}
+					
+					else if (msgType.equals(CtrlMessage.DESTROY_RECEIPTS)) {
+						String id = (String) message.getProperty(CtrlMessage.PROP_ID);
+						Log.i(TAG, "recv message destroy receipts command for message unique id:" + id);
+						MessageManager.getInstance().updateDestroyStatusByUniqueId(id, IMMessage.BURNED);
+
+						Intent intent = new Intent(Constant.NEW_MESSAGE_ACTION);
+						sendBroadcast(intent);
+					}
+					
 					else {
 						handler = (RecvFileMsgHandler) new RecvFileMsgHandler(context, message, 
 								new MessageRecvResultListener() {
@@ -486,7 +514,7 @@ public class IMChatService extends Service {
 					mRecvMsgWorker.addHandler(handler);
 				}
 				
-				// Éú³ÉÍ¨Öª
+				// ï¿½ï¿½ï¿½ï¿½Í¨Öª
 				NoticeManager noticeManager = NoticeManager.getInstance();
 				String name = noticeManager.getCurrentChatUser();
 				User curUser = null;

@@ -1,9 +1,9 @@
 /**   
- * ÓÃÒ»¾ä»°ÃèÊö¸ÃÎÄ¼ş×öÊ²Ã´.
+ * é”Ÿæ–¤æ‹·ä¸€é”Ÿæˆ’è¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·é”Ÿæ–¤æ‹·ä»€ä¹ˆ.
  * @title DateUtil.java
  * @package com.sinsoft.android.util
  * @author shimiso  
- * @update 2012-6-26 ÉÏÎç9:57:56  
+ * @update 2012-6-26 é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·9:57:56  
  */
 package com.view.asim.utils;
 
@@ -11,8 +11,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.view.asim.R;
+import com.view.asim.comm.ApplicationContext;
+
+import android.app.Application;
+
 /**
- * ÈÕÆÚ²Ù×÷¹¤¾ßÀà.
+ * é”Ÿæ–¤æ‹·é”ŸèŠ‚è¯§æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·.
  * 
  * @author shimiso
  */
@@ -100,7 +105,7 @@ public class DateUtil {
 	}
 
 	/**
-	 * »ñµÃµ±Ç°ÈÕÆÚµÄ×Ö·û´®¸ñÊ½
+	 * é”Ÿæ–¤æ‹·ç«é”Ÿè§’å¸®æ‹·é”Ÿæ–¤æ‹·è¯˜é”Ÿæ–¤æ‹·å€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿç»ï¿½
 	 * 
 	 * @param format
 	 * @return
@@ -110,21 +115,21 @@ public class DateUtil {
 		return date2Str(c, format);
 	}
 
-	// ¸ñÊ½µ½Ãë
+	// é”Ÿæ–¤æ‹·å¼é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	public static String getMillon(long time) {
 
 		return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(time);
 
 	}
 
-	// ¸ñÊ½µ½Ìì
+	// é”Ÿæ–¤æ‹·å¼é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	public static String getDay(long time) {
 
 		return new SimpleDateFormat("yyyy-MM-dd").format(time);
 
 	}
 
-	// ¸ñÊ½µ½ºÁÃë
+	// é”Ÿæ–¤æ‹·å¼é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	public static String getSMillon(long time) {
 
 		return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(time);
@@ -132,8 +137,8 @@ public class DateUtil {
 	}
 	
 	public static String getMDHM(long time) {
-
-		return new SimpleDateFormat("MÔÂdÈÕ H:mm").format(time);
+		String format = ApplicationContext.get().getResources().getString(R.string.date_format);
+		return new SimpleDateFormat(format).format(time);
 
 	}
 }

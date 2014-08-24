@@ -110,7 +110,7 @@ public class CallLogsAdapter extends BaseAdapter {
 		switch(logs.getType()) {
 		// 来电
 		case 1:
-			holder.lastCallInfoTxt.setText("来电");
+			holder.lastCallInfoTxt.setText(context.getResources().getString(R.string.in_call));
 			leftIcon = context.getResources().getDrawable(R.drawable.incoming_call);
 			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
 			//holder.lastCallInfoTxt.setCompoundDrawables(incomingCallIcon, null, null, null);
@@ -118,7 +118,7 @@ public class CallLogsAdapter extends BaseAdapter {
 		
 		// 去电
 		case 2:
-			holder.lastCallInfoTxt.setText("去电");
+			holder.lastCallInfoTxt.setText(context.getResources().getString(R.string.out_call));
 			leftIcon = context.getResources().getDrawable(R.drawable.outgoing_call);
 			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
 			//holder.lastCallInfoTxt.setCompoundDrawables(outgoingCallIcon, null, null, null);
@@ -126,7 +126,7 @@ public class CallLogsAdapter extends BaseAdapter {
 			
 		// 未接来电
 		case 3:
-			holder.lastCallInfoTxt.setText("未接来电");
+			holder.lastCallInfoTxt.setText(context.getResources().getString(R.string.missed_call));
 			leftIcon = context.getResources().getDrawable(R.drawable.missed_call);
 			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
 			//holder.lastCallInfoTxt.setCompoundDrawables(missedCallIcon, null, null, null);

@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -23,6 +24,7 @@ public class ScrollLayout extends ViewGroup {
 	private int mTouchState = TOUCH_STATE_REST;
 	private int mTouchSlop;
 	private float mLastMotionX;
+	private float mLastMotionY;
 	private int sensitivity = 30;
 	private boolean spring;
 	private Vector<LayoutChangeListener> listeners;
@@ -30,7 +32,7 @@ public class ScrollLayout extends ViewGroup {
 	public ScrollLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
-		mScroller = new Scroller(context);
+		mScroller = new Scroller(context);	
 		mCurScreen = mDefaultScreen;
 		mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 		listeners = new Vector<LayoutChangeListener>();
@@ -94,8 +96,10 @@ public class ScrollLayout extends ViewGroup {
 		if (getScrollX() != (whichScreen * getWidth())) {
 
 			final int delta = whichScreen * getWidth() - getScrollX();
+//			mScroller.startScroll(getScrollX(), 0, delta, 0,
+//					Math.abs(delta) * 2);
 			mScroller.startScroll(getScrollX(), 0, delta, 0,
-					Math.abs(delta) * 2);
+					300);
 			mCurScreen = whichScreen;
 			invalidate(); // Redraw the layout
 		}
@@ -129,6 +133,9 @@ public class ScrollLayout extends ViewGroup {
 	public void setSpring(boolean spring) {
 		this.spring = spring;
 	}
+	private boolean swaped = false;
+	private float mDownX;
+	private float mDownY;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -138,19 +145,28 @@ public class ScrollLayout extends ViewGroup {
 		mVelocityTracker.addMovement(event);
 		final int action = event.getAction();
 		final float x = event.getX();
+		final float y = event.getY();
 		switch (action) {
 		case MotionEvent.ACTION_DOWN:
 			if (!mScroller.isFinished())
 				mScroller.abortAnimation();
 			mLastMotionX = x;
+			mLastMotionY = y;
+			mDownX = event.getX();
+			mDownY = event.getY();
 			break;
 		case MotionEvent.ACTION_MOVE:
-			int deltaX = (int) (mLastMotionX - x);
-			if (Math.abs(deltaX) > sensitivity) {
-				// ×ó»¬¶¯ÎªÕýÊý¡¢ÓÒÎª¸ºÊý
+			float deltaX = (mLastMotionX - x);
+			float deltaY = (mLastMotionY -y);
+			double z=Math.sqrt(Math.abs(deltaX*deltaX)+Math.abs(deltaY*deltaY));
+			int jiaodu=Math.round((float)(Math.asin(Math.abs(deltaY)/z)/Math.PI*180));
+			if (deltaX > sensitivity&&jiaodu<=20&&jiaodu>0) {
+				// ï¿½ó»¬¶ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
+				swaped = true;
 				if (spring) {
-					scrollBy(deltaX, 0);
+					scrollBy((int)deltaX, 0);
 					mLastMotionX = x;
+					mLastMotionY = y;
 				} else {
 					final int childCount = getChildCount();
 					boolean max = mCurScreen < childCount - 1;
@@ -158,31 +174,40 @@ public class ScrollLayout extends ViewGroup {
 					boolean canMove = deltaX > 0 ? (max ? true : false)
 							: (min ? true : false);
 					if (canMove) {
-						scrollBy(deltaX, 0);
+						scrollBy((int)(deltaX), 0);
 						mLastMotionX = x;
+						mLastMotionY = y;
 					}
 				}
 			}
 			break;
 		case MotionEvent.ACTION_UP:
-			final VelocityTracker velocityTracker = mVelocityTracker;
-			velocityTracker.computeCurrentVelocity(1000);
-			int velocityX = (int) velocityTracker.getXVelocity();
-			if (velocityX > SNAP_VELOCITY && mCurScreen > 0) {
-				// Fling enough to move left
-				snapToScreen(mCurScreen - 1);
-			} else if (velocityX < -SNAP_VELOCITY
-					&& mCurScreen < getChildCount() - 1) {
-				// Fling enough to move right
-				snapToScreen(mCurScreen + 1);
-			} else {
-				snapToDestination();
-			}
-			if (mVelocityTracker != null) {
-				mVelocityTracker.recycle();
-				mVelocityTracker = null;
+			float ACTION_UPdeltaX = (event.getX() - mDownX);
+			float ACTION_UPdeltaY = (event.getY() -mDownY);
+			double zup=Math.sqrt(Math.abs(ACTION_UPdeltaX*ACTION_UPdeltaX)+Math.abs(ACTION_UPdeltaY*ACTION_UPdeltaY));
+			int jiaoduup=Math.round((float)(Math.asin(Math.abs(ACTION_UPdeltaY)/zup)/Math.PI*180));
+			Log.i("xb", "ACTION_UPdeltaX :"+ACTION_UPdeltaX+"ACTION_UPdeltaY :"+ACTION_UPdeltaY+"jiaoduup :"+jiaoduup);
+			if((jiaoduup<=30&&jiaoduup>0)||swaped){
+				final VelocityTracker velocityTracker = mVelocityTracker;
+				velocityTracker.computeCurrentVelocity(1000);
+				int velocityX = (int) velocityTracker.getXVelocity();
+				if (velocityX > SNAP_VELOCITY && mCurScreen > 0) {
+					// Fling enough to move left
+					snapToScreen(mCurScreen - 1);
+				} else if (velocityX < -SNAP_VELOCITY
+						&& mCurScreen < getChildCount() - 1) {
+					// Fling enough to move right
+					snapToScreen(mCurScreen + 1);
+				} else {
+					snapToDestination();
+				}
+				if (mVelocityTracker != null) {
+					mVelocityTracker.recycle();
+					mVelocityTracker = null;
+				}	
 			}
 			mTouchState = TOUCH_STATE_REST;
+			swaped = false;
 			break;
 		case MotionEvent.ACTION_CANCEL:
 			mTouchState = TOUCH_STATE_REST;

@@ -630,9 +630,9 @@ public class NoticeManager {
 		notifyIntent.putExtra(User.userKey, fromUser);
 		notifyIntent.putExtra(IMMessage.PROP_CHATTYPE, IMMessage.SINGLE);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-		String ticker = user.getNickName() + "发来1条新消息";
-		String content = "发来" + (unreadCount == 0 ? 1: unreadCount) + "条新消息";
+		Context context = ApplicationContext.get();
+		String ticker = user.getNickName() + context.getResources().getString(R.string.get_a_new_message);
+		String content = context.getResources().getString(R.string.fa_lai) + (unreadCount == 0 ? 1: unreadCount) + context.getResources().getString(R.string.x_new_message);
 		
 		Bitmap avatar = null;
 		if (user.getHeadImg() != null) {
@@ -669,6 +669,7 @@ public class NoticeManager {
 			Log.w(TAG, "dispatchRosterMessageNotify null user");
 			return;
 		}
+		Context context = ApplicationContext.get();
 		Intent notifyIntent = new Intent(mCntx, UserNoticeActivity.class);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -691,15 +692,15 @@ public class NoticeManager {
 
 		int unreadRosterCount = getNoticeCountByStatus(Notice.STATUS_ADD_REQUEST);
 
-		String ticker = user.getNickName() + "请求和您成为密友";
+		String ticker = user.getNickName() + context.getResources().getString(R.string.request_to_be_your_friend);
 		String content = null;
 		String title = null;
 		if (unreadRosterCount == 1) {
 			title = user.getNickName();
-			content = "请求和您成为密友";
+			content = context.getResources().getString(R.string.request_to_be_your_friend);
 		} else if (unreadRosterCount > 1) {
-			title = "有" + unreadRosterCount + "个人希望和您成为密友";
-			content = "点击进入密友推荐列表查看";
+			title = context.getResources().getString(R.string.there_is) + unreadRosterCount + context.getResources().getString(R.string.x_hope_to_be_your_friend);
+			content = context.getResources().getString(R.string.enter_secret_friends_list_after_click);
 			avatar = BitmapFactory.decodeResource(mCntx.getResources(),
 					R.drawable.ic_group_mainpage_chat_nor);
 		} else {
@@ -726,7 +727,7 @@ public class NoticeManager {
 		}
 		int userId = user.getName().hashCode();
 		Log.i(TAG, "notify new missed call from user:" + user);
-		
+		Context context = ApplicationContext.get();
 		Intent notifyIntent = new Intent(mCntx, UserCallLogsActivity.class);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		notifyIntent.putExtra(User.userKey, user);
@@ -748,11 +749,11 @@ public class NoticeManager {
 
 		}
 
-		String ticker = "有来自" + user.getNickName() + "的未接来电";
+		String ticker = context.getResources().getString(R.string.there_is_from) + user.getNickName() + context.getResources().getString(R.string.x_missed_call);
 		String content = null;
 		String title = null;
 		title = user.getNickName();
-		content = "语音呼叫您，您没有接听";
+		content = context.getResources().getString(R.string.vocie_call_you_but_missed);
 
 		avatar = Bitmap.createScaledBitmap(avatar, 80, 80, true);
 
@@ -765,12 +766,12 @@ public class NoticeManager {
 			return;
 		}
 		int userId = user.getJID().hashCode();
-
+		Context context = ApplicationContext.get();
 		Intent notifyIntent = new Intent(SipManager.ACTION_SIP_CALL_UI);
 		notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 		Bitmap avatar = null;
-		String gender = "他";
+		String gender = context.getResources().getString(R.string.he);
 		if (user.getHeadImg() != null) {
 			avatar = user.getHeadImg();
 		} else {
@@ -788,23 +789,23 @@ public class NoticeManager {
 		}
 		
 		if (user.getGender().equals(User.FEMALE)) {
-			gender = "她";
+			gender = context.getResources().getString(R.string.her);
 		}
 
 		String ticker = null;
 		String content = null;
 
 		if (state == SipCallSession.InvState.INCOMING) {
-			ticker = "有" + user.getNickName() + "的来电...";
-			content = "正在呼叫您，请求语音通话...";
+			ticker = context.getResources().getString(R.string.there_is) + user.getNickName() + context.getResources().getString(R.string.x_call);
+			content = context.getResources().getString(R.string.calling_you_request_voice_call);
 		}
 		else if (state == SipCallSession.InvState.CALLING) {
-			ticker = "开始呼叫" + user.getNickName() + "...";
-			content = "正在呼叫" + gender + "，请求语音通话...";
+			ticker = context.getResources().getString(R.string.start_call) + user.getNickName() + "...";
+			content = context.getResources().getString(R.string.calling) + gender + context.getResources().getString(R.string.request_voice_call);
 		}
 		else if (state == SipCallSession.InvState.CONFIRMED) {
-			ticker = "与" + user.getNickName() + "通话中";
-			content = "正在与您进行语音通话";
+			ticker = context.getResources().getString(R.string.with) + user.getNickName() + context.getResources().getString(R.string.in_a_call);
+			content = context.getResources().getString(R.string.in_a_voice_call_with_you);
 		}
 		
 		String title = null;

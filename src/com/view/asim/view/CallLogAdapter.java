@@ -89,14 +89,14 @@ public class CallLogAdapter extends BaseAdapter {
 		switch(logs.getType()) {
 		// 来电
 		case 1:
-			callInfo += "来电" + getStringInfoByStatusCode(logs);
+			callInfo += context.getString(R.string.in_call) + getStringInfoByStatusCode(logs);
 			leftIcon = context.getResources().getDrawable(R.drawable.incoming_call);
 			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
 			break;
 		
 		// 去电
 		case 2:
-			callInfo += "去电" + getStringInfoByStatusCode(logs);
+			callInfo += context.getString(R.string.out_call) + getStringInfoByStatusCode(logs);
 			leftIcon = context.getResources().getDrawable(R.drawable.outgoing_call);
 			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
 			//holder.callInfoTxt.setCompoundDrawables(outgoingCallIcon, null, null, null);
@@ -104,7 +104,7 @@ public class CallLogAdapter extends BaseAdapter {
 			
 		// 未接来电
 		case 3:
-			callInfo = "未接来电";
+			callInfo = context.getString(R.string.missed_call);
 			leftIcon = context.getResources().getDrawable(R.drawable.missed_call);
 			leftIcon.setBounds(0, 0, leftIcon.getMinimumWidth(), leftIcon.getMinimumHeight());
 			//holder.callInfoTxt.setCompoundDrawables(missedCallIcon, null, null, null);
@@ -135,10 +135,12 @@ public class CallLogAdapter extends BaseAdapter {
 
 	private String getStringInfoByStatusCode(SingleCallLog log) {
 		if (log.getStatusCode() == 200) {
-			return "（通话 " + log.getDuration()  + " 秒）";
-		}
-		else {
-			return "（" + CallUtil.getStringByStatusCode(log.getStatusCode()) + "）";
+			return context.getResources().getString(R.string.x_call2)
+					+ log.getDuration()
+					+ context.getResources().getString(R.string.x_seconds);
+		} else {
+			return context.getString(R.string.left_bracket) + CallUtil.getStringByStatusCode(log.getStatusCode())
+					+ context.getString(R.string.right_bracket);
 		}
 	}
 

@@ -255,8 +255,7 @@ public class DBProvider extends ContentProvider {
 
     private DataBaseHelper getDatabaseHelper() {
 		if(mDBHelper == null) {
-			LoginConfig cfg = AppConfigManager.getInstance().getLoginConfig();
-			String name = cfg.getUsername();
+			String name = AppConfigManager.getInstance().getUsername();
 			mDBHelper = DataBaseHelper.getInstance(name, Constant.DB_VERSION);
 		}
 		return mDBHelper;

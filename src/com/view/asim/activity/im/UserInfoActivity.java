@@ -384,7 +384,7 @@ public class UserInfoActivity extends ActivitySupport {
 								MessageManager.getInstance()
 										.delChatHisByName(mUser.getJID());
 								CallLogManager.getInstance()
-										.delCallLogsByName(mUser.getJID());
+										.delCallLogsByName(mUser.getName());
 								finish();
 
 							}
@@ -461,7 +461,7 @@ public class UserInfoActivity extends ActivitySupport {
 	        }
 	    });
 		
-		
+		// test comments
 		mLocationTxt.setText(mUser.getLocation());
 		
 		String s = StringUtil.getCellphoneByName(mUser.getName());
@@ -499,14 +499,14 @@ public class UserInfoActivity extends ActivitySupport {
 	
 	private void makeCall(String name) {
 		if (!mServiceConnected || service == null) {
-    		showToast("网络正忙，请稍后拨打语音电话。");
+    		showToast(getResources().getString(R.string.network_busy_do_voice_call_later));
     		return;
 		}
 		
         try {
         	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
         	if (state == null || !state.isValidForCall()) {
-        		showToast("网络状态异常，无法进行语音呼叫。");
+        		showToast(getResources().getString(R.string.network_error_can_not_do_vocie_call));
         		XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
         		Log.w(TAG, "network status may be unavailable, cannot make call. (XMPP connection: " + 
         			conn + ", status: " + (conn != null ? conn.isConnected() : null) + 

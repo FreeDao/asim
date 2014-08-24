@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.avos.avoscloud.AVAnalytics;
+import com.view.asim.R;
 import com.view.asim.sip.api.ISipService;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.comm.Constant;
@@ -379,7 +380,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		File mediaFile = new File(absolutePath);
         if (mediaFile.length() > Constant.SEND_MEDIA_FILE_SIZE_LIMIT) {
             Log.e(TAG, "send media file " +  absolutePath + ", size " + mediaFile.length() + " out of limit.");
-            showToast("只支持发送不超过 10M 大小的媒体文件");
+            showToast(getResources().getString(R.string.media_file_size_over_limit));
         	return false;
         }
 		
@@ -398,7 +399,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_IMAGE);
 		newMessage.setDestroy(destroy);
-		newMessage.setContent("你发了一张图片");
+		newMessage.setContent(getResources().getString(R.string.you_send_a_picture));
 		newMessage.setTime(time);
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 
@@ -449,7 +450,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_VIDEO);
 		newMessage.setDestroy(destroy);
-		newMessage.setContent("你发了一段视频");
+		newMessage.setContent(getResources().getString(R.string.you_send_a_video));
 		newMessage.setTime(time);
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 		newMessage.setChatType(mChatType);
@@ -525,7 +526,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_AUDIO);
 		newMessage.setDestroy(destroy);
-		newMessage.setContent("你发了一段语音");
+		newMessage.setContent(getResources().getString(R.string.you_send_a_voice));
 		newMessage.setTime(time);
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 
@@ -573,7 +574,7 @@ public abstract class AChatActivity extends ActivitySupport {
 		newMessage.setFrom(ContacterManager.userMe.getJID());
 		newMessage.setType(ChatMessage.CHAT_FILE);
 		newMessage.setDestroy(destroy);
-		newMessage.setContent("你发了一个文件");
+		newMessage.setContent(getResources().getString(R.string.you_send_a_file));
 		newMessage.setTime(time);
 		newMessage.setSecurity(needEncr ? IMMessage.ENCRYPTION: IMMessage.PLAIN);
 

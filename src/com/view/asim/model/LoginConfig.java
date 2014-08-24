@@ -8,15 +8,26 @@ package com.view.asim.model;
  */
 public class LoginConfig {
 
-	private String xmppHost;// 地址
-	private Integer xmppPort;// 端口
-	private String xmppServiceName;// 服务器名称
-	
+	private Server server;
+	private String uuid;
 	private String username;  // 用户名
 	private String password;  // 密码
-	private String sessionId; // 会话id
 	private String rootPath; // 根目录
+	private long loginTime;
 	private boolean isOnline;   // 用户连接成功connection
+
+	public long getLoginTime() {
+		return loginTime;
+	}
+
+	public void setLoginTime(long loginTime) {
+		this.loginTime = loginTime;
+	}
+
+	
+	public LoginConfig() {
+		server = new Server();
+	}
 
 	public String getRootPath() {
 		return rootPath;
@@ -35,28 +46,12 @@ public class LoginConfig {
 		this.isOnline = isOnline;
 	}
 
-	public String getXmppHost() {
-		return xmppHost;
+	public Server getServer() {
+		return server;
 	}
 
-	public void setXmppHost(String xmppHost) {
-		this.xmppHost = xmppHost;
-	}
-
-	public Integer getXmppPort() {
-		return xmppPort;
-	}
-
-	public void setXmppPort(Integer xmppPort) {
-		this.xmppPort = xmppPort;
-	}
-
-	public String getXmppServiceName() {
-		return xmppServiceName;
-	}
-
-	public void setXmppServiceName(String xmppServiceName) {
-		this.xmppServiceName = xmppServiceName;
+	public void setServer(Server server) {
+		this.server = server;
 	}
 
 	public String getUsername() {
@@ -74,13 +69,24 @@ public class LoginConfig {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	
-	public String getSessionId() {
-		return sessionId;
+	public String getUuid() {
+		return uuid;
 	}
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	
+	@Override
+	public String toString() {
+		return "LoginConfig: server = [" + server + 
+				"], username = " + username +
+				", password = " + password + 
+				", rootPath = " + rootPath + 
+				", uuid = " + uuid +
+				", isOnline = " + isOnline;
 	}
 
 }

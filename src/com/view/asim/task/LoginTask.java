@@ -14,6 +14,7 @@ import org.jivesoftware.smackx.packet.VCard;
 import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.db.DataBaseHelper;
 import com.view.asim.manager.AUKeyManager;
@@ -33,8 +34,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.database.sqlite.SQLiteFullException;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -42,23 +45,19 @@ import com.view.asim.R;
 
 /**
  * 
- * µÇÂ¼Òì²½ÈÎÎñ.
+ * é”Ÿæ–¤æ‹·å½•é”Ÿå±Šæ­¥é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·.
  * 
  * @author xuweinan
  */
 public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	private final static String TAG = "LoginTask";
 	
-	private ProgressDialog pd;
 	private ActivitySupport activity;
-	private LoginConfig loginConfig;
 	private User mUser = null;
 	private AnimationDrawable loginAnim = null;
 
-	public LoginTask(ActivitySupport as, LoginConfig loginConfig, AnimationDrawable animationDrawable) {
-		this.activity = as;
-		this.loginConfig = loginConfig;
-		this.pd = as.getProgressDialog();
+	public LoginTask(ActivitySupport activity, AnimationDrawable animationDrawable) {
+		this.activity = activity;
 		this.loginAnim = animationDrawable;
 	}
 
@@ -68,23 +67,19 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	
 	@Override
 	protected void onPreExecute() {
-		// Èç¹ûÊÇ×¢²áºóµÄ×Ô¶¯µÇÂ¼£¬²»ÔÙÏÔÊ¾½ø¶È¶Ô»°¿ò
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé˜¶ï¿½é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿçš†è®¹æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç¤ºé”Ÿæ–¤æ‹·é”Ÿé¥ºå¯¹ä¼™æ‹·é”Ÿæ–¤æ‹·
 		if (mUser == null) {
-			/*
-			pd.setTitle("ÇëÉÔµÈ");
-			pd.setMessage("ÕıÔÚµÇÂ¼...");
-			pd.show();
-			*/
 			loginAnim.start();
 		}
 		
-		AppConfigManager.getInstance().saveLoginConfig(loginConfig);// ±£´æÓÃ»§ÅäÖÃĞÅÏ¢
-
 		super.onPreExecute();
 	}
 
 	@Override
 	protected Integer doInBackground(String... params) {
+		if (mUser == null) {
+			resolv();
+		}
 		return login();
 	}
 
@@ -97,51 +92,56 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	protected void onPostExecute(Integer result) {
 		loginAnim.stop();
 		switch (result) {
-		case Constant.SERVER_SUCCESS: // µÇÂ¼³É¹¦
+		case Constant.SERVER_SUCCESS: // é”Ÿæ–¤æ‹·å½•é”Ÿç¼´ç™¸æ‹·
 
 			activity.startGeneralService();
 			
-			Intent intent = new Intent();
-			intent.setClass(activity, MainActivity.class);
-			AppConfigManager.getInstance().saveLoginConfig(loginConfig);// ±£´æÓÃ»§ÅäÖÃĞÅÏ¢
-			activity.startActivity(intent);
-			activity.finish();
-			
+//			Intent intent = new Intent();
+//			intent.setClass(activity, MainActivity.class);
+			AppConfigManager.getInstance().saveLoginConfig();// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
+//			activity.startActivity(intent);
+//			activity.finish();
+			if(activity.isLoginActivity()||activity.isSignUpActivity()){
+				activity.setResult(activity.RESULT_OK);
+				activity.finish();
+			}else{
+				activity.changeLayout();
+			}
 			break;
-		case Constant.LOGIN_ERROR_ACCOUNT_PASS:// ÕË»§»òÕßÃÜÂë´íÎó
+		case Constant.LOGIN_ERROR_ACCOUNT_PASS:// é”Ÿå‰¿ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
 							R.string.message_invalid_username_password),
 					Toast.LENGTH_LONG).show();
 			
-			// ÕË»§»òÃÜÂë´íÎó£¬ĞèÒªÇå¿Õ±£´æµÄĞÅÏ¢£¬ÒÔ±ãÏÂ´ÎÖØĞÂµÇÂ¼
-			loginConfig.setUsername(null);
-			loginConfig.setPassword(null);
-			loginConfig.setOnline(false);
-			AppConfigManager.getInstance().saveLoginConfig(loginConfig);
+			// é”Ÿå‰¿ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ­ï¿½é”Ÿæ–¤æ‹·æ¯¡é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿçš†æ†‹æ‹·é”Ÿé“°è¾¾æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ç¢‰æ‹·å½•
+			AppConfigManager.getInstance().setUsername(null);
+			AppConfigManager.getInstance().setPassword(null);
+			AppConfigManager.getInstance().setOnline(false);
+			AppConfigManager.getInstance().saveLoginConfig();
 			
 			loginAnim.setVisible(false, false);
 			//activity.finish();
 
 			break;
 			
-		case Constant.LOGIN_ERROR_DUPLICATED:// ÖØ¸´µÇÂ¼
+		case Constant.LOGIN_ERROR_DUPLICATED:// é”Ÿæˆªé©æ‹·é”Ÿæ–¤æ‹·å½•
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
 							R.string.message_login_conflicted),
 					Toast.LENGTH_LONG).show();
 			
-			loginConfig.setUsername(null);
-			loginConfig.setPassword(null);
-			loginConfig.setOnline(false);
-			AppConfigManager.getInstance().saveLoginConfig(loginConfig);
+			AppConfigManager.getInstance().setUsername(null);
+			AppConfigManager.getInstance().setPassword(null);
+			AppConfigManager.getInstance().setOnline(false);
+			AppConfigManager.getInstance().saveLoginConfig();
 			
 			loginAnim.setVisible(false, false);
 
 			break;			
-		case Constant.SERVER_UNAVAILABLE:// ·şÎñÆ÷Á¬½ÓÊ§°Ü
+		case Constant.SERVER_UNAVAILABLE:// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å¤±é”Ÿæ–¤æ‹·
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
@@ -150,59 +150,64 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			
 			activity.finish();
 			break;
-		case Constant.UNKNOWN_ERROR:// Î´ÖªÒì³£
+			
+		case Constant.DISK_FULL_ERROR:
+			Toast.makeText(
+					activity,
+					activity.getResources().getString(
+							R.string.sdcard_no_enough_space), Toast.LENGTH_LONG)
+							.show();
+			activity.finish();
+			break;
+			
+		case Constant.UNKNOWN_ERROR:
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
 							R.string.unrecoverable_error), Toast.LENGTH_LONG)
-					.show();
+							.show();
 			activity.finish();
-
 			break;
 		}
 		super.onPostExecute(result);
 	}
 
-	// µÇÂ¼
+	private void resolv() {
+		AppConfigManager.getInstance().resolvServer();
+	}
+	
+	// é”Ÿæ–¤æ‹·å½•
 	private Integer login() {
-		String username = loginConfig.getUsername();
-		//String password = loginConfig.getPassword();
+		String username = AppConfigManager.getInstance().getUsername();
+		Log.i("user", "login :"+username);
+
 		try {
 			XmppConnectionManager manager = XmppConnectionManager.getInstance();
-					//.getConnection();
 			
-			// µÇÂ¼³É¹¦ºó£¬³õÊ¼»¯ÁªÏµÈËÁĞ±í
+			// é”Ÿæ–¤æ‹·å½•é”Ÿç¼´ç™¸æ‹·é”Ÿè¥Ÿï¼Œç­¹æ‹·å§‹é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»é”Ÿæ–¤æ‹·é”Ÿå«æ†‹æ‹·
 			ContacterManager.init(manager);
-
-			/*
-			if (mUser != null) {
-				manager.connect();
-			}
-			else {
-				manager.login(username, password); // µÇÂ¼
-			}
-			*/
-			manager.reconnectForcely(loginConfig);
 			
-			// Èç¹ûÊÇµÚÒ»´Î×¢²á£¬µÇÂ¼Ê±±£´æÓÃ»§×¢²áĞÅÏ¢
+			manager.reconnectForcely();
+			
+			// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å ‘é”Ÿæ­ä¼™æ‹·é”Ÿé˜¶ï¿½é”Ÿç»“ï¼Œé”Ÿæ–¤æ‹·å½•æ—¶é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·æ³¨é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
 			if (mUser != null) {
 				
 				/* FIXME:
-				// ³õÊ¼»¯ÃÜÔ¿
+				// é”Ÿæ–¤æ‹·å§‹é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é’¥
 				AUKeyManager keyMan = AUKeyManager.getInstance();
 				keyMan.initKey();
 				
 				mUser.setPrivateKey(keyMan.encryptPrivateKey(password));
 				mUser.setPublicKey(keyMan.encodePublicKey());
 				*/
-				
+
 				mUser.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
 				ContacterManager.saveUserVCard(manager.getConnection(), mUser);
 				Log.d(TAG, "register new user succ: " + mUser);
 			} else {
-				// Õı³£µÇÂ¼£¬´Ó·şÎñÆ÷»ñÈ¡µÇÂ¼ÓÃ»§µÄĞÅÏ¢
-				VCard vcard = ContacterManager.getUserVCard(manager.getConnection(), username);
+				// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ¥å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å–é”Ÿæ–¤æ‹·å½•é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
 
+				VCard vcard = ContacterManager.getUserVCard(manager.getConnection(), username);
 				mUser = ContacterManager.getUserByNameAndVCard(username, vcard);
 				mUser.setSecurity(AUKeyManager.getInstance().getAUKeyStatus());
 				XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
@@ -212,7 +217,6 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 			
 			ContacterManager.setUserMe(mUser);
 			
-			Log.d(TAG, "init database " + username);
 			DataBaseHelper helper = DataBaseHelper.getInstance(username, Constant.DB_VERSION);
 
 			NoticeManager nm = NoticeManager.getInstance();
@@ -226,7 +230,7 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 	        nm.clearAllMessageNotify();
 	        FaceConversionUtil.getInstace().getFileText();
 
-			loginConfig.setOnline(true);
+	        //AppConfigManager.getInstance().setOnline(true);
 			initUserCacheFolder(mUser);
 			
 			return Constant.SERVER_SUCCESS;
@@ -241,15 +245,18 @@ public class LoginTask extends AsyncTask<String, Integer, Integer> {
 				}
 				xe.printStackTrace();
 				if (errorCode == 401) {
-					// not authorized: ÕÊºÅÃÜÂë´íÎó
+					// not authorized: é”Ÿç»çŒ´æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 					return Constant.LOGIN_ERROR_ACCOUNT_PASS;
 				}else if (errorCode == 403) {
-					// forbidden: ÒÑµÇÂ¼£¬²»ÔÊĞíÖØ¸´µÇÂ¼
+					// forbidden: é”Ÿçª–ç¢‰æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæˆªé©æ‹·é”Ÿæ–¤æ‹·å½•
 					return Constant.LOGIN_ERROR_DUPLICATED;
 				} else {
 					return Constant.SERVER_UNAVAILABLE;
 				}
-			} else {
+			} else if (xee instanceof SQLiteFullException){
+				return Constant.DISK_FULL_ERROR;
+			}
+			else {
 				return Constant.UNKNOWN_ERROR;
 			}
 		}

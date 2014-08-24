@@ -5,59 +5,59 @@ import android.os.Environment;
 public class Constant {
 	
 	/**
-	 * ÔÚÏß¼ì²é¸üĞÂ ACTION 
+	 * é”Ÿæ–¤æ‹·é”Ÿç«­ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· ACTION 
 	 */
 	public static final String OTA_CHECK_ACTION = "ota.checknow";
 
 	/**
-	 * »¨Ãû²áÓĞÉ¾³ıµÄACTIONºÍKEY
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·åˆ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ACTIONé”Ÿæ–¤æ‹·KEY
 	 */
 	public static final String ROSTER_DELETED = "roster.deleted";
 	public static final String ROSTER_DELETED_KEY = "roster.deleted.key";
 
 	/**
-	 * »¨Ãû²áÓĞ¸üĞÂµÄACTIONºÍKEY
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«é©æ‹·é”Ÿé“°ç¢‰æ‹·ACTIONé”Ÿæ–¤æ‹·KEY
 	 */
 	public static final String ROSTER_UPDATED = "roster.updated";
 	public static final String ROSTER_UPDATED_KEY = "roster.updated.key";
 
 	/**
-	 * »¨Ãû²áÓĞÔö¼ÓµÄACTIONºÍKEY
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ¥ç¢‰æ‹·ACTIONé”Ÿæ–¤æ‹·KEY
 	 */
 	public static final String ROSTER_ADDED = "roster.added";
 	public static final String ROSTER_ADDED_KEY = "roster.added.key";
 
 	/**
-	 * »¨Ãû²áÖĞ³ÉÔ±×´Ì¬ÓĞ¸Ä±äµÄACTIONºÍKEY
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«ç­¹æ‹·å‘˜çŠ¶æ€é”Ÿå«æ”¹æ†‹æ‹·é”Ÿï¿½ACTIONé”Ÿæ–¤æ‹·KEY
 	 */
 	public static final String ROSTER_PRESENCE_CHANGED = "roster.presence.changed";
 	public static final String ROSTER_PRESENCE_CHANGED_KEY = "roster.presence.changed.key";
 
 	/**
-	 * ÊÕµ½ºÃÓÑÑûÇëÇëÇó
+	 * é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	public static final String ROSTER_SUBSCRIPTION = "roster.subscribe";
 	public static final String ROSTER_SUB_FROM = "roster.subscribe.from";
 	public static final String NOTICE_ID = "notice.id";
 
 	/**
-	 * ĞÂÏûÏ¢
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
 	 */
 	public static final String NEW_MESSAGE_ACTION = "roster.newmessage";
 	public static final String NEW_CTRL_MESSAGE_ACTION = "roster.newctrlmessage";
 	
 	/**
-	 * ½ÓÊÕÀëÏßÏûÏ¢Í¨Öª
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é€šçŸ¥
 	 */
 	public static final String RECV_OFFLINE_MSG_ACTION = "roster.offlinemessage";
 
 	/**
-	 * Í¨ÖªÖØÁ¬Í¨Öª
+	 * é€šçŸ¥é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é€šçŸ¥
 	 */
 	public static final String RECONN_ACTION = "xmpp.reconn";
 	
 	/**
-	 * ·¢ËÍÎÄ¼ş
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·
 	 */
 	public static final String SEND_FILE_ACTION = "immessage.sendfile";
 	public static final String SEND_FILE_RESULT_ACTION = "immessage.sendfile.result";
@@ -67,14 +67,14 @@ public class Constant {
 
 	
 	/**
-	 * ·¢ËÍÏûÏ¢
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
 	 */
 	public static final String SEND_MESSAGE_ACTION = "immessage.sendmessage";
 	public static final String SEND_MESSAGE_RESULT_ACTION = "immessage.sendmessage.result";
 	public static final String SEND_MESSAGE_KEY_MESSAGE = "immessage.sendmessage.key.message";
 	
 	/**
-	 * Èº×éÑûÇë/ÍË³ö/¸üĞÂ
+	 * ç¾¤é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·/é”Ÿå‰¿ç­¹æ‹·/é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	public static final String GROUP_INVITE_ACTION = "immessage.group.invite";
 	public static final String GROUP_QUIT_ACTION = "immessage.group.quit";
@@ -82,13 +82,16 @@ public class Constant {
 	public static final String GROUP_ACTION_KEY_INFO = "immessage.group.key.info";
 	
 	/**
-	 * Ô¶³ÌÏú»ÙÏûÏ¢
+	 * è¿œé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
 	 */
 	public static final String REMOTE_DESTROY_ACTION = "immessage.remotedestroy";
 	public static final String REMOTE_DESTROY_KEY_MESSAGE = "immessage.remotedestroy.key.message";
+	
+	public static final String DESTROY_RECEIPTS_ACTION = "immessage.destroyreceipts";
+	public static final String DESTROY_RECEIPTS_KEY_MESSAGE = "immessage.destroyreceipts.key.message";
 
 	/**
-	 * ÒôÊÓÆµºÍÎÄ¼şÔ¤ÀÀ
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é¢‘é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·é¢„é”Ÿæ–¤æ‹·
 	 */
 	public static final String PREVIEW_AUDIO = "preview.audio";
 	public static final String PREVIEW_VIDEO = "preview.video";
@@ -96,214 +99,225 @@ public class Constant {
 	public static final String PREVIEW_FILE  = "preview.file";
 
 	/**
-	 * °²Ë¾¶Ü×´Ì¬¸üĞÂ
+	 * é”Ÿæ–¤æ‹·å¸é”Ÿæ–¤æ‹·çŠ¶æ€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	public static final String AUKEY_STATUS_UPDATE = "aukey.status.update";
 	public static final String AUKEY_STATUS_KEY = "aukey.status.key";
 	
 
 	/**
-	 * ÎÒµÄÏûÏ¢
+	 * é”Ÿæ­ç¢‰æ‹·é”Ÿæ–¤æ‹·æ¯
 	 */
 	public static final String MY_NEWS = "my.news";
 	public static final String MY_NEWS_DATE = "my.news.date";
 
 	/**
-	 * IM ÅäÖÃ
+	 * IM é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
-	public static final String IM_SET_PREF = "asim_im_settings_pref";// µÇÂ¼ÉèÖÃ
-	public static final String USERNAME = "username";// ÕË»§
-	public static final String PASSWORD = "password";// ÃÜÂë
-	public static final String XMPP_HOST = "xmpp_host";// µØÖ·
-	public static final String XMPP_PORT = "xmpp_port";// ¶Ë¿Ú
-	public static final String XMPP_SERVICE_NAME = "xmpp_service_name";// ·şÎñÃû
-	public static final String DATA_ROOT_PATH = "data_root_path"; // Êı¾İ´æ·ÅÂ·¾¶µÄ¸ùÄ¿Â¼
-	public static final String XMPP_RESOURCE_NAME = "asim";
+	public static final String IM_SET_PREF = "asim_im_settings_pref";// é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final String USERNAME = "username";// é”Ÿå‰¿ä¼™æ‹·
+	public static final String PASSWORD = "password";// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final String XMPP_HOST = "xmpp_host";// é”Ÿæ–¤æ‹·å€
+	public static final String XMPP_PORT = "xmpp_port";// é”Ÿå‰¿åŒ¡æ‹·
+	public static final String XMPP_SERVICE_NAME = "xmpp_service_name";// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final String DATA_ROOT_PATH = "data_root_path"; // é”Ÿæ–¤æ‹·é”Ÿæ·è¾¾æ‹·é”Ÿé“°å‡¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿä¾¥æŸ¯ï¿½
+	public static final String APP_UUID = "asim_app_uuid"; 
+	//public static final String XMPP_RESOURCE_NAME = "asim";
 
 	/**
-	 * SIP ÅäÖÃ
+	 * SIP é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
-	public static final String SIP_SET_PREF = "asim_sip_settings_pref";// µÇÂ¼ÉèÖÃ
+	public static final String SIP_SET_PREF = "asim_sip_settings_pref";// é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final String SIP_HOST = "sip_host";
+	public static final String SIP_PORT = "sip_port";
+	public static final String STUN_HOST = "stun_host";
 
 	/**
-	 * ·şÎñÆ÷µØÖ·
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å€
 	 */
-	public static final String IM_SERVICE_HOST = "112.124.32.193";
-	public static final int IM_SERVICE_PORT = 5222;
-	public static final String IM_SERVICE_NAME = "112.124.32.193";
-	public static final String VOIP_SERVICE_HOST = "121.40.69.120";
-	public static final int VOIP_SERVICE_PORT = 6060;
-	public static final String VOIP_STUN_SERVER = "121.40.69.120";
+//	public static final String IM_SERVICE_HOST = "112.124.32.193";
+//	public static final int IM_SERVICE_PORT = 5222;
+//	public static final String IM_SERVICE_NAME = "112.124.32.193";
+//	public static final String VOIP_SERVICE_HOST = "121.40.69.120";
+//	public static final int VOIP_SERVICE_PORT = 6060;
+//	public static final String VOIP_STUN_SERVER = "121.40.69.120";
 	
 	
 	/**
-	 * Á¬½Ó·şÎñÆ÷/ÕË»§µÇÂ¼/×¢²á/ËÑË÷·µ»ØÖµ
+	 * è¿æ¥æœåŠ¡å™¨/è´¦æˆ·ç™»å½•/æ³¨å†Œ/æœç´¢è¿”å›å€¼
 	 */
-	public static final int SERVER_SUCCESS = 0;// ³É¹¦
-	public static final int HAS_NEW_VERSION = 1;// ·¢ÏÖĞÂ°æ±¾
-	public static final int IS_NEW_VERSION = 2;// µ±Ç°°æ±¾Îª×îĞÂ
-	public static final int LOGIN_ERROR_ACCOUNT_PASS = 3;// ÕËºÅ»òÕßÃÜÂë´íÎó
-	public static final int LOGIN_ERROR_DUPLICATED = 4;// ÖØ¸´µÇÂ¼
-	public static final int SIGNUP_ERROR_ACCOUNT_PASS = 5;// ÕËºÅ»òÕßÃÜÂë´íÎó
-	public static final int SERVER_UNAVAILABLE = 6;// ÎŞ·¨Á¬½Óµ½·şÎñÆ÷
-	public static final int UNKNOWN_ERROR = 7;// Î´Öª´íÎó
-	public static final int NONE_RESULTS = 8;// ËÑË÷Ê§°Ü´íÎó
-	
+	public static final int SERVER_SUCCESS = 0;// æˆåŠŸ
+	public static final int HAS_NEW_VERSION = 1;// å‘ç°æ–°ç‰ˆæœ¬
+	public static final int IS_NEW_VERSION = 2;// å½“å‰ç‰ˆæœ¬ä¸ºæœ€æ–°
+	public static final int LOGIN_ERROR_ACCOUNT_PASS = 3;// è´¦å·æˆ–è€…å¯†ç é”™è¯¯
+	public static final int LOGIN_ERROR_DUPLICATED = 4;// é‡å¤ç™»å½•
+	public static final int SIGNUP_ERROR_ACCOUNT_PASS = 5;// è´¦å·æˆ–è€…å¯†ç é”™è¯¯
+	public static final int SERVER_UNAVAILABLE = 6;// æ— æ³•è¿æ¥åˆ°æœåŠ¡å™¨
+	public static final int UNKNOWN_ERROR = 7; // æœªçŸ¥é”™è¯¯
+	public static final int NONE_RESULTS = 8; // æœç´¢å¤±è´¥é”™è¯¯
+	public static final int DISK_FULL_ERROR = 9; // ç£ç›˜å·²æ»¡
+
 	/**
-	 * Êı¾İ¿â°æ±¾: 
-	 * V0.4.28£¬Êı¾İ¿â°æ±¾£ºV1£¨³õÊ¼°æ±¾£©
-	 * V0.5.14£¬Êı¾İ¿â°æ±¾£ºV2£¨ĞŞ¸ÄÁË im_notice ±í£©
-	 * V0.6.25£¬Êı¾İ¿â°æ±¾£ºV3£¨ĞŞ¸ÄÁË im_notice ºÍ im_msg_his ±í£©
-	 * V0.7.15£¬Êı¾İ¿â°æ±¾£ºV4£¨Ôö¼ÓÁË SIP Ïà¹Ø±í£©
+	 * æ•°æ®åº“ç‰ˆæœ¬: 
+	 * V0.4.28ï¼Œæ•°æ®åº“ç‰ˆæœ¬ï¼šV1ï¼ˆåˆå§‹ç‰ˆæœ¬ï¼‰
+	 * V0.5.14ï¼Œæ•°æ®åº“ç‰ˆæœ¬ï¼šV2ï¼ˆä¿®æ”¹äº† im_notice è¡¨ï¼‰
+	 * V0.6.25ï¼Œæ•°æ®åº“ç‰ˆæœ¬ï¼šV3ï¼ˆä¿®æ”¹äº† im_notice å’Œ im_msg_his è¡¨ï¼‰
+	 * V0.7.15ï¼Œæ•°æ®åº“ç‰ˆæœ¬ï¼šV4ï¼ˆå¢åŠ äº† SIP ç›¸å…³è¡¨ï¼‰
 	 */
 	public static final int DB_VERSION = 4;
 
-	public static final String XMPP_CONNECTION_CLOSED = "xmpp_connection_closed";// Á¬½ÓÖĞ¶Ï
+	public static final String XMPP_CONNECTION_CLOSED = "xmpp_connection_closed";// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«è®¹æ‹·
 
-	public static final String LOGIN = "login"; // µÇÂ¼
-	public static final String RELOGIN = "relogin"; // ÖØĞÂµÇÂ¼
+	public static final String LOGIN = "login"; // é”Ÿæ–¤æ‹·å½•
+	public static final String RELOGIN = "relogin"; // é”Ÿæ–¤æ‹·é”Ÿé“°ç¢‰æ‹·å½•
 
 	/**
-	 * ºÃÓÑÁĞ±í ×éÃû
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«æ†‹æ‹· é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
-	public static final String ALL_FRIEND = "ËùÓĞºÃÓÑ";// ËùÓĞºÃÓÑ
-	public static final String NO_GROUP_FRIEND = "Î´·Ö×éºÃÓÑ";// ËùÓĞºÃÓÑ
+	public static final String ALL_FRIEND = "é”Ÿæ–¤æ‹·é”Ÿå«çŒ´æ‹·é”Ÿæ–¤æ‹·";// é”Ÿæ–¤æ‹·é”Ÿå«çŒ´æ‹·é”Ÿæ–¤æ‹·
+	public static final String NO_GROUP_FRIEND = "æœªé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½";// é”Ÿæ–¤æ‹·é”Ÿå«çŒ´æ‹·é”Ÿæ–¤æ‹·
 	/**
-	 * ÏµÍ³ÏûÏ¢
+	 * ç³»ç»Ÿé”Ÿæ–¤æ‹·æ¯
 	 */
-	public static final String ACTION_SYS_MSG = "action_sys_msg";// ÏûÏ¢ÀàĞÍ¹Ø¼ü×Ö
-	public static final String MSG_TYPE = "broadcast";// ÏûÏ¢ÀàĞÍ¹Ø¼ü×Ö
-	public static final String SYS_MSG = "sysMsg";// ÏµÍ³ÏûÏ¢¹Ø¼ü×Ö
-	public static final String SYS_MSG_DIS = "ÏµÍ³ÏûÏ¢";// ÏµÍ³ÏûÏ¢
-	public static final String ADD_FRIEND_QEQUEST = "ºÃÓÑÇëÇó";// ÏµÍ³ÏûÏ¢¹Ø¼ü×Ö
+	public static final String ACTION_SYS_MSG = "action_sys_msg";// é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿé…µå…³ç¡·æ‹·é”Ÿæ–¤æ‹·
+	public static final String MSG_TYPE = "broadcast";// é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿé…µå…³ç¡·æ‹·é”Ÿæ–¤æ‹·
+	public static final String SYS_MSG = "sysMsg";// ç³»ç»Ÿé”Ÿæ–¤æ‹·æ¯é”Ÿæˆªç¡·æ‹·é”Ÿæ–¤æ‹·
+	public static final String SYS_MSG_DIS = "ç³»ç»Ÿé”Ÿæ–¤æ‹·æ¯";// ç³»ç»Ÿé”Ÿæ–¤æ‹·æ¯
+	public static final String ADD_FRIEND_QEQUEST = "é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·";// ç³»ç»Ÿé”Ÿæ–¤æ‹·æ¯é”Ÿæˆªç¡·æ‹·é”Ÿæ–¤æ‹·
 	/**
-	 * ÇëÇóÄ³¸ö²Ù×÷·µ»ØµÄ×´Ì¬Öµ
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æŸé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæˆªç¢‰æ‹·çŠ¶æ€å€¼
 	 */
-	public static final int SUCCESS = 0;// ´æÔÚ
-	public static final int FAIL = 1;// ²»´æÔÚ
-	public static final int UNKNOWERROR = 2;// ³öÏÖÄªÃûµÄ´íÎó.
-	public static final int NETWORKERROR = 3;// ÍøÂç´íÎó
+	public static final int SUCCESS = 0;// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final int FAIL = 1;// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final int UNKNOWERROR = 2;// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·è«é”Ÿæ–¤æ‹·é”Ÿä¾¥è¾¾æ‹·é”Ÿæ–¤æ‹·.
+	public static final int NETWORKERROR = 3;// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	/***
-	 * ÆóÒµÍ¨Ñ¶Â¼¸ù¾İÓÃ»§£é£äºÍÓÃ»§ÃûÈ¥²éÕÒÈËÔ±ÖĞµÄÇëÇó£ø£í£ìÊÇ·ñ°üº¬×Ô×éÖ¯
+	 * é”Ÿæ–¤æ‹·ä¸šé€šè®¯å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·å»é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å‘˜é”Ÿå«ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè§’å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè¡—ï¿½
 	 */
 	public static final int containsZz = 0;
 	/***
-	 * ´´½¨ÇëÇó·Ö×éÁªÏµÈËÁĞ±íxml·ÖÒ³²ÎÊı
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè¾ƒç¢‰æ‹·é”Ÿæ–¤æ‹·æ–œé”Ÿï¿½xmlé”Ÿæ–¤æ‹·é¡µé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
-	public static final String currentpage = "1";// µ±Ç°µÚ¼¸Ò³
-	public static final String pagesize = "1000";// µ±Ç°Ò³µÄÌõÊı
+	public static final String currentpage = "1";// é”Ÿæ–¤æ‹·å‰é”ŸèŠ‚ç¡·æ‹·é¡µ
+	public static final String pagesize = "1000";// é”Ÿæ–¤æ‹·å‰é¡µé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 
 	/***
-	 * ´´½¨ÇëÇóxml²Ù×÷ÀàĞÍ
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·xmlé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
-	public static final String add = "00";// Ôö¼Ó
-	public static final String rename = "01";// Ôö¼Ó
-	public static final String remove = "02";// Ôö¼Ó
+	public static final String add = "00";// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final String rename = "01";// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
+	public static final String remove = "02";// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 
 	/**
-	 * ÖØÁ¬½Ó
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	/**
-	 * ÖØÁ¬½Ó×´Ì¬action
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€action
 	 * 
 	 */
 	public static final String ACTION_RECONNECT_STATE = "action_reconnect_state";
 	/**
-	 * ÃèÊö³åÁ¬½Ó×´Ì¬µÄ¹Ø»ú×Ó£¬¼Ä·ÅµÄintentµÄ¹Ø¼ü×Ö
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€é”Ÿä¾¥å…³ä¼™æ‹·é”Ÿæ¥ï½æ‹·é”Ÿä¾¥æ”¾ç¢‰æ‹·intenté”Ÿä¾¥å…³ç¡·æ‹·é”Ÿæ–¤æ‹·
 	 */
 	public static final String RECONNECT_STATE = "reconnect_state";
 	/**
-	 * ÃèÊö³åÁ¬½Ó£¬
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ¥ï½æ‹·
 	 */
 	public static final boolean RECONNECT_STATE_SUCCESS = true;
 	public static final boolean RECONNECT_STATE_FAIL = false;
 	/**
-	 * ÊÇ·ñÔÚÏßµÄSharedPreferencesÃû³Æ
+	 * é”Ÿè§’å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿç«­ç¢‰æ‹·SharedPreferencesé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	public static final String PREFENCE_USER_STATE = "prefence_user_state";
 	public static final String IS_ONLINE = "is_online";
 	
 	/**
-	 * Ê×Ò³ºÍ×¢²áÒ³ÃæÖ®¼äµÄ½»»¥Âë
+	 * é”Ÿæ–¤æ‹·é¡µé”Ÿæ–¤æ‹·æ³¨é”Ÿæ–¤æ‹·é¡µé”Ÿæ–¤æ‹·ä¹‹é”Ÿæ–¤æ‹·æ…•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	 */
 	public static final int SIGNUP_RESULT = 0;
 	
 	/**
-	 * Activity Ö®¼äµÄ requestCode
+	 * Activity ä¹‹é”Ÿæ–¤æ‹·é”Ÿï¿½ requestCode
 	 */
 	
-	// Ö÷½çÃæÓë¸öÈËĞÅÏ¢ĞŞ¸Ä½çÃæ
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè¾ƒï¿½é”Ÿç«æ”¹æ–¤æ‹·é”Ÿæ–¤æ‹·
 	public final static int REQCODE_MOD_REMARK = 0;
 	public final static int REQCODE_MOD_LOCATION = 1;
 	public final static int REQCODE_MOD_NICKNAME = 2;
 	public final static int REQCODE_MOD_AVATAR_BY_GALLERY = 3;
 	public final static int REQCODE_MOD_AVATAR_BY_CAPTURE = 4;
 	public final static int REQCODE_MOD_AVATAR_CROP = 5;
+	public final static int REQCODE_LOGIN_OP = 6;
 	
-	// ÁÄÌì½çÃæµÄ intent action
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· intent action
 	public final static int REQCODE_IMAGE_PICK = 10;
 	public final static int REQCODE_VIDEO_PICK = 11;
 	public final static int REQCODE_TAKE_PICTURE = 12;
 	public final static int REQCODE_FILE_PICK = 13;
 	public final static int REQCODE_CAPTURE_VIDEO = 14;
 
-	// Ö÷½çÃæÓëÑ¡ÔñÁªÏµÈË½çÃæ
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é€‰é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»é”Ÿå‰¿æ–¤æ‹·é”Ÿæ–¤æ‹·
 	public final static int REQCODE_SELECT_USERS = 20;
 	
-	// ÁÄÌì½çÃæÓëÔÄºó¼´·Ù½çÃæ¼äµÄ action
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æš®è ¹æ¶ä¿³é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½ action
 	public final static int REQCODE_BURN_AFTER_READ = 30;
 
-	// IM ÏûÏ¢×ÊÔ´¿â
+	// IM é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·æºé”Ÿæ–¤æ‹·
 	public final static String FILE_STORAGE_HOST = "com-viewiot-mobile-asim.qiniudn.com";
 	
-	// App ÈÕÖ¾¿â
+	// App é”Ÿæ–¤æ‹·å¿—é”Ÿæ–¤æ‹·
 	public final static String DUMPS_STORAGE_HOST = "com-viewiot-mobile-asim-dumps.qiniudn.com";
 
-	// App OTA¿â
+	// App OTAé”Ÿæ–¤æ‹·
 	public final static String OTA_STORAGE_HOST = "com-viewiot-mobile-asim-ota.qiniudn.com";
 	public final static String OTA_CHECK_STATUS_PATH = "/upgrade_rule.json";
+	
+	// App Discovery Server
+	public final static String MAIN_DISC_SERVER_URL = "http://service.akey.im/get_asim_server.php";
+	public final static String SLAVE_DISC_SERVER_URL = "http://com-viewiot-mobile-asim-ota.qiniudn.com/get_asim_server.json";
+	
 
 	
 	/**
-	 * Êı¾İ»º´æÄ¿Â¼½á¹¹
+	 * é”Ÿæ–¤æ‹·é”Ÿæ·ä¼™æ‹·é”Ÿæ–¤æ‹·ç›®å½•é”Ÿç»“æ„
 	 *       asim
 	 *         |
-	 *         |--- cache (¶ÌÊÓÆµÒ²Ôİ´æÔÚ´Ë)
+	 *         |--- cache (é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é¢‘ä¹Ÿé”Ÿæ·è¾¾æ‹·é”ŸèŠ‚è¾¾æ‹·)
 	 *         |--- log
 	 *         |--- data
-	 *                |--- ÓÃ»§ A
+	 *                |--- é”ŸçŸ«ä¼™æ‹· A
 	 *                |      |
 	 *                |      |--- database
 	 *                |      |--- temp
 	 *                |      |--- image
 	 *                |      |      |
-	 *                |      |      |--- ºÃÓÑ A
-	 *                |      |      |--- ºÃÓÑ B
+	 *                |      |      |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· A
+	 *                |      |      |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· B
 	 *                |      |--- audio
 	 *                |      |      |
-	 *                |      |      |--- ºÃÓÑ A
-	 *                |      |      |--- ºÃÓÑ B
+	 *                |      |      |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· A
+	 *                |      |      |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· B
 	 *                |      |--- video
 	 *                |      |      |
-	 *                |      |      |--- ºÃÓÑ A
-	 *                |      |      |--- ºÃÓÑ B
+	 *                |      |      |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· A
+	 *                |      |      |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· B
 	 *                |      |--- file
 	 *                |             |
-	 *                |             |--- ºÃÓÑ A
-	 *                |             |--- ºÃÓÑ B
-	 *                |--- ÓÃ»§ B
+	 *                |             |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· A
+	 *                |             |--- é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· B
+	 *                |--- é”ŸçŸ«ä¼™æ‹· B
 	 */
 	
-	// Êı¾İ´æ·ÅÔÚ´æ´¢¿¨µÄÏà¹ØÂ·¾¶¶¨Òå
+	// é”Ÿæ–¤æ‹·é”Ÿæ·è¾¾æ‹·é”Ÿæ–¤æ‹·è¯–å¨²ï¿½é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	public static String SDCARD_ROOT_PATH = null;
 	
-	// ÒÔÏÂÎªÃÜĞÅ¸ùÂ·¾¶
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸ºé”Ÿæ–¤æ‹·é”Ÿè„šé©æ‹·è·¯é”Ÿæ–¤æ‹·
 	public final static String ASIM_ROOT_PATH = "/asim"; 
 	public final static String CACHE_PATH = ASIM_ROOT_PATH + "/cache";
 	public final static String LOG_PATH = ASIM_ROOT_PATH + "/log";
 	public final static String DATA_PATH = ASIM_ROOT_PATH + "/data";
 
-	// ÒÔÏÂÎªÓÃ»§ÃûÏÂµÄ×ÓÄ¿Â¼
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸ºé”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ç¢‰æ‹·é”Ÿæ–¤æ‹·ç›®å½•
 	public final static String DB_PATH = "/database"; 
 	public final static String IMAGE_PATH = "/image";
 	public final static String AUDIO_PATH = "/audio";
@@ -313,20 +327,20 @@ public class Constant {
 
 	/**
 	 * 
-	 * ×ÊÔ´ÎÄ¼şÃüÃû¹æ·¶£º
-	 *   ÆÕÍ¨ÈÕÖ¾ÎÄ¼ş£ºnormal-Ê±¼ä´Á.log
-	 *   ±ÀÀ£ÈÕÖ¾ÎÄ¼ş£ºcrash-Ê±¼ä´Á.log£¨ÉÏ´«µ½·şÎñÆ÷Ê±¼ÓÉÏ»úĞÍºÍ°æ±¾ĞÅÏ¢×÷ÎªÇ°×º£¬»úĞÍ-°æ±¾-(ÓÃ»§Ãû)-crash-Ê±¼ä´Á.log£©
-	 *   ·¢ËÍ±¾µØÏà²áµÄÒÑÓĞÎÄ¼ş£ºÎÄ¼şÔ­Ãû
-	 *   ÔÚÃÜĞÅÖĞÅÄÕÕ·¢ËÍµÄÕÕÆ¬£º×ÔÉíÓÃ»§Ãû-¶Ô·½ÓÃ»§Ãû-image-Ê±¼ä´Á.src
-	 *   ÔÚÃÜĞÅÖĞÂ¼Ó°·¢ËÍµÄ¶ÌÊÓÆµ£º×ÔÉíÓÃ»§Ãû-video-Ê±¼ä´Á.mp4(ºó×ºÓÉ VCamera ×é¼şÖ¸¶¨)
-	 *   ÔÚÃÜĞÅÖĞÂ¼Ó°·¢ËÍµÄ¶ÌÊÓÆµËõÂÔÍ¼£º×ÔÉíÓÃ»§Ãû-video-Ê±¼ä´Á.jpg(ºó×ºÓÉ VCamera ×é¼şÖ¸¶¨)
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÕÕÆ¬£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-image-Ê±¼ä´Á.src
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÕÕÆ¬ËõÂÔÍ¼£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-image-Ê±¼ä´Á.thumb
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÊÓÆµ£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-video-Ê±¼ä´Á.src
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÊÓÆµËõÂÔÍ¼£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-video-Ê±¼ä´Á.thumb
-	 *   ÔÚÃÜĞÅÖĞÂ¼Òô·¢ËÍµÄÓïÒô£º×ÔÉíÓÃ»§Ãû-¶Ô·½ÓÃ»§Ãû-audio-Ê±¼ä´Á.src
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÓïÒô£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-audio-Ê±¼ä´Á.src
-	 *   ·¢ËÍºÍ½ÓÊÕµÄÆÕÍ¨ÎÄ¼ş£ºÎÄ¼şÔ­Ãû 
+	 * é”Ÿæ–¤æ‹·æºé”Ÿä¾¥ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸèŠ¥èŒƒé”Ÿæ–¤æ‹·
+	 *   é”Ÿæ–¤æ‹·é€šé”Ÿæ–¤æ‹·å¿—é”Ÿä¾¥ç¡·æ‹·é”Ÿæ–¤æ‹·normal-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.log
+	 *   é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å¿—é”Ÿä¾¥ç¡·æ‹·é”Ÿæ–¤æ‹·crash-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.logé”Ÿæ–¤æ‹·é”Ÿè¾ƒè¾¾æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ—¶é”Ÿæ–¤æ‹·é”Ÿè¾ƒä¼™æ‹·é”Ÿé…µå’Œç‰ˆæœ¬é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·ä¸ºå‰ç¼€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·-é”ŸèŠ¥æœ¬-(é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·)-crash-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.logé”Ÿæ–¤æ‹·
+	 *   é”Ÿæ–¤æ‹·é”Ÿé…µæ†‹æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·åŸé”Ÿæ–¤æ‹·
+	 *   é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿç§¸å‡¤æ‹·é”Ÿé…µç¢‰æ‹·é”Ÿæ–¤æ‹·ç‰‡é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-image-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.src
+	 *   é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•å½±é”Ÿæ–¤æ‹·é”Ÿé…µçš„è®¹æ‹·é”Ÿæ–¤æ‹·é¢‘é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-video-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.mp4(é”Ÿæ–¤æ‹·ç¼€é”Ÿæ–¤æ‹· VCamera é”Ÿæ–¤æ‹·é”Ÿè¡—é©æ‹·é”Ÿï¿½)
+	 *   é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•å½±é”Ÿæ–¤æ‹·é”Ÿé…µçš„è®¹æ‹·é”Ÿæ–¤æ‹·é¢‘é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å›¾é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-video-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.jpg(é”Ÿæ–¤æ‹·ç¼€é”Ÿæ–¤æ‹· VCamera é”Ÿæ–¤æ‹·é”Ÿè¡—é©æ‹·é”Ÿï¿½)
+	 *   é”Ÿæ–¤æ‹·é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿçª–å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç‰‡é”Ÿæ–¤æ‹·é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-image-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.src
+	 *   é”Ÿæ–¤æ‹·é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿçª–å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç‰‡é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å›¾é”Ÿæ–¤æ‹·é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-image-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.thumb
+	 *   é”Ÿæ–¤æ‹·é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿçª–å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é¢‘é”Ÿæ–¤æ‹·é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-video-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.src
+	 *   é”Ÿæ–¤æ‹·é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿçª–å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é¢‘é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å›¾é”Ÿæ–¤æ‹·é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-video-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.thumb
+	 *   é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé…µç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-audio-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.src
+	 *   é”Ÿæ–¤æ‹·é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿçª–å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿçš†å‡¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·-audio-æ—¶é”Ÿæ–¤æ‹·é”Ÿï¿½.src
+	 *   é”Ÿæ–¤æ‹·é”Ÿé…µå’Œæ–¤æ‹·é”Ÿç§¸ç¢‰æ‹·é”Ÿæ–¤æ‹·é€šé”Ÿä¾¥ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·åŸé”Ÿæ–¤æ‹· 
 	 *   
 	 */
 	
@@ -341,17 +355,20 @@ public class Constant {
 	public final static String SIPLOG_PREFIX = "siplog";
 
 	
-	// ÏÂÔØ³¬Ê±Ê±¼ä£¨10·ÖÖÓ£©
+	// é”Ÿæ–¤æ‹·é”Ÿæˆªç­¹æ‹·æ—¶æ—¶é”Ÿæˆ’ï¼ˆ10é”Ÿæ–¤æ‹·é”Ÿæ¥ï½æ‹·
 	public final static int FILE_DOWNLOAD_TIMEOUT = 1000 * 60 * 10;
 	
-	// ¶ÌĞÅ·¢ËÍ³¬Ê±Ê±¼ä£¨30Ãë£©
+	// é”Ÿæ–¤æ‹·é”Ÿè„šå‡¤æ‹·é”Ÿé…µç­¹æ‹·æ—¶æ—¶é”Ÿæˆ’ï¼ˆ30é”Ÿè¯«ï¼‰
 	public final static int SMS_SEND_RESULT_TIMEOUT = 1000 * 30;
+	
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·Discovery Server é”Ÿæ–¤æ‹·æ—¶æ—¶é”Ÿæˆ’ï¼ˆ30é”Ÿè¯«ï¼‰
+	public final static int DISCOVERY_TIMEOUT = 1000 * 30;
 
-	// ·¢ËÍ¶àÃ½ÌåÎÄ¼şµÄ´óĞ¡ÉÏÏŞ£¨10M£©
+	// é”Ÿæ–¤æ‹·é”Ÿé…µè®¹æ‹·åª’é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·é”Ÿä¾¥è¾¾æ‹·å°é”Ÿæ–¤æ‹·é”Ÿç«ï½æ‹·10Mé”Ÿæ–¤æ‹·
 	public final static int SEND_MEDIA_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
 	
 	
-	// AVOSCloud ÔÆ·şÎñ¶¨Òå
+	// AVOSCloud é”Ÿç‹¡å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	public final static String EVENT_TAG_IM_SEND_TEXT_PLAIN = "im_send_text_plain";
 	public final static String EVENT_TAG_IM_SEND_TEXT_ENCRYPTED = "im_send_text_encrypted";
 	public final static String EVENT_TAG_IM_SEND_PIC_PLAIN = "im_send_pic_plain";

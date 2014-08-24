@@ -1,7 +1,7 @@
 package com.view.asim.activity.sip;
 
 /**
- * VoIP 通话界面
+ * VoIP 通锟斤拷锟斤拷锟斤拷
  * @author xuweinan
  */
 
@@ -10,6 +10,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jivesoftware.smack.packet.Presence;
 
 import com.avos.avoscloud.AVAnalytics;
 import com.view.asim.sip.api.ISipService;
@@ -718,12 +720,26 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 				User newUser = null;
 				String peerState = null;
 				if (Constant.ROSTER_PRESENCE_CHANGED.equals(action) || Constant.ROSTER_UPDATED.equals(action)) {
+					String status = intent.getStringExtra(User.userPresenceKey);
+					
 					newUser = intent.getParcelableExtra(User.userKey);
-    				Log.i(TAG, "recv user info and state changed broadcast: " + newUser.getName());
+    				Log.i(TAG, "recv user info and state changed broadcast: " + newUser.getName() + ", status: " + status);
 
     				if (mUser == null) {
         				Log.w(TAG, "my user info is null");
     					return;
+    				}
+    				Log.i(TAG, "now user name:"+mUser.getName()+"new recv user:"+newUser.getName());
+    				if (status.equals(User.OFFLINE)&&(newUser.getName().equals(mUser.getName()))) {
+    					Log.w(TAG, "user offline, hangup the call");
+    					if (service != null) {
+                            try {
+    							service.hangup(callInfo.getCallId(), 0);
+    						} catch (RemoteException e) {
+    							e.printStackTrace();
+    						}
+                            return;
+                        }
     				}
     				
 					if (newUser.getName().equals(mUser.getName())) {
@@ -776,20 +792,20 @@ public class InCallScreen extends ActivitySupport implements ProximityDirector, 
 		View screen = findViewById(R.id.call_screen_layout);
 		if (mSecurityMode == MODE_ENCRYPTION) {
 			screen.setBackgroundResource(R.drawable.account_guidance_bg);
-			mCallType.setText("密话模式");
+			mCallType.setText(getResources().getString(R.string.private_session_mode));
 			mCallType.setVisibility(View.VISIBLE);
 		}
 		else if (mSecurityMode == MODE_PLAIN) {
 			screen.setBackgroundResource(R.drawable.radar_background);
-			mCallType.setText("明话模式");
+			mCallType.setText(getResources().getString(R.string.public_session_mode));
 			mCallType.setVisibility(View.VISIBLE);
 		}
 		else if (mSecurityMode == MODE_LOCAL_SECURITY_CHANGED) {
-			mCallType.setText("本机密盾状态变化，通话中止");
+			mCallType.setText(getResources().getString(R.string.local_secret_shield_state_changed_call_inturrept));
 			mCallType.setVisibility(View.VISIBLE);
 		}
 		else if (mSecurityMode == MODE_PEER_SECURITY_CHANGED) {
-			mCallType.setText("对方密盾状态变化，通话中止");
+			mCallType.setText(getResources().getString(R.string.opposite_side_secret_shield_state_changed_call_inturrept));
 			mCallType.setVisibility(View.VISIBLE);
 		}
 			

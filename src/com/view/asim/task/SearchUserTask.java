@@ -14,6 +14,7 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.activity.im.UserInfoActivity;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.XmppConnectionManager;
@@ -45,18 +46,19 @@ public class SearchUserTask extends AsyncTask<String, Integer, Integer> {
 	private LoginConfig loginConfig;
 	private String name = null;
 	private User user = null;
-
+	private Context context;
 	public SearchUserTask(ActivitySupport as, String name) {
 		this.activity = as;
 		this.pd = as.getProgressDialog();
 		this.name = name;
+		this.context = ApplicationContext.get();
 	}
 
 	@Override
 	protected void onPreExecute() {
 		// 如果是注册后的自动登录，不再显示进度对话框
-		pd.setTitle("请稍等");
-		pd.setMessage("正在搜索...");
+		pd.setTitle(context.getResources().getString(R.string.please_wait));
+		pd.setMessage(context.getResources().getString(R.string.searching));
 		pd.show();
 		super.onPreExecute();
 	}
@@ -105,9 +107,9 @@ public class SearchUserTask extends AsyncTask<String, Integer, Integer> {
 			break;
 		case Constant.NONE_RESULTS:// 不存在
 			new AlertDialog.Builder(activity)
-			.setMessage("请检查号码或用户名是否正确")
-			.setTitle("该密友不存在")
-			.setNeutralButton("确定", 
+			.setMessage(context.getResources().getString(R.string.please_check_account_and_password))
+			.setTitle(context.getResources().getString(R.string.this_secret_friend_does_not_exist))
+			.setNeutralButton(context.getResources().getString(R.string.confirm), 
 					new DialogInterface.OnClickListener() {
 
 						@Override

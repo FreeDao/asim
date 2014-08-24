@@ -126,7 +126,7 @@ public class GroupAddUserActivity extends ActivitySupport {
 					mSelectedUsers.add(u);
 					mContactListAdapter.updateSelection(p, true);
 				}
-				mCfmBtn.setText("确认" + (mSelectedUsers.size() > 0 ? "(" + mSelectedUsers.size() + ")" : ""));
+				mCfmBtn.setText(getResources().getString(R.string.confirm) + (mSelectedUsers.size() > 0 ? "(" + mSelectedUsers.size() + ")" : ""));
 				mContactListAdapter.notifyDataSetChanged();
 				mSelectedUserAdapter.notifyDataSetChanged();
 			}
@@ -150,7 +150,7 @@ public class GroupAddUserActivity extends ActivitySupport {
 					mSelectedUsers.add(u);
 					mContactListAdapter.updateSelection(u, true);
 				}
-				mCfmBtn.setText("确认" + (mSelectedUsers.size() > 0 ? "(" + mSelectedUsers.size() + ")" : ""));
+				mCfmBtn.setText(getResources().getString(R.string.confirm) + (mSelectedUsers.size() > 0 ? "(" + mSelectedUsers.size() + ")" : ""));
 
 				mContactListAdapter.notifyDataSetChanged();
 				mSelectedUserAdapter.notifyDataSetChanged();

@@ -33,12 +33,11 @@
         
         <ImageView
             android:id="@+id/btn_left_burn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="51dp"
             android:layout_marginLeft="10dp"
-            android:layout_weight="1.0"
             android:gravity="left|center_vertical"
-            android:src="@drawable/image_burn_left_readed" />
+            android:src="@drawable/chat_class_burn_left_default" />
 
         <ImageView
             android:id="@+id/security_img"

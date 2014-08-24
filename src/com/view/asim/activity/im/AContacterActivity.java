@@ -20,6 +20,7 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.sip.UserCallLogsActivity;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.ContacterManager;
+import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.XmppConnectionManager;
 import com.view.asim.model.ChatMessage;
 import com.view.asim.model.GroupUser;
@@ -37,7 +38,7 @@ import android.util.Log;
 
 /**
  * 
- * ÁªÏµÈËÁÐ±í.
+ * ï¿½ï¿½Ïµï¿½ï¿½ï¿½Ð±ï¿½.
  * 
  * @author xuweinan
  */
@@ -45,7 +46,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 	private static final String TAG = "AContacterActivity";
 
 	private ContacterReceiver receiver = null;
-	protected int noticeNum = 0;// Í¨ÖªÊýÁ¿£¬Î´¶ÁÏûÏ¢ÊýÁ¿
+	protected int noticeNum = 0;// Í¨Öªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 		filter.addAction(Constant.ROSTER_PRESENCE_CHANGED);
 		filter.addAction(Constant.ROSTER_UPDATED);
 		filter.addAction(Constant.ROSTER_SUBSCRIPTION);
-		// ºÃÓÑÇëÇó
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		filter.addAction(Constant.NEW_MESSAGE_ACTION);
 		filter.addAction(Constant.ACTION_SYS_MSG);
 
@@ -106,8 +107,10 @@ public abstract class AContacterActivity extends ActivitySupport {
 			}
 
 			else if (Constant.ROSTER_PRESENCE_CHANGED.equals(action)) {
-				user = intent.getParcelableExtra(User.userKey);
-				changePresenceReceive(user);
+				if(MessageManager.getInstance().isInit()){
+					user = intent.getParcelableExtra(User.userKey);
+					changePresenceReceive(user);
+				}
 			}
 
 			else if (Constant.ROSTER_UPDATED.equals(action)) {
@@ -139,42 +142,42 @@ public abstract class AContacterActivity extends ActivitySupport {
 
 
 	/**
-	 * rosterÌí¼ÓÁËÒ»¸ösubcriber
+	 * rosterï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½subcriber
 	 * 
 	 * @param user
 	 */
 	protected abstract void addUserReceive(User user);
 
 	/**
-	 * rosterÉ¾³ýÁËÒ»¸ösubscriber
+	 * rosterÉ¾ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½subscriber
 	 * 
 	 * @param user
 	 */
 	protected abstract void deleteUserReceive(User user);
 
 	/**
-	 * rosterÖÐµÄÒ»¸ösubscriberµÄ×´Ì¬ÐÅÏ¢ÐÅÏ¢·¢ÉúÁË¸Ä±ä
+	 * rosterï¿½Ðµï¿½Ò»ï¿½ï¿½subscriberï¿½ï¿½×´Ì¬ï¿½ï¿½Ï¢ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½Ë¸Ä±ï¿½
 	 * 
 	 * @param user
 	 */
 	protected abstract void changePresenceReceive(User user);
 
 	/**
-	 * rosterÖÐµÄÒ»¸ösubscriberÐÅÏ¢¸üÐÂÁË
+	 * rosterï¿½Ðµï¿½Ò»ï¿½ï¿½subscriberï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param user
 	 */
 	protected abstract void updateUserReceive(User user);
 
 	/**
-	 * ÊÕµ½Ò»¸öºÃÓÑÌí¼ÓÇëÇó
+	 * ï¿½Õµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param subFrom
 	 */
 	protected abstract void subscripUserReceive(Notice notice);
 
 	/**
-	 * ÓÐÐÂÏûÏ¢½øÀ´
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param user
 	 */
@@ -183,7 +186,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 
 
 	/**
-	 * ÐÞ¸ÄÕâ¸öºÃÓÑµÄêÇ³Æ
+	 * ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñµï¿½ï¿½Ç³ï¿½
 	 * 
 	 * @param user
 	 * @param nickname
@@ -195,7 +198,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 	*/
 
 	/**
-	 * °ÑÒ»¸öºÃÓÑÌí¼Óµ½Ò»¸ö×éÖÐ ÏÈÒÆ³ýµ±Ç°·Ö×é£¬È»ºóÌí¼Óµ½ÐÂ·Ö×é
+	 * ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ³ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½é£¬È»ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½Â·ï¿½ï¿½ï¿½
 	 * 
 	 * @param user
 	 * @param groupName
@@ -213,7 +216,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 	 */
 
 	/**
-	 * °ÑÒ»¸öºÃÓÑ´Ó×éÖÐÉ¾³ý
+	 * ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½
 	 * 
 	 * @param user
 	 * @param groupName
@@ -234,7 +237,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 
 
 	/**
-	 * ÐÞ¸ÄÒ»¸ö×éµÄ×éÃû
+	 * ï¿½Þ¸ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param groupName
 	protected void updateGroupName(String oldGroupName, String newGroupName) {
@@ -245,11 +248,11 @@ public abstract class AContacterActivity extends ActivitySupport {
 
 	/**
 	 * 
-	 * ÕâÌí¼Ó·Ö×é.
+	 * ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½.
 	 * 
 	 * @param newGroupName
 	 * @author shimiso
-	 * @update 2012-6-28 ÏÂÎç3:52:41
+	 * @update 2012-6-28 ï¿½ï¿½ï¿½ï¿½3:52:41
 	protected void addGroup(String newGroupName) {
 		ContacterManager.addGroup(newGroupName, XmppConnectionManager
 				.getInstance().getConnection());
@@ -258,7 +261,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 	 */
 
 	/**
-	 * ´´½¨Ò»¸öÒ»¶ÔÒ»ÁÄÌì
+	 * ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ò»ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param user
 	 */
@@ -282,7 +285,7 @@ public abstract class AContacterActivity extends ActivitySupport {
 
 	
 	/**
-	 * ÏÔÊ¾Ò»¸öºÃÓÑµÄËùÓÐÍ¨»°¼ÇÂ¼
+	 * ï¿½ï¿½Ê¾Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ñµï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½Â¼
 	 * 
 	 * @param user
 	 */
@@ -298,14 +301,14 @@ public abstract class AContacterActivity extends ActivitySupport {
 	}
 	
 	/**
-	 * ³åÁ¬½Ó·µ»Ø
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½
 	 * 
 	 * @param isSuccess
 	 */
 	protected abstract void handReConnect(String status);
 
 	/**
-	 * ÅÐ¶ÏÓÃ»§ÃûÊÇ·ñ´æÔÚ
+	 * ï¿½Ð¶ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param userName
 	 * @param groups

@@ -2,6 +2,7 @@ package com.view.asim.activity.im;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -154,6 +155,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 	protected boolean pauseOnScroll = false;
 	protected boolean pauseOnFling = true;
+	private long mClickTime;
 
 
 	@Override
@@ -328,16 +330,28 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				if (msg.getType().equals(ChatMessage.CHAT_IMAGE)) {
 					intent.setClass(context, ImagePreviewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
-					
+					//startActivity(intent); 
+
 				} else if (msg.getType().equals(ChatMessage.CHAT_VIDEO)) {
 					intent.setClass(context, VideoPreviewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+					//startActivity(intent); 
 					
 				} else {
 					intent.setClass(context, BurnMsgViewActivity.class);
 					intent.putExtra(ChatMessage.IMMESSAGE_KEY, msg);
+//					if(System.currentTimeMillis() - mClickTime > 1000){
+//						mClickTime = System.currentTimeMillis();
+//						startActivity(intent); 
+//					}
 				}
-	            startActivity(intent); 
+				
+				if(System.currentTimeMillis() - mClickTime > 1000){
+					mClickTime = System.currentTimeMillis();
+					startActivity(intent); 
+				}
+
+				//startActivity(intent); 
 			}
 		});
 		
@@ -366,6 +380,19 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		});
 		
 		messageInput = (EditText) findViewById(R.id.chat_content);
+		messageInput.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				messageInput.setCursorVisible(true);
+				faceLayout.hideFaceView();
+				faceLayout.hideAddMoreView();
+				faceLayout.hideVoiceView();
+
+//				messageInput.setFocusableInTouchMode(true);
+				
+			}
+		});
 		messageSendBtn = (ImageView) findViewById(R.id.chat_normal_sendbtn);
 		messageSendBtn.setOnClickListener(new View.OnClickListener() {
 
@@ -380,7 +407,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 						sendMessage(message, mDestroy);
 						messageInput.setText("");
 					} catch (Exception e) {
-						showToast("ÐÅÏ¢·¢ËÍÊ§°Ü");
+						showToast(getResources().getString(R.string.send_message_failure));
 						e.printStackTrace();
 						messageInput.setText(message);
 					}
@@ -399,14 +426,14 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			@Override
 			public void onClick(View v) {
 				if (mDestroy.equals(IMMessage.NEVER_BURN)) {
-					showToast("ÔÄºó¼´·ÙÄ£Ê½");
-					mDestroy = IMMessage.BURN_AFTER_READ;
+					showToast(getResources().getString(R.string.mode_of_destorying_after_read));
+					mDestroy = IMMessage.SHOULD_BURN;
 					v.setBackgroundResource(R.drawable.image_burn_icon_check);
 					v.setAlpha((float) 1.0);
 
 				}
 				else {
-					showToast("ÆÕÍ¨ÁÄÌìÄ£Ê½");
+					showToast(getResources().getString(R.string.mode_of_chat_normal));
 
 					mDestroy = IMMessage.NEVER_BURN;
 					v.setBackgroundResource(R.drawable.image_burn_icon_default);
@@ -421,7 +448,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-	        	// ¼¤»îÏµÍ³Í¼¿â£¬Ñ¡ÔñÒ»ÕÅÍ¼Æ¬  
+	        	// ï¿½ï¿½ï¿½ï¿½ÏµÍ³Í¼ï¿½â£¬Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½Í¼Æ¬  
 	            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);  
 	            intent.setType("image/*");  
 	            startActivityForResult(intent, Constant.REQCODE_IMAGE_PICK);
@@ -433,7 +460,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-	        	// µ÷ÓÃ VCamera ²É¼¯¶ÌÊÓÆµ£¨10s£©  
+	        	// ï¿½ï¿½ï¿½ï¿½ VCamera ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½10sï¿½ï¿½  
 				Intent intent = new Intent();
 				intent.setClass(context, MediaRecorderActivity.class);
 				startActivityForResult(intent, Constant.REQCODE_CAPTURE_VIDEO);			
@@ -445,7 +472,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-				showToast("±¾¹¦ÄÜ½«ÔÚÏÂÒ»°æ±¾·¢²¼£¬¾´ÇëÆÚ´ý:)");
+				showToast(getResources().getString(R.string.just_wait));
 
 			}
 		});
@@ -458,7 +485,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
                 try {
                 	SipProfileState state = service.getSipProfileState((int)ContacterManager.userMe.getSipAccountId());
                 	if (state == null || !state.isValidForCall()) {
-                		showToast("ÍøÂç×´Ì¬Òì³££¬ÎÞ·¨½øÐÐÓïÒôºô½Ð¡£");
+                		showToast(getResources().getString(R.string.network_error_can_not_do_vocie_call));
                 		return;
                 	}
                 	Log.i(TAG, "my sip state: " + state.isValidForCall());
@@ -474,7 +501,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-				showToast("±¾¹¦ÄÜ½«ÔÚÏÂÒ»°æ±¾·¢²¼£¬¾´ÇëÆÚ´ý:)");
+				showToast(getResources().getString(R.string.just_wait));
 
 			}
 		});
@@ -484,14 +511,20 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 
 			@Override
 			public void onClick(View v) {
-	        	// ¼¤»îÏà»ú  
+	        	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  
 	            Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 	    		
 	    		String fileSaveName = FileUtil.genCaptureImageName(getWith());
 	    		
 	    		mTempCaptureImgFile = new File(FileUtil.getImagePathByWith(getWith()) + fileSaveName);  
+				// ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½ï¿½Ä¿Â¼
+				File imageDir = mTempCaptureImgFile.getParentFile();
+				if (!imageDir.exists()) {
+					Log.d(TAG, "=====create dir=====");
+					imageDir.mkdirs();
+				}
 	    		Log.d(TAG, "start capture image from camera: " + mTempCaptureImgFile);
-                // ´ÓÎÄ¼þÖÐ´´½¨uri  
+                // ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ð´ï¿½ï¿½ï¿½uri  
                 Uri uri = Uri.fromFile(mTempCaptureImgFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 
@@ -514,7 +547,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				case Constant.REQCODE_BURN_AFTER_READ:
 		        	ChatMessage msg = data.getParcelableExtra(ChatMessage.IMMESSAGE_KEY);
 		        	Log.d(TAG, "remove message id " + msg.getId() + ", " + msg.getContent());
-		        	showToast("ÏûÏ¢ÒÑÏú»Ù");
+		        	showToast("ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		        	MessageManager.getInstance().delChatHisById(msg.getId());
 		        	refreshMessage();
 					
@@ -523,7 +556,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 				*/
 		        case Constant.REQCODE_IMAGE_PICK:
 		            if (data != null) {  
-		                // µÃµ½Í¼Æ¬µÄÈ«Â·¾¶  
+		                // ï¿½Ãµï¿½Í¼Æ¬ï¿½ï¿½È«Â·ï¿½ï¿½  
 		                uri = data.getData();  
 		                Log.d(TAG, "send image from local: " + uri.toString());
 		                
@@ -555,7 +588,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		        	break;
 		        	
 		        case Constant.REQCODE_TAKE_PICTURE:
-	                // µÃµ½Í¼Æ¬µÄÈ«Â·¾¶  
+	                // ï¿½Ãµï¿½Í¼Æ¬ï¿½ï¿½È«Â·ï¿½ï¿½  
 	                uri = Uri.fromFile(mTempCaptureImgFile);
 	                Log.d(TAG, "capture a picutre " + uri.getPath());
 	                try {
@@ -568,7 +601,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		        	
 		        case Constant.REQCODE_FILE_PICK:
 		        	if (data != null) {  
-		                // µÃµ½Í¼Æ¬µÄÈ«Â·¾¶  
+		                // ï¿½Ãµï¿½Í¼Æ¬ï¿½ï¿½È«Â·ï¿½ï¿½  
 		                uri = data.getData();  
 		                try {
 							sendFile(uri, mDestroy);
@@ -596,7 +629,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	                	return;
 	                	
 	                } else {
-	                	// Éú³ÉÐÂµÄÈºÁÄ×é
+	                	// ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Èºï¿½ï¿½ï¿½ï¿½
 	                	GroupUser grp = ContacterManager.createGroupUserByMember(selectUsers);
 	                	ContacterManager.groupUsers.remove(grp.getName());
 	                	ContacterManager.groupUsers.put(grp.getName(), grp);
@@ -624,6 +657,10 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		pauseOnScroll = savedInstanceState.getBoolean(STATE_PAUSE_ON_SCROLL, false);
 		pauseOnFling = savedInstanceState.getBoolean(STATE_PAUSE_ON_FLING, true);
+		String path = savedInstanceState.getString("mTempCaptureImgFile", null);
+		if(path!=null){
+			mTempCaptureImgFile = new File(path);
+		}
 	}
 
 	private void applyScrollListener() {
@@ -634,6 +671,9 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putBoolean(STATE_PAUSE_ON_SCROLL, pauseOnScroll);
 		outState.putBoolean(STATE_PAUSE_ON_FLING, pauseOnFling);
+		if(mTempCaptureImgFile!=null){
+			outState.putString("mTempCaptureImgFile", mTempCaptureImgFile.getAbsolutePath());
+		}
 	}
 	
 	
@@ -642,9 +682,12 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		@Override
 		public boolean onLongClick(View v) {
 			
+			String copy = getResources().getString(R.string.copy);
+			String transmit = getResources().getString(R.string.transmit);
+			String destory = getResources().getString(R.string.destory);
 			final View targetView = v;
 			new AlertDialog.Builder(ChatActivity.this).
-			setItems(new String[] { "¸´ÖÆ", "×ª·¢", "Ïú»Ù" }, new DialogInterface.OnClickListener() {
+			setItems(new String[] { copy, transmit, destory }, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					Intent intent = null;
@@ -653,7 +696,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 						String content = ((Button)targetView).getText().toString();
 			        	mClipMan.setText(content);
 			        	*/
-						showToast("±¾¹¦ÄÜ½«ÔÚÏÂÒ»°æ±¾·¢²¼£¬¾´ÇëÆÚ´ý:)");
+						showToast(getResources().getString(R.string.just_wait));
 
 					}
 					else if (which == 1){
@@ -663,7 +706,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 						intent.setClass(context, GroupAddUserActivity.class);
 						startActivityForResult(intent, Constant.REQCODE_SELECT_USERS);
 						*/
-						showToast("±¾¹¦ÄÜ½«ÔÚÏÂÒ»°æ±¾·¢²¼£¬¾´ÇëÆÚ´ý:)");
+						showToast(getResources().getString(R.string.just_wait));
 
 					}
 					else {
@@ -780,7 +823,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 								intent.putExtra(Constant.REMOTE_DESTROY_KEY_MESSAGE, msg);
 								sendBroadcast(intent);
 
-								// Ë¢ÐÂÊÓÍ¼
+								// Ë¢ï¿½ï¿½ï¿½ï¿½Í¼
 								refreshMessage();
 							}
 						})
@@ -824,7 +867,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			for (j = i + 1; j < allMsgs.size(); j++) {
 				msg2 = allMsgs.get(j);
 				tm2 = DateUtil.str2Calendar(msg2.getTime()).getTimeInMillis();
-				if (tm2 - tm1 <= 1000 * 60 * 5) { // Îå·ÖÖÓÒÔÄÚ¹éÎªÒ»×é
+				if (tm2 - tm1 <= 1000 * 60 * 5) { // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¹ï¿½ÎªÒ»ï¿½ï¿½
 					item = createChatMessageItem(msg2);
 					mChatItems.add(item);					
 					continue;
@@ -872,7 +915,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		
 		refreshViewOnAUKeyStatusChange();
 		
-		// ¸üÐÂÍøÂç×´Ì¬½çÃæ
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½
 		refreshConnStatusView();
 
 	}
@@ -980,7 +1023,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		if (voiceView.getVisibility() == View.VISIBLE) {
 			
 			int[] location = new int[2];
-			voiceRecordBtn.getLocationInWindow(location); // »ñÈ¡ÔÚµ±Ç°´°¿ÚÄÚµÄ¾ø¶Ô×ø±ê
+			voiceRecordBtn.getLocationInWindow(location); // ï¿½ï¿½È¡ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ÚµÄ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			int btn_rc_Y = location[1];
 			int btn_rc_X = location[0];
 			int[] del_location = new int[2];
@@ -990,7 +1033,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			
 			if (event.getAction() == MotionEvent.ACTION_DOWN && flag == 1) {
 				
-				if (event.getY() > btn_rc_Y && event.getX() > btn_rc_X) {//ÅÐ¶ÏÊÖÊÆ°´ÏÂµÄÎ»ÖÃÊÇ·ñÊÇÓïÒôÂ¼ÖÆ°´Å¥µÄ·¶Î§ÄÚ
+				if (event.getY() > btn_rc_Y && event.getX() > btn_rc_X) {//ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½Æ°ï¿½ï¿½Âµï¿½Î»ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Æ°ï¿½Å¥ï¿½Ä·ï¿½Î§ï¿½ï¿½
 					voiceRecordBtn.setBackgroundResource(R.drawable.new_start_audio_record_pressed);
 					rcChat_popup.setVisibility(View.VISIBLE);
 					voice_rcd_hint_loading.setVisibility(View.VISIBLE);
@@ -1014,7 +1057,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 			} 
 			else if (event.getAction() == MotionEvent.ACTION_UP && flag == 2) {
 				
-				//ËÉ¿ªÊÖÊÆÊ±Ö´ÐÐÂ¼ÖÆÍê³É
+				//ï¿½É¿ï¿½ï¿½ï¿½ï¿½ï¿½Ê±Ö´ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
 				voiceRecordBtn.setBackgroundResource(R.drawable.new_start_audio_record_normal);
 				if (event.getY() >= del_Y
 						&& event.getY() <= del_Y + del_re.getHeight()
@@ -1067,7 +1110,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 					faceLayout.hideVoiceView();
 				}
 			}
-			if (event.getY() < btn_rc_Y) {//ÊÖÊÆ°´ÏÂµÄÎ»ÖÃ²»ÔÚÓïÒôÂ¼ÖÆ°´Å¥µÄ·¶Î§ÄÚ
+			if (event.getY() < btn_rc_Y) {//ï¿½ï¿½ï¿½Æ°ï¿½ï¿½Âµï¿½Î»ï¿½Ã²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Æ°ï¿½Å¥ï¿½Ä·ï¿½Î§ï¿½ï¿½
 				Animation mLitteAnimation = AnimationUtils.loadAnimation(this,
 						R.anim.cancel_rc);
 				Animation mBigAnimation = AnimationUtils.loadAnimation(this,
@@ -1164,12 +1207,12 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 	        if (range == mProximitySensor.getMaximumRange()) {
 	            audioManager.setMode(AudioManager.MODE_NORMAL);
 	            if (playAudioNow) {
-	            	showToast("ÓïÒôÇÐ»»µ½Íâ·ÅÄ£Ê½");
+	            	showToast(getResources().getString(R.string.loudspeaker_mode));
 	            }
 	        } else {
 	        	audioManager.setMode(AudioManager.MODE_IN_CALL);
 	        	if (playAudioNow) {
-	            	showToast("ÓïÒôÇÐ»»µ½ÌýÍ²Ä£Ê½");
+	            	showToast(getResources().getString(R.string.telephone_receiver_mode));
 	            }	             
 	        }
 	   }
@@ -1178,7 +1221,7 @@ public class ChatActivity extends AChatActivity implements SensorEventListener {
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {			
 		}
 
-		// ÍøÂç×´Ì¬±ä»¯Í¨Öª´¦Àí
+		// ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ä»¯Í¨Öªï¿½ï¿½ï¿½ï¿½
 		@Override
 		protected void handReConnect(String status) {
 			if (status.equals(XmppConnectionManager.CONNECTED) && XmppConnectionManager.getInstance().getConnection().isConnected()) {

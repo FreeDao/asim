@@ -1,6 +1,7 @@
 package com.view.asim.service;
 
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,30 +15,41 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket;
 
+import com.view.asim.activity.im.BurnMsgViewActivity;
+import com.view.asim.activity.im.UserConflictActivity;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
+import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
 import com.view.asim.manager.NoticeManager;
 import com.view.asim.manager.XmppConnectionManager;
+import com.view.asim.model.ChatMessage;
+import com.view.asim.model.IMMessage;
 import com.view.asim.model.Notice;
 import com.view.asim.model.User;
 import com.view.asim.utils.DateUtil;
 import com.view.asim.utils.StringUtil;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import com.view.asim.R;
 
 /**
  * 
- * ÁªÏµÈË·þÎñ.
+ * ï¿½ï¿½Ïµï¿½Ë·ï¿½ï¿½ï¿½.
  * 
  * @author xuweinan
  */
@@ -99,16 +111,16 @@ public class IMContactService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		//init();
-		return START_NOT_STICKY;
-		//return super.onStartCommand(intent, flags, startId);
+		//return START_NOT_STICKY;
+		return super.onStartCommand(intent, flags, startId);
 	}
 	
-	// ¸öÈËÐÅÏ¢·þÎñÆ÷¸üÐÂ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public void updateMyUserInfo() {
 		new UserInfoUpdateThread().start();
 	}
 
-	// ÓÃ»§¸öÈËÐÅÏ¢¸üÐÂÏß³Ì
+	// ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½
 	private class UserInfoUpdateThread extends Thread {
 		
 		@Override
@@ -120,9 +132,10 @@ public class IMContactService extends Service {
 				XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
 				if (conn != null) {
 					ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
-					Presence presence = new Presence(Presence.Type.available);
-					presence.setStatus("update");
-					conn.sendPacket(presence);
+//					Presence presence = new Presence(Presence.Type.available);
+//					presence.setStatus("update");
+//					conn.sendPacket(presence);
+					XmppConnectionManager.getInstance().UpdateAvailable(false);
 
 					/*
 					Collection<RosterEntry> rosters = conn.getRoster()
@@ -140,7 +153,7 @@ public class IMContactService extends Service {
 	
 	
 	/**
-	 * Ìí¼ÓÒ»¸ö¼àÌý£¬¼àÌýºÃÓÑÌí¼ÓÇëÇó¡£
+	 * ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 */
 	private void addSubscriptionListener() {
 		PacketFilter filter = new PacketFilter() {
@@ -158,7 +171,7 @@ public class IMContactService extends Service {
 				
 				if (packet instanceof Presence) {
 					Presence presence = (Presence) packet;
-					Log.d(TAG, "presence packet type " + presence.getType() + " from " + presence.getFrom());
+					Log.d(TAG, "presence packet type " + presence.getType() + ", status " + presence.getStatus() + ", from " + presence.getFrom());
 					
 					if (presence.getType().equals(Presence.Type.subscribe) || 
 						presence.getType().equals(Presence.Type.unsubscribe) ||
@@ -184,17 +197,22 @@ public class IMContactService extends Service {
 	}
 	
 	private void unInitRoster() {
-		removeSubscriptionListener();
-		if (XmppConnectionManager.getInstance().getRoster() != null) {
-			XmppConnectionManager.getInstance().getRoster().removeRosterListener(rosterListener);
+		if (XmppConnectionManager.getInstance().getConnection() != null ) {
+	
+			removeSubscriptionListener();
+			if (XmppConnectionManager.getInstance().getRoster() != null) {
+				XmppConnectionManager.getInstance().getRoster().removeRosterListener(rosterListener);
+			}
 		}
 	}
 	/**
-	 * ³õÊ¼»¯»¨Ãû²á ·þÎñÖØÆôÊ±£¬¸üÐÂ»¨Ãû²á
+	 * ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Â»ï¿½ï¿½ï¿½ï¿½ï¿½
 	 */
 	private void initRoster() {
-		addSubscriptionListener();
-		XmppConnectionManager.getInstance().getRoster().addRosterListener(rosterListener);
+		if (XmppConnectionManager.getInstance().getConnection() != null ) {
+			addSubscriptionListener();
+			XmppConnectionManager.getInstance().getRoster().addRosterListener(rosterListener);
+		}
 	}
 
 	private PacketListener subscriptionPacketListener = new PacketListener() {
@@ -203,15 +221,34 @@ public class IMContactService extends Service {
 		public void processPacket(Packet packet) {
 			Presence presence = (Presence) packet;
 
-			String user = getSharedPreferences(Constant.IM_SET_PREF, 0)
-					.getString(Constant.USERNAME, null);
-			
 			String from = packet.getFrom().split("@")[0];
-			if (from.equals(user))
-				return;
+			if (presence.getType().equals(Presence.Type.available) && from.equals(ContacterManager.userMe.getName())) {
+				Log.i(TAG, "recv presence packet " + presence.getType() + " from me");
+				String newResource = packet.getFrom().split("/")[1];
+				String oldResource = AppConfigManager.getInstance().getResource();
+				if (!newResource.equals(oldResource)) {
+
+					long myLoginTime = AppConfigManager.getInstance().getLoginTime();
+					String other = (String) presence.getProperty(IMMessage.PROP_TIME);
+					if (other != null) {
+						long otherLoginTime = Long.parseLong(other);
+						Log.i(TAG, "login on other device, my login time " + myLoginTime + ", other login time" + otherLoginTime);
+						if(myLoginTime < otherLoginTime) {
+							Intent intent = new Intent();
+							intent.setClass(context, UserConflictActivity.class);
+							intent.putExtra(User.userResourceKey, newResource);
+					        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+					        startActivity(intent); 
+						}
+					}
+				}
+				else {
+					Log.i(TAG, "I logined on my device, ignore the presence!");
+				}
+			}
 
 			/*
-			// ÊÕµ½ºÃÓÑÐÅÏ¢¸üÐÂÍ¨Öª
+			// ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Í¨Öª
 			if (presence.getType().equals(Presence.Type.available) && presence.getStatus().equals("update")) {
 				Log.d(TAG, "receive available packet from " + packet.getFrom());
 
@@ -222,7 +259,7 @@ public class IMContactService extends Service {
 				RosterEntry entry = roster.getEntry(subscriber);
 				
 				if (ContacterManager.contacters.containsKey(subscriber)) {
-					// ½«×´Ì¬¸Ä±äÖ®Ç°µÄuser¹ã²¥³öÈ¥
+					// ï¿½ï¿½×´Ì¬ï¿½Ä±ï¿½Ö®Ç°ï¿½ï¿½userï¿½ã²¥ï¿½ï¿½È¥
 					intent.putExtra(User.userKey,
 							ContacterManager.contacters.get(subscriber));
 					ContacterManager.contacters.put(subscriber,
@@ -231,13 +268,13 @@ public class IMContactService extends Service {
 					sendBroadcast(intent);
 				}
 			}
-			// ÊÕµ½ºÃÓÑÌí¼ÓÇëÇó
+			// ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			else */ if (presence.getType().equals(Presence.Type.subscribe)) {
 				Log.d(TAG, "receive subscribe packet from " + packet.getFrom());
 
 				userAddFriendRequest(packet);
 			}
-			// ÊÕµ½ºÃÓÑÈ·ÈÏÌí¼ÓÏìÓ¦
+			// ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦
 			else if (presence.getType().equals(Presence.Type.subscribed)) {
 				Log.d(TAG, "receive subscribed packet from " + packet.getFrom());
 
@@ -249,11 +286,11 @@ public class IMContactService extends Service {
 
 				userAddFriendConfirm(packet);
 			}
-			// ÊÕµ½ºÃÓÑÉ¾³ýÇëÇó
+			// ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			else if (presence.getType().equals(Presence.Type.unsubscribe)) {
 				Log.d(TAG, "receive unsubscribe packet from " + packet.getFrom());
 				
-				// TODO: ÊÕµ½¶Ô·½É¾³ý×Ô¼ºµÄÏûÏ¢£¬×Ô¼ºÒ²É¾³ýÓëÖ®ÓÐ¹ØµÄÍ¨ÖªºÍ IM ÏûÏ¢£¬ÊÇ·ñºÏÀí£¿
+				// TODO: ï¿½Õµï¿½ï¿½Ô·ï¿½É¾ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Ô¼ï¿½Ò²É¾ï¿½ï¿½ï¿½ï¿½Ö®ï¿½Ð¹Øµï¿½Í¨Öªï¿½ï¿½ IM ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
 				NoticeManager.getInstance().delNoticeByWith(packet.getFrom());
 				MessageManager.getInstance().delChatHisByName(packet.getFrom());
 			}
@@ -268,7 +305,7 @@ public class IMContactService extends Service {
 		
 		List<Notice> notices = noticeManager.getNoticeByWith(packet.getFrom());
 		if (notices == null || notices.size() == 0 ) {
-			// ÊÕµ½ºÃÓÑµÄ subscribed ÏûÏ¢£¬µ«ÊÇÖ®Ç°Ã»ÓÐÌí¼Ó¹ý¸ÃºÃÓÑ£¬±¨´í
+			// ï¿½Õµï¿½ï¿½ï¿½ï¿½Ñµï¿½ subscribed ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®Ç°Ã»ï¿½ï¿½ï¿½ï¿½Ó¹ï¿½ï¿½Ãºï¿½ï¿½Ñ£ï¿½ï¿½ï¿½ï¿½ï¿½
 			Log.e(TAG, "you have not added " + packet.getFrom() + " to your friend list");
 			return;
 		}
@@ -278,17 +315,17 @@ public class IMContactService extends Service {
 			intent.setAction(Constant.ROSTER_SUBSCRIPTION);
 			intent.putExtra(Notice.noticeKey, n);
 
-			// ÊÕµ½¶Ô·½µÄ subscribed ÏìÓ¦£¬ËµÃ÷ÎÒÔø¾­·¢¹ýÌí¼ÓÇëÇó¸øËû£¬ÄÇÃ´Í¨ÖªÏûÏ¢µÄÀàÐÍ²»¿ÉÄÜÊÇ STATUS_ADD_REQUEST
+			// ï¿½Õµï¿½ï¿½Ô·ï¿½ï¿½ï¿½ subscribed ï¿½ï¿½Ó¦ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´Í¨Öªï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½Í²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ STATUS_ADD_REQUEST
 			if(n.getStatus().equals(Notice.STATUS_ADD_REQUEST)) {
 				Log.e(TAG, "receive add confirm from " + packet.getFrom() + ", but the notice status is STATUS_ADD_REQUEST");
 
 			}
-			// Èç¹ûÊÇÌí¼Ó³É¹¦ºóµÄ subscribed£¬ÎÞÐè´¦Àí
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³É¹ï¿½ï¿½ï¿½ï¿½ subscribedï¿½ï¿½ï¿½ï¿½ï¿½è´¦ï¿½ï¿½
 			else if (n.getStatus().equals(Notice.STATUS_COMPLETE)) {
 				Log.d(TAG, "receive subscribed from " + packet.getFrom() + ", who has been your friend.");
 
 			}
-			// Õý³£Á÷³Ì£º·¢³öÌí¼ÓºÃÓÑÇëÇóºó£¬³É¹¦ÊÕµ½¶Ô·½µÄÍ¬ÒâÏìÓ¦
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬³É¹ï¿½ï¿½Õµï¿½ï¿½Ô·ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½Ó¦
 			else {
 				Log.d(TAG, "receive subscribed from " + packet.getFrom() + " successfully");
 
@@ -303,7 +340,7 @@ public class IMContactService extends Service {
 			
 		}
 		else {
-			// Í¬Ò»¸öºÃÓÑ²»Ó¦¸ÃÓÐÖØ¸´µÄÌí¼ÓÇëÇó
+			// Í¬Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			Log.e(TAG, "the notice count from user " + packet.getFrom() + " is more than one!");
 			return;
 		}			
@@ -320,7 +357,7 @@ public class IMContactService extends Service {
 		notices = noticeManager.getNoticeByWith(packet.getFrom());
 		
 		if (notices == null || notices.size() == 0 ) {
-			// Èç¹ûÊÇÐÂµÄÌí¼ÓÇëÇó£¬Éú³ÉÐÂµÄÍ¨ÖªÏûÏ¢
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Í¨Öªï¿½ï¿½Ï¢
 			Notice notice = new Notice();
 			notice.setReadStatus(Notice.UNREAD);
 			notice.setWith(packet.getFrom());
@@ -366,8 +403,8 @@ public class IMContactService extends Service {
 			intent.setAction(Constant.ROSTER_SUBSCRIPTION);
 			intent.putExtra(Notice.noticeKey, n);
 			
-			// Èç¹ûÊÇÖØ¸´µÄÌí¼ÓÇëÇó£¬¸üÐÂÔ­Í¨ÖªÏûÏ¢µÄÊ±¼äºÍÒÑ¶Á×´Ì¬
-			// ÕâÖÖÇé¿öÀíÂÛÉÏ²»¸Ã·¢Éú£¬ÒòÎª·¢ÆðÌí¼ÓµÄÒ»·½ÒÑ¾­×öÁËÏÞÖÆ£¬²»ÔÊÐíÖØ¸´Ìí¼ÓºÃÓÑ
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬¸ï¿½ï¿½ï¿½Ô­Í¨Öªï¿½ï¿½Ï¢ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ñ¶ï¿½×´Ì¬
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ò»ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Óºï¿½ï¿½ï¿½
 			if(n.getStatus().equals(Notice.STATUS_ADD_REQUEST)) {
 				Log.e(TAG, "recv more add friend requests from " + packet.getFrom());
 
@@ -375,14 +412,14 @@ public class IMContactService extends Service {
 				noticeManager.updateReadStatusById(notices.get(0).getId(), Notice.UNREAD);
 				sendBroadcast(intent);
 			}
-			// Èç¹ûÊÇ subscribed Ö®ºóµÄ subscribe£¬±íÊ¾Ë«ÏòÌí¼Ó£¬ÎÞÐè´¦Àí
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ subscribed Ö®ï¿½ï¿½ï¿½ subscribeï¿½ï¿½ï¿½ï¿½Ê¾Ë«ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½è´¦ï¿½ï¿½
 			else if (n.getStatus().equals(Notice.STATUS_COMPLETE)) {
 				Log.e(TAG, "recv more add friend request from " + packet.getFrom());
 				
 				ContacterManager.sendSubscribe(Presence.Type.subscribed, n.getWith());
 				noticeManager.updateTimeById(notices.get(0).getId(), DateUtil.getCurDateStr());
 			}
-			// Èç¹ûË«·½Í¬Ê±Ïò¶Ô·½·¢ÆðÌí¼ÓºÃÓÑÇëÇó£¬¸÷×Ô¶¼»áÓöµ½¸Õ·¢³öÈ¥Ìí¼ÓÇëÇóºóÁ¢ÂíÊÕµ½¶Ô·½µÄÌí¼ÓÇëÇóµÄÇé¿ö£¬¿ÉÒÔÈÏÎª¶Ô·½Í¬ÒâÁËÌí¼ÓÇëÇó¡£
+			// ï¿½ï¿½ï¿½Ë«ï¿½ï¿½Í¬Ê±ï¿½ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬¸ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ·ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½Ô·ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			else {
 				Log.e(TAG, "recv add friend request from " + packet.getFrom() + " when waitting for the confirm");
 
@@ -395,7 +432,7 @@ public class IMContactService extends Service {
 			}
 		}
 		else {
-			// Í¬Ò»¸öºÃÓÑ²»Ó¦¸ÃÓÐÖØ¸´µÄÌí¼ÓÇëÇó
+			// Í¬Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			Log.e(TAG, "the notice count from user " + packet.getFrom() + " is more than one!");
 			return;
 		}			
@@ -404,9 +441,13 @@ public class IMContactService extends Service {
 	@Override
 	public void onDestroy() {
 		Log.d(TAG, "onDestroy");
-		// ÊÍ·Å×ÊÔ´
 		unregisterReceiver(reConnectionBroadcastReceiver);
-
+		try {
+			unInitRoster();
+		} catch (RuntimeException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 		super.onDestroy();
 	}
 
@@ -419,11 +460,10 @@ public class IMContactService extends Service {
 			String subscriber = presence.getFrom().substring(0,
 					presence.getFrom().indexOf("/"));
 			RosterEntry entry = XmppConnectionManager.getInstance().getRoster().getEntry(subscriber);
-			
+			Log.d(TAG, "presenceChanged: " + subscriber + ", status: " + presence.getType());
+
 			if (ContacterManager.contacters.containsKey(subscriber)) {
-				// ½«×´Ì¬¸Ä±äÖ®Ç°µÄuser¹ã²¥³öÈ¥
-				Log.d(TAG, "presenceChanged: " + subscriber);
-				
+				// ï¿½ï¿½×´Ì¬ï¿½Ä±ï¿½Ö®Ç°ï¿½ï¿½userï¿½ã²¥ï¿½ï¿½È¥
 				User user = ContacterManager.getUserByRosterEntry(XmppConnectionManager.getInstance().getConnection(),
 						entry, XmppConnectionManager.getInstance().getRoster());
 
@@ -432,6 +472,10 @@ public class IMContactService extends Service {
 				if(presence.getType().equals(Presence.Type.unavailable)) {
 					Log.w(TAG, "user " + user.getName() + " offline, remove the aukey attached flag");
 					user.setSecurity(AUKeyManager.DETACHED);
+					intent.putExtra(User.userPresenceKey, User.OFFLINE);
+				}
+				else {
+					intent.putExtra(User.userPresenceKey, User.ONLINE);
 				}
 				
 				ContacterManager.contacters.put(subscriber, user);
@@ -447,7 +491,7 @@ public class IMContactService extends Service {
 				
 				Intent intent = new Intent();
 				intent.setAction(Constant.ROSTER_UPDATED);
-				// »ñµÃ×´Ì¬¸Ä±äµÄentry
+				// ï¿½ï¿½ï¿½×´Ì¬ï¿½Ä±ï¿½ï¿½entry
 				RosterEntry userEntry = XmppConnectionManager.getInstance().getRoster().getEntry(address);
 				
 				User user = ContacterManager

@@ -29,6 +29,8 @@ public class User implements Parcelable {
 	 */
 	public static final String userKey = "aim_user";
 	public static final String userListKey = "aim_user_list";
+	public static final String userResourceKey = "asim_user_resource";
+	public static final String userPresenceKey = "asim_user_presence";
 	
 	public static final String VCARD_FIELD_GENDER = "sex";
 	public static final String VCARD_FIELD_GLOBALID = "global_id";
@@ -43,6 +45,9 @@ public class User implements Parcelable {
 	public static final String MALE = "male";
 	public static final String FEMALE = "female";
 	public static final String NAME_PREFIX = "u";
+	
+	public static final String OFFLINE = "unavailable";
+	public static final String ONLINE = "available";
 
 	// 用户名(手机号生成)
 	protected String name = null;

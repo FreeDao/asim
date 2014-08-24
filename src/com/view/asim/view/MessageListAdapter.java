@@ -602,6 +602,14 @@ public class MessageListAdapter extends BaseAdapter {
 			case VALUE_LEFT_BURN:
 				msg = (ChatMessage)item.getValue();
 				setAvatarImage(holderLeftBurn.ivLeftIcon, user);
+				
+				if(msg.getDestroy().equals(IMMessage.SHOULD_BURN)) {
+					holderLeftBurn.btnLeftBurn.setImageResource(R.drawable.chat_class_burn_left_default);
+				}
+				else {
+					holderLeftBurn.btnLeftBurn.setImageResource(R.drawable.image_burn_left_readed);
+				}
+				
 				if (msg.getSecurity().equals(IMMessage.ENCRYPTION)) {
 					holderLeftBurn.ivSecurityImg.setVisibility(View.VISIBLE);
 				}
@@ -850,6 +858,13 @@ public class MessageListAdapter extends BaseAdapter {
 					holderRightBurn.ivSecurityImg.setVisibility(View.GONE);
 				}
 				
+				if(msg.getDestroy().equals(IMMessage.SHOULD_BURN)) {
+					holderRightBurn.btnRightBurn.setImageResource(R.drawable.chat_class_burn_right_default);
+				}
+				else {
+					holderRightBurn.btnRightBurn.setImageResource(R.drawable.image_burn_right_readed);
+				}
+				
 				setAvatarImage(holderRightBurn.ivRightIcon, ContacterManager.userMe);					
 				holderRightBurn.btnRightBurn.setTag(msg);
 				holderRightBurn.ivFailedImg.setTag(msg);
@@ -952,7 +967,7 @@ public class MessageListAdapter extends BaseAdapter {
 
 		if (m.getDir().equals(IMMessage.SEND)) {
 			
-			if (m.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (m.getDestroy().equals(IMMessage.SHOULD_BURN) || m.getDestroy().equals(IMMessage.BURNED)) {
 				return VALUE_RIGHT_BURN;
 			}
 			
@@ -973,7 +988,7 @@ public class MessageListAdapter extends BaseAdapter {
 			}
 		}
 		else {
-			if (m.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+			if (m.getDestroy().equals(IMMessage.SHOULD_BURN) || m.getDestroy().equals(IMMessage.BURNED)) {
 				return VALUE_LEFT_BURN;
 			}
 			

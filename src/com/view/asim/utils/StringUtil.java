@@ -3,6 +3,8 @@ package com.view.asim.utils;
 import android.provider.SyncStateContract.Constants;
 
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AppConfigManager;
+import com.view.asim.model.Server;
 import com.view.asim.model.User;
 
 public class StringUtil {
@@ -127,8 +129,9 @@ public class StringUtil {
 	 * @return
 	 */
 	public static String getJidByName(String userName) {
-		String jidFor = Constant.IM_SERVICE_NAME;
-		return getJidByName(userName, jidFor);
+		Server srv = AppConfigManager.getInstance().getServer();
+
+		return getJidByName(userName, srv.getXmppServiceName());
 	}
 
 	/**
@@ -176,7 +179,9 @@ public class StringUtil {
 		if (empty(voipUserName)) {
 			return null;
 		}
-		return User.NAME_PREFIX + voipUserName.split("@")[0] + Constant.IM_SERVICE_NAME;
+		Server srv = AppConfigManager.getInstance().getServer();
+
+		return User.NAME_PREFIX + voipUserName.split("@")[0] + srv.getXmppServiceName();
 	}
 	
 	/**

@@ -6,6 +6,10 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.view.asim.R;
+import com.view.asim.comm.ApplicationContext;
+
+import android.content.Context;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -26,6 +30,7 @@ public class ValidateUtil {
 	public static boolean isIdentityCard(EditText view) {
 		boolean flag = true;
 		String licenc = view.getText().toString();
+		Context context = ApplicationContext.get();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		/*
 		 * { 11:"北京",12:"天津",13:"河北",14:"山西",15:"内蒙古",
@@ -43,12 +48,18 @@ public class ValidateUtil {
 		Matcher matcher2 = pattern2.matcher(licenc);
 		// 粗略判断
 		if (!matcher.find() && !matcher2.find()) {
-			view.setError("身份证号必须为15或18位数字（最后一位可以为X）");
+			view.setError(context
+					.getResources()
+					.getString(
+							R.string.identifier_digit_number_error));
 			flag = false;
 		} else {
 			// 判断出生地
 			if (provinces.indexOf(licenc.substring(0, 2)) == -1) {
-				view.setError("身份证号前两位不正确！");
+				view.setError(context
+						.getResources()
+						.getString(
+								R.string.identifier_previous_two_digit_number_error));
 				flag = false;
 			}
 
@@ -60,15 +71,24 @@ public class ValidateUtil {
 				try {
 					Date birthday = sdf.parse(birth);
 					if (!sdf.format(birthday).equals(birth)) {
-						view.setError("出生日期非法！");
+						view.setError(context
+								.getResources()
+								.getString(
+										R.string.birth_date_illegal));
 						flag = false;
 					}
 					if (birthday.after(new Date())) {
-						view.setError("出生日期不能在今天之后！");
+						view.setError(context
+								.getResources()
+								.getString(
+										R.string.birth_date_can_be_later_than_today));
 						flag = false;
 					}
 				} catch (ParseException e) {
-					view.setError("出生日期非法！");
+					view.setError(context
+							.getResources()
+							.getString(
+									R.string.birth_date_illegal));
 					flag = false;
 				}
 			} else if (licenc.length() == 18) {
@@ -78,19 +98,31 @@ public class ValidateUtil {
 				try {
 					Date birthday = sdf.parse(birth);
 					if (!sdf.format(birthday).equals(birth)) {
-						view.setError("出生日期非法！");
+						view.setError(context
+								.getResources()
+								.getString(
+										R.string.birth_date_illegal));
 						flag = false;
 					}
 					if (birthday.after(new Date())) {
-						view.setError("出生日期不能在今天之后！");
+						view.setError(context
+								.getResources()
+								.getString(
+										R.string.birth_date_can_be_later_than_today));
 						flag = false;
 					}
 				} catch (ParseException e) {
-					view.setError("出生日期非法！");
+					view.setError(context
+							.getResources()
+							.getString(
+									R.string.birth_date_illegal));
 					flag = false;
 				}
 			} else {
-				view.setError("身份证号位数不正确，请确认！");
+				view.setError(context
+						.getResources()
+						.getString(
+								R.string.incorrect_identifier_digit_count));
 				flag = false;
 			}
 		}
@@ -109,6 +141,7 @@ public class ValidateUtil {
 	public static boolean maybeIsIdentityCard(EditText view) {
 		boolean flag = true;
 		String licenc = view.getText().toString();
+		Context context = ApplicationContext.get();
 		if (!licenc.equals("")) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			/*
@@ -127,12 +160,16 @@ public class ValidateUtil {
 			Matcher matcher2 = pattern2.matcher(licenc);
 			// 粗略判断
 			if (!matcher.find() && !matcher2.find()) {
-				view.setError("身份证号必须为15或18位数字（最后一位可以为X）");
+				view.setError(context.getResources().getString(
+						R.string.identifier_digit_number_error));
 				flag = false;
 			} else {
 				// 判断出生地
 				if (provinces.indexOf(licenc.substring(0, 2)) == -1) {
-					view.setError("身份证号前两位不正确！");
+					view.setError(context
+							.getResources()
+							.getString(
+									R.string.identifier_previous_two_digit_number_error));
 					flag = false;
 				}
 
@@ -144,15 +181,24 @@ public class ValidateUtil {
 					try {
 						Date birthday = sdf.parse(birth);
 						if (!sdf.format(birthday).equals(birth)) {
-							view.setError("出生日期非法！");
+							view.setError(context
+									.getResources()
+									.getString(
+											R.string.birth_date_illegal));
 							flag = false;
 						}
 						if (birthday.after(new Date())) {
-							view.setError("出生日期不能在今天之后！");
+							view.setError(context
+									.getResources()
+									.getString(
+											R.string.birth_date_can_be_later_than_today));
 							flag = false;
 						}
 					} catch (ParseException e) {
-						view.setError("出生日期非法！");
+						view.setError(context
+								.getResources()
+								.getString(
+										R.string.birth_date_illegal));
 						flag = false;
 					}
 				} else if (licenc.length() == 18) {
@@ -162,19 +208,31 @@ public class ValidateUtil {
 					try {
 						Date birthday = sdf.parse(birth);
 						if (!sdf.format(birthday).equals(birth)) {
-							view.setError("出生日期非法！");
+							view.setError(context
+									.getResources()
+									.getString(
+											R.string.birth_date_illegal));
 							flag = false;
 						}
 						if (birthday.after(new Date())) {
-							view.setError("出生日期不能在今天之后！");
+							view.setError(context
+									.getResources()
+									.getString(
+											R.string.birth_date_can_be_later_than_today));
 							flag = false;
 						}
 					} catch (ParseException e) {
-						view.setError("出生日期非法！");
+						view.setError(context
+								.getResources()
+								.getString(
+										R.string.birth_date_illegal));
 						flag = false;
 					}
 				} else {
-					view.setError("身份证号位数不正确，请确认！");
+					view.setError(context
+							.getResources()
+							.getString(
+									R.string.incorrect_identifier_digit_count));
 					flag = false;
 				}
 			}
@@ -314,7 +372,7 @@ public class ValidateUtil {
 
 	public static boolean isEmpty(TextView w, String displayStr) {
 		if (StringUtil.empty(w.getText().toString().trim())) {
-			w.setError(displayStr + "不能为空");
+			w.setError(displayStr + ApplicationContext.get().getResources().getString(R.string.can_not_be_empty));
 			w.setFocusable(true);
 			w.requestFocus();
 			return true;
@@ -324,7 +382,7 @@ public class ValidateUtil {
 
 	public static boolean isNum(TextView w, String displayStr) {
 		if (!StringUtil.num(w.getText().toString().trim())) {
-			w.setError(displayStr + "必须为整数且大于0！");
+			w.setError(displayStr + ApplicationContext.get().getResources().getString(R.string.must_be_integer_and_greate_than_0));
 			w.setFocusable(true);
 			w.requestFocus();
 			return true;
@@ -341,7 +399,7 @@ public class ValidateUtil {
 
 	public static boolean isDouble(TextView w, String displayStr) {
 		if (!StringUtil.decimal(w.getText().toString().trim())) {
-			w.setError(displayStr + "必须为数字且大于0！");
+			w.setError(displayStr + ApplicationContext.get().getResources().getString(R.string.must_be_integer_and_greate_than_0));
 			w.setFocusable(true);
 			w.requestFocus();
 			return true;
@@ -367,7 +425,7 @@ public class ValidateUtil {
 
 	public static boolean isArea(TextView w) {
 		if (!RegexUtil.isArea(w.getText().toString().trim())) {
-			w.setError("面积有非法字符！");
+			w.setError(ApplicationContext.get().getResources().getString(R.string.area_contain_illegal_character));
 			w.setFocusable(true);
 			return false;
 		}
@@ -376,7 +434,7 @@ public class ValidateUtil {
 
 	public static boolean isMobileNumber(TextView w) {
 		if (!RegexUtil.isMobileNumber(w.getText().toString().trim())) {
-			w.setError("手机号码格式错误");
+			w.setError(ApplicationContext.get().getResources().getString(R.string.phone_number_form_error));
 			w.setFocusable(true);
 			return false;
 		}
@@ -386,7 +444,7 @@ public class ValidateUtil {
 	/** 银行帐号为16-21位的数字 */
 	public static boolean isAccountNumber(TextView w) {
 		if (!RegexUtil.isAccountNumber(w.getText().toString().trim())) {
-			w.setError("银行帐号必须为16-21位的数字！");
+			w.setError(ApplicationContext.get().getResources().getString(R.string.bank_account_form_error));
 			w.setFocusable(true);
 			return false;
 		}

@@ -57,9 +57,12 @@
 	            android:layout_gravity="center_horizontal"
 	            android:layout_marginTop="15dp"
 	            android:drawablePadding="10dp"
+	            android:layout_marginLeft="10dp"
+	            android:layout_marginRight="10dp"
+	            android:maxLines="2"
 	            android:drawableRight="@drawable/business_card_male_icon"
 	            android:gravity="center"
-	            android:text="用户名"
+	            android:text="@string/user_name"
 	            android:textColor="@color/darkgray"
 	            android:textSize="18.0sp" />
 

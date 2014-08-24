@@ -15,10 +15,9 @@
         android:orientation="horizontal" >
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_weight="1.0"
             android:gravity="right"
             android:orientation="horizontal" >
 
@@ -48,15 +47,14 @@
 	            android:visibility="gone"
 	            />
             
-
             <ImageView
                 android:id="@+id/btn_right_burn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+	            android:layout_width="60dp"
+	            android:layout_height="51dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:gravity="left|center_vertical"
-                android:src="@drawable/image_burn_right_readed"
+                android:src="@drawable/chat_class_burn_right_default"
                 />
         </LinearLayout>
 

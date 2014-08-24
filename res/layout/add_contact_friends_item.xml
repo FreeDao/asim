@@ -47,7 +47,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:background="@drawable/green_button"
-            android:text="添加"
+            android:text="@string/add"
             android:textColor="@color/white"
             android:textSize="14sp" />
 
@@ -57,7 +57,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
-            android:text="已添加"
+            android:text="@string/had_added"
             android:textColor="@color/lightgray"
             android:textSize="14sp"
             android:visibility="gone" />

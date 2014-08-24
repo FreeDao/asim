@@ -32,7 +32,7 @@ import android.widget.Toast;
 
 /**
  * 
- * °²Ë¾¶Ü·þÎñ
+ * ï¿½ï¿½Ë¾ï¿½Ü·ï¿½ï¿½ï¿½
  * 
  * @author xuweinan
  */
@@ -95,8 +95,8 @@ public class AUKeyService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		return START_NOT_STICKY;
-		//return super.onStartCommand(intent, flags, startId);
+		//return START_NOT_STICKY;
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
@@ -108,6 +108,8 @@ public class AUKeyService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		daemonRun = false;
+//		Intent keyService = new Intent(context, AUKeyService.class);
+//		context.startService(keyService);
 	}
 
 }

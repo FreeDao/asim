@@ -23,7 +23,7 @@
             android:background="@drawable/title_clickable_background_black"
             android:gravity="center_vertical"
             android:textColor="@color/white2"
-            android:text="视频预览"
+            android:text="@string/video_preview"
             android:textSize="18.0sp" />
 
         <ImageButton

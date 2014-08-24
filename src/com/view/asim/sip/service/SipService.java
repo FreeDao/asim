@@ -53,6 +53,7 @@ import android.view.SurfaceView;
 import android.widget.Toast;
 
 import com.view.asim.R;
+import com.view.asim.activity.MainActivity;
 import com.view.asim.activity.sip.InCallMediaControl;
 import com.view.asim.db.DBProvider;
 import com.view.asim.manager.AUKeyManager;
@@ -1054,6 +1055,13 @@ public class SipService extends Service {
 		unregisterServiceBroadcasts();
 //		notificationManager.onServiceDestroy();
 		getExecutor().execute(new FinalizeDestroyRunnable());
+		
+		
+		  Intent serviceIntent = new Intent(SipManager.INTENT_SIP_SERVICE);
+          // Optional, but here we bundle so just ensure we are using csipsimple package
+          serviceIntent.setPackage(singleton.getPackageName());
+          serviceIntent.putExtra(SipManager.EXTRA_OUTGOING_ACTIVITY, new ComponentName(singleton, MainActivity.class));
+          startService(serviceIntent);
 	}
 	
 	public void cleanStop () {

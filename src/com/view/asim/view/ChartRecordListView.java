@@ -3,6 +3,7 @@ package com.view.asim.view;
 import java.util.Date;
 
 import com.view.asim.R;
+import com.view.asim.comm.ApplicationContext;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -289,9 +290,11 @@ public class ChartRecordListView extends ListView implements OnScrollListener {
 				arrowImageView.clearAnimation();
 				arrowImageView.startAnimation(reverseAnimation);
 
-				tipsTextview.setText("下拉刷新");
+				tipsTextview.setText(ApplicationContext.get().getResources()
+						.getString(R.string.pull_down_for_refresh));
 			} else {
-				tipsTextview.setText("下拉刷新");
+				tipsTextview.setText(ApplicationContext.get().getResources()
+						.getString(R.string.pull_down_for_refresh));
 			}
 			Log.v(TAG, "当前状态，下拉刷新");
 			break;
@@ -303,7 +306,8 @@ public class ChartRecordListView extends ListView implements OnScrollListener {
 			progressBar.setVisibility(View.VISIBLE);
 			arrowImageView.clearAnimation();
 			arrowImageView.setVisibility(View.GONE);
-			tipsTextview.setText("正在刷新...");
+			tipsTextview.setText(ApplicationContext.get().getResources()
+					.getString(R.string.in_refresh));
 			lastUpdatedTextView.setVisibility(View.VISIBLE);
 
 			Log.v(TAG, "当前状态,正在刷新...");
@@ -314,7 +318,8 @@ public class ChartRecordListView extends ListView implements OnScrollListener {
 			progressBar.setVisibility(View.GONE);
 			arrowImageView.clearAnimation();
 			arrowImageView.setImageResource(R.drawable.arrow);
-			tipsTextview.setText("下拉刷新");
+			tipsTextview.setText(ApplicationContext.get().getResources()
+					.getString(R.string.pull_down_for_refresh));
 			lastUpdatedTextView.setVisibility(View.VISIBLE);
 
 			Log.v(TAG, "当前状态，done");
@@ -333,7 +338,9 @@ public class ChartRecordListView extends ListView implements OnScrollListener {
 
 	public void onRefreshComplete() {
 		state = DONE;
-		lastUpdatedTextView.setText("最近更新:" + new Date().toLocaleString());
+		lastUpdatedTextView.setText(ApplicationContext.get().getResources()
+				.getString(R.string.recently_update)
+				+ new Date().toLocaleString());
 		changeHeaderViewByState();
 	}
 
@@ -364,7 +371,8 @@ public class ChartRecordListView extends ListView implements OnScrollListener {
 	}
 
 	public void setAdapter(BaseAdapter adapter) {
-		lastUpdatedTextView.setText("最近更新:" + new Date().toLocaleString());
+		lastUpdatedTextView.setText(ApplicationContext.get().getResources()
+				.getString(R.string.recently_update) + new Date().toLocaleString());
 		super.setAdapter(adapter);
 	}
 

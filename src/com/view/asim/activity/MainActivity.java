@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.jivesoftware.smack.RosterEntry;
@@ -27,7 +28,10 @@ import com.view.asim.activity.im.UserInfoModActivity;
 import com.view.asim.activity.im.UserNoticeActivity;
 import com.view.asim.comm.Constant;
 import com.view.asim.db.DBProvider;
+import com.view.asim.db.DataBaseHelper;
+import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.CallLogManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.MessageManager;
@@ -42,11 +46,13 @@ import com.view.asim.model.ChatMessage;
 import com.view.asim.model.IMMessage;
 import com.view.asim.model.LoginConfig;
 import com.view.asim.model.Notice;
+import com.view.asim.model.Server;
 import com.view.asim.model.User;
 import com.view.asim.sip.api.SipConfigManager;
 import com.view.asim.sip.api.SipManager;
 import com.view.asim.sip.api.SipProfile;
 import com.view.asim.sip.api.SipUri;
+import com.view.asim.task.LoginTask;
 import com.view.asim.utils.CustomDistribution;
 import com.view.asim.utils.DateUtil;
 import com.view.asim.utils.FaceConversionUtil;
@@ -75,15 +81,19 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.provider.CallLog.Calls;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -104,6 +114,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -126,7 +138,6 @@ import com.view.asim.R;
 public class MainActivity extends AContacterActivity implements
 		LayoutChangeListener, OnClickListener {
 	private final static String TAG = "MainActivity";
-	
 	private File mTempCaptureAvatarImgFile;
 	private LayoutInflater inflater;
 	private ScrollLayout mLayout;
@@ -180,7 +191,7 @@ public class MainActivity extends AContacterActivity implements
 	private ImageView mUnreadNewUserImg = null;
 	private ImageView mCallMissedImg = null;
 
-	// ÎÒµÄ¸öÈËĞÅÏ¢
+	// é”Ÿæ­çš„é©æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯
 	private ImageView mMyAvatarImg = null;
 	private TextView mMyNicknameTxt = null;
 	private TextView mMyRemarkTxt = null;
@@ -190,25 +201,132 @@ public class MainActivity extends AContacterActivity implements
 	private TextView mMyInfoGroupChatTxt = null;
 	private TextView mMyInfoVoiceChatTxt = null;
 	private TextView mMyInfoVideoChatTxt = null;
-	
     private PreferencesProviderWrapper prefProviderWrapper;
-		
+    /**
+     * ï¿½ï¿½å©šï¿½ï¿½æ££ï¿½æ¤¤å…¸ï¿½ï¿½æ¶“è¤ï¿½ï¿½ï¿½ï¿½ï¿½lauout
+     * 
+     */
+	private LinearLayout mSplashLayout;
+	private LinearLayout mMainActivityLayout;
+	
+	/**
+	 * æ££ï¿½æ¤¤é›ï¿½ï¿½ï¿½ï¿½ï¿½
+	 */
+	private Button signUpBtn = null;
+	private Button loginBtn = null;
+	private Button leftBtn = null;
+	private Button rightBtn = null;
+	private LinearLayout screen = null;
+	private View bottomLayout = null;
+	private View errorOperLayout = null;
+	private View normalOperLayout = null;
+	private ImageView loginImg = null;
+	private ImageView bottomBackgroundImg = null;
+	private TextView errTxt = null;
+	
+	private int[] backgroundImg = {
+			R.drawable.smartisan_lockscreen_6,
+			R.drawable.smartisan_lockscreen_8,
+			R.drawable.smartisan_lockscreen_10,
+			R.drawable.smartisan_lockscreen_11,
+			R.drawable.smartisan_lockscreen_12,
+			R.drawable.background
+	};
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
 		setContentView(com.view.asim.R.layout.contacter_main);
-
-		if (ContacterManager.userMe == null) {
-			Log.w(TAG, "init main activity but no user");
+		mSplashLayout = (LinearLayout) findViewById(R.id.splashup_screen);
+		mMainActivityLayout = (LinearLayout) findViewById(R.id.contacter_main);
+		initLogcatHelper();
+		init();
+		String username = AppConfigManager.getInstance().getUsername();
+		if(username!=null){
+			Log.d(TAG, "init database " + username);
+			DataBaseHelper.getInstance(username, Constant.DB_VERSION);
+			NoticeManager.getInstance();
+			MessageManager.getInstance();
+			CallLogManager.getInstance();
+		} 
+		if(username==null||ContacterManager.userMe==null||ContacterManager.contacters==null){
+			/*
+			 * relogin
+			 */
+			initSplashlayout();
 			return;
 		}
-		
-		init();
+		changeViewToShow(1);
 		initSip();
 	}
+
+	private void changeViewToShow(int witch) {
+		switch (witch) {
+		case 1:
+			mSplashLayout.setVisibility(View.GONE);
+			mMainActivityLayout.setVisibility(View.VISIBLE);
+			break;
+		case 0:
+			mSplashLayout.setVisibility(View.VISIBLE);
+			mMainActivityLayout.setVisibility(View.GONE);
+			break;
+		default:
+			break;
+		}
+		
+	}
 	
+	private void initSplashlayout() {
+		// TODO Auto-generated method stub
+		
+		
+		
+		changeViewToShow(0);
+		
+		
+		mSplashLayout.setBackgroundResource(backgroundImg[getRandom()]);
+		bottomLayout = findViewById(R.id.bottom_navi_layout);
+		errorOperLayout = findViewById(R.id.error_oper_layout);
+		normalOperLayout = findViewById(R.id.normal_oper_layout);
+		loginImg = (ImageView) findViewById(R.id.loading_img);
+		bottomBackgroundImg = (ImageView) findViewById(R.id.bottom_background_img);
+		
+		
+
+		
+		errTxt = (TextView) findViewById(R.id.error_msg_txt);
+
+		leftBtn = (Button) findViewById(R.id.left_btn);
+		rightBtn = (Button) findViewById(R.id.right_btn);
+		
+		signUpBtn = (Button) findViewById(R.id.signup_btn);
+		loginBtn = (Button) findViewById(R.id.login_btn);
+
+		signUpBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(context, SignUpActivity.class);
+				startActivityForResult(intent, Constant.REQCODE_LOGIN_OP);
+				//finish();
+			}
+		});
+
+		loginBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(context, LoginActivity.class);
+				startActivityForResult(intent, Constant.REQCODE_LOGIN_OP);
+				//finish();
+			}
+		});
+	
+	}
+	private int getRandom(){  
+        Random random = new Random();  
+        return random.nextInt(6); 
+    }
 	private void clearOldSipAccount() {
 		ArrayList<SipProfile> accounts = SipProfile.getAllProfiles(this, false);
 		for(SipProfile acc : accounts) {
@@ -226,20 +344,22 @@ public class MainActivity extends AContacterActivity implements
 	}
 	
 	private SipProfile buildAccount() {
+		Server srv = AppConfigManager.getInstance().getServer();
 		SipProfile account = SipProfile.getProfileFromDbId(this, SipProfile.INVALID_ID, DBProvider.ACCOUNT_FULL_PROJECTION);
-		String sipNum = StringUtil.getCellphoneByName(mLoginCfg.getUsername());
-		String server = Constant.VOIP_SERVICE_HOST;
+		String sipNum = StringUtil.getCellphoneByName(AppConfigManager.getInstance().getUsername());
 		
-		account.display_name = mLoginCfg.getUsername();
+		String server = srv.getSipHost();
+		
+		account.display_name = AppConfigManager.getInstance().getUsername();
 		account.active = true;
 		account.acc_id = "<sip:" + sipNum + "@" + server + ">";
-		String regUri = "sip:" + server + ":" + Constant.VOIP_SERVICE_PORT;
+		String regUri = "sip:" + server + ":" + srv.getSipPort();//Constant.VOIP_SERVICE_PORT;
 		account.reg_uri = regUri;
 		account.proxies = new String[] { regUri } ;
 
 		account.realm = "*";
 		account.username = sipNum;
-		account.data = mLoginCfg.getPassword();
+		account.data = AppConfigManager.getInstance().getPassword();
 
 		account.scheme = SipProfile.CRED_SCHEME_DIGEST;
 		account.datatype = SipProfile.CRED_DATA_PLAIN_PASSWD;
@@ -258,10 +378,15 @@ public class MainActivity extends AContacterActivity implements
 	}
 	
 	private void initSip() {
-        // ÅäÖÃ SIP ÓÃ»§
+        // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· SIP é”ŸçŸ«ä¼™æ‹·
         clearOldSipAccount();
         addNewSipAccount();
         
+    	if (prefProviderWrapper == null) {
+    		prefProviderWrapper = new PreferencesProviderWrapper(this);
+    	}
+        //prefProviderWrapper.setPreferenceStringValue(SipConfigManager.STUN_SERVER, AppConfigManager.getInstance().getServer().getStunHost());
+
 	}
 	
 	private void resumeSip() {
@@ -296,16 +421,10 @@ public class MainActivity extends AContacterActivity implements
     		prefProviderWrapper = new PreferencesProviderWrapper(this);
     	}
     	
-        if (CustomDistribution.showFirstSettingScreen()) {
-            if (!prefProviderWrapper.getPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, false)) {
-            	
-            }
-        } else {
-            boolean doFirstParams = !prefProviderWrapper.getPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, false);
-            prefProviderWrapper.setPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, true);
-            if (doFirstParams) {
-                prefProviderWrapper.resetAllDefaultValues();
-            }
+        boolean doFirstParams = !prefProviderWrapper.getPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, false);
+        prefProviderWrapper.setPreferenceBooleanValue(PreferencesWrapper.HAS_ALREADY_SETUP, true);
+        if (doFirstParams) {
+            prefProviderWrapper.resetAllDefaultValues();
         }
 
     }
@@ -316,12 +435,12 @@ public class MainActivity extends AContacterActivity implements
 
         prefProviderWrapper = new PreferencesProviderWrapper(this);
         
-        // Ö÷½çÃæ
+        // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		inflater = LayoutInflater.from(context);
 		mLayout = (ScrollLayout) findViewById(R.id.scrolllayout);
 		mLayout.addChangeListener(this);
 
-		// Ö÷½çÃæÈı´ó×Ó½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·
 		mMainMessageView = inflater.inflate(R.layout.main_message, null);
 		mMainContactsView = inflater.inflate(R.layout.main_contacts, null);
 		mMainCalllogsView = inflater.inflate(R.layout.main_calllogs, null);
@@ -330,7 +449,7 @@ public class MainActivity extends AContacterActivity implements
 		mLayout.addView(mMainCalllogsView);
 		mLayout.setToScreen(0);
 		
-		// Ö÷½çÃæµ¼º½À¸
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸèŠ¥å¯¼é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		mTabMessage = findViewById(R.id.tab_message_layout);
 		mTabContacts = findViewById(R.id.tab_contacts_layout);
 		mTabCalllogs = findViewById(R.id.tab_calllogs_layout);
@@ -347,7 +466,7 @@ public class MainActivity extends AContacterActivity implements
 		mNetworkFailedTxt = (TextView) findViewById(R.id.network_failed_txt);
 
 		
-		// Ö÷½çÃæ¶¥²¿Í·Ïñ°´Å¥
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”ŸèŠ¥é¡¶é”Ÿæ–¤æ‹·å¤´é”Ÿæ–¤æ‹·é’®
 		mMyAvatarImgBtn = (ImageView) findViewById(R.id.my_avatar_btn);
 		mMyAvatarImgBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -356,7 +475,7 @@ public class MainActivity extends AContacterActivity implements
 			}
 		});
 
-		// ¸öÈËĞÅÏ¢µ¯³ö´°¿Ú
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		mPopupView = getLayoutInflater().inflate(R.layout.my_info_popup_win, null);
 		mMyAvatarImg = (ImageView) mPopupView.findViewById(R.id.user_avatar_img);
 		mMyNicknameTxt = (TextView) mPopupView.findViewById(R.id.user_nickname_txt);
@@ -424,33 +543,36 @@ public class MainActivity extends AContacterActivity implements
 		mMyAvatarImg.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				String image = getResources().getString(R.string.picture);
+				String shooting = getResources().getString(R.string.shooting);
+				String getFromAlbum = getResources().getString(R.string.get_picture_from_album);
 				new AlertDialog.Builder(MainActivity.this).
-					setTitle("Í¼Æ¬").
-					setItems(new String[] { "ÅÄÉã", "´ÓÏà²áÑ¡Ôñ" }, new DialogInterface.OnClickListener() {
+					setTitle(image).
+					setItems(new String[] { shooting, getFromAlbum }, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							Intent intent = null;
 							if (which == 0) {
-					        	// ¼¤»îÏà»ú  
+					        	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½  
 					            intent = new Intent("android.media.action.IMAGE_CAPTURE");  
-					            // ÅĞ¶Ï´æ´¢¿¨ÊÇ·ñ¿ÉÒÔÓÃ£¬¿ÉÓÃ½øĞĞ´æ´¢  
+					            // é”Ÿå«æ–­å­˜å‚¨é”Ÿæ–¤æ‹·é”Ÿè§’å‡¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·èŒ«é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·åª’é”Ÿæ–¤æ‹·å†™å¨²ï¿½  
 					            
 					            String tmpImgfile = FileUtil.getUserTempPath() + FileUtil.genAvatarTempImageName();
 					            
 				                mTempCaptureAvatarImgFile = new File(tmpImgfile);  
-				                // ´ÓÎÄ¼şÖĞ´´½¨uri  
+				                // é”Ÿæ–¤æ‹·é”Ÿä¾¥ç¡·æ‹·é”Ÿå«è¾¾æ‹·é”Ÿæ–¤æ‹·uri  
 				                Uri uri = Uri.fromFile(mTempCaptureAvatarImgFile);
 				                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
 				                
-					            // ¿ªÆôÒ»¸ö´øÓĞ·µ»ØÖµµÄActivity£¬ÇëÇóÂëÎªPHOTO_REQUEST_CAREMA  
+					            // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«å‡¤æ‹·é”Ÿæ–¤æ‹·å€¼é”Ÿæ–¤æ‹·Activityé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸ºPHOTO_REQUEST_CAREMA  
 					            startActivityForResult(intent, Constant.REQCODE_MOD_AVATAR_BY_CAPTURE); 
 							}
 							else {
 					        	
-					        	// ¼¤»îÏµÍ³Í¼¿â£¬Ñ¡ÔñÒ»ÕÅÍ¼Æ¬  
+					        	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»ç»Ÿå›¾é”Ÿè§£ï¼Œé€‰é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·å›¾ç‰‡  
 					            intent = new Intent(Intent.ACTION_PICK);  
 					            intent.setType("image/*");  
-					            // ¿ªÆôÒ»¸ö´øÓĞ·µ»ØÖµµÄActivity£¬ÇëÇóÂëÎªPHOTO_REQUEST_GALLERY  
+					            // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«å‡¤æ‹·é”Ÿæ–¤æ‹·å€¼é”Ÿæ–¤æ‹·Activityé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸ºPHOTO_REQUEST_GALLERY  
 					            startActivityForResult(intent, Constant.REQCODE_MOD_AVATAR_BY_GALLERY);
 							}
 							
@@ -475,7 +597,7 @@ public class MainActivity extends AContacterActivity implements
 		});
 		
 		
-		// ÁªÏµÈË×Ó½çÃæµÄÁªÏµÈËÁĞ±í
+		// é”Ÿæ–¤æ‹·ç³»é”Ÿæ–¤æ‹·é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè¾ƒç¢‰æ‹·é”Ÿæ–¤æ‹·æ–œé”Ÿï¿½
 		mPinyinComparator = new PinyinComparator();
 		mContacterList = (ListView) mMainContactsView.findViewById(R.id.contacts_list);
 		
@@ -509,7 +631,7 @@ public class MainActivity extends AContacterActivity implements
 		mContacterList.setAdapter(mContactsAdapter);
 		mContactsAdapter.setOnClickListener(contacterOnClickJ);
 
-		// ÁªÏµÈË×Ó½çÃæÓÒ²àµÄ×ÖÄ¸±í
+		// é”Ÿæ–¤æ‹·ç³»é”Ÿæ–¤æ‹·é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ­è¯§æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥é©æ‹·é”Ÿï¿½
 		mSideBar = (SideBar) mMainContactsView.findViewById(R.id.sidebar_view);
 		mAlphabeticText = (TextView) mMainContactsView.findViewById(R.id.alphabetic_txt);
 		mSideBar.setTextView(mAlphabeticText);
@@ -526,7 +648,7 @@ public class MainActivity extends AContacterActivity implements
 		});
 
 		
-		// ÁÄÌì»á»°×Ó½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å³„å¸®æ‹·å’é”Ÿæ–¤æ‹·é”Ÿï¿½
 		mMessageThreadList = (ListView) mMainMessageView.findViewById(R.id.message_thread_list);
 		mNoChatMessageLayout = (LinearLayout) mMainMessageView.findViewById(R.id.no_messages_layout);
 
@@ -544,7 +666,7 @@ public class MainActivity extends AContacterActivity implements
 		mMessageThreadList.setOnCreateContextMenuListener(mMsgThreadsOnCreateContextMenuListener);  
 		
 
-		// Í¨»°¼ÇÂ¼×Ó½çÃæ
+		// é€šé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·
 		mCalllogsListView = (ListView) mMainCalllogsView.findViewById(R.id.calllogs_list);
 		mNoCalllogsLayout = (LinearLayout) mMainCalllogsView.findViewById(R.id.no_calllogs_layout);
 
@@ -561,9 +683,7 @@ public class MainActivity extends AContacterActivity implements
 		mCalllogsListView.setOnCreateContextMenuListener(mCalllogsOnCreateContextMenuListener);  
 
 		
-		// ÓÃ»§µÇÂ¼ºó´¦ÀíÀëÏßÏûÏ¢
-		Intent intent = new Intent(Constant.RECV_OFFLINE_MSG_ACTION);
-		sendBroadcast(intent);
+
 	}
 
 	private final OnCreateContextMenuListener mMsgThreadsOnCreateContextMenuListener = new OnCreateContextMenuListener() {  
@@ -574,7 +694,7 @@ public class MainActivity extends AContacterActivity implements
 			ChatHisBean bean = (ChatHisBean) mi.targetView.findViewById(R.id.contact_name_txt).getTag();
         	
         	menu.setHeaderTitle(ContacterManager.contacters.get(bean.getWith()).getNickName());
-        	menu.add(0, 1, 0, "É¾³ı»á»°");
+        	menu.add(0, 1, 0, getResources().getString(R.string.delete_session));
         }  
     };
     
@@ -586,16 +706,16 @@ public class MainActivity extends AContacterActivity implements
 			CallLogs logs = (CallLogs) mi.targetView.findViewById(R.id.contact_name_txt).getTag();
         	
         	menu.setHeaderTitle(ContacterManager.contacters.get(logs.getWith()).getNickName());
-        	menu.add(1, 1, 0, "É¾³ıÍ¨»°¼ÇÂ¼");
+        	menu.add(1, 1, 0, getResources().getString(R.string.delete_call_log));
         }  
     };
     
     @Override  
     public boolean onContextItemSelected(MenuItem item) {  
-	        // µÃµ½µ±Ç°±»Ñ¡ÖĞµÄitemĞÅÏ¢  
+	        // é”ŸçŸ«ç¢‰æ‹·é”Ÿæ–¤æ‹·å‰é”Ÿæ–¤æ‹·é€‰é”Ÿå«ç¢‰æ‹·itemé”Ÿæ–¤æ‹·æ¯  
 	        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();  
 	        
-	        // ÁÄÌì¼ÇÂ¼µÄÉÏÏÂÎÄ²Ëµ¥
+	        // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç‰Ÿè¯´é”Ÿï¿½
         	if (item.getGroupId() == 0) {
             	ChatHisBean b = (ChatHisBean) menuInfo.targetView.findViewById(R.id.contact_name_txt).getTag();
 
@@ -604,7 +724,7 @@ public class MainActivity extends AContacterActivity implements
 					NoticeManager.getInstance().setCurrentChatUser(null);
 					NoticeManager.getInstance().clearIMMessageNotify(ContacterManager.contacters.get(b.getWith()));
 	
-					// É¾³ıÊı¾İ¿â
+					// åˆ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ·åŒ¡æ‹·
 					NoticeManager.getInstance()
 							.delNoticeByWith(b.getWith());
 					MessageManager.getInstance()
@@ -617,7 +737,7 @@ public class MainActivity extends AContacterActivity implements
 		            return super.onContextItemSelected(item);  
 		        }
         	} else 
-        	// Í¨»°¼ÇÂ¼µÄÉÏÏÂÎÄ²Ëµ¥
+        	// é€šé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿä¾¥èœç¢‰æ‹·
         	if (item.getGroupId() == 1) {
         		CallLogs b = (CallLogs) menuInfo.targetView.findViewById(R.id.contact_name_txt).getTag();
 
@@ -635,34 +755,41 @@ public class MainActivity extends AContacterActivity implements
     }
 
     /* 
-     * ¼ôÇĞÍ¼Æ¬ 
+     * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å›¾ç‰‡ 
      */  
     private void crop(Uri uri) {  
-        // ²Ã¼ôÍ¼Æ¬ÒâÍ¼  
+        // é”ŸçŸ«ç¡·æ‹·å›¾ç‰‡é”Ÿæ–¤æ‹·å›¾  
         Intent intent = new Intent("com.android.camera.action.CROP");  
         intent.setDataAndType(uri, "image/*");  
         intent.putExtra("crop", "true");  
-        // ²Ã¼ô¿òµÄ±ÈÀı£¬1£º1  
+        // é”ŸçŸ«ç¡·æ‹·é”Ÿæ–¤æ‹·è°‹é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½1é”Ÿæ–¤æ‹·1  
         intent.putExtra("aspectX", 1);  
         intent.putExtra("aspectY", 1);  
-        // ²Ã¼ôºóÊä³öÍ¼Æ¬µÄ³ß´ç´óĞ¡  
+        // é”ŸçŸ«ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé…µè®¡ï¿½é”Ÿä¾¥å°ºè¾¾æ‹·é”Ÿå«ï¿½  
         intent.putExtra("outputX", 250);  
         intent.putExtra("outputY", 250);  
   
-        intent.putExtra("outputFormat", "JPEG");// Í¼Æ¬¸ñÊ½  
-        intent.putExtra("noFaceDetection", true);// È¡ÏûÈËÁ³Ê¶±ğ  
+        intent.putExtra("outputFormat", "JPEG");// å›¾ç‰‡é”Ÿæ–¤æ‹·å¼  
+        intent.putExtra("noFaceDetection", true);// å–é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·è¯†é”Ÿæ–¤æ‹·  
         intent.putExtra("return-data", true);  
-        // ¿ªÆôÒ»¸ö´øÓĞ·µ»ØÖµµÄActivity£¬ÇëÇóÂëÎªPHOTO_REQUEST_CUT  
+        // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿå«å‡¤æ‹·é”Ÿæ–¤æ‹·å€¼é”Ÿæ–¤æ‹·Activityé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ä¸ºPHOTO_REQUEST_CUT  
         startActivityForResult(intent, Constant.REQCODE_MOD_AVATAR_CROP);  
     }  
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		resumeSip();
-
-		refreshList();
+		if(ContacterManager.userMe == null||ContacterManager.contacters==null){
+			if(checkInternet()) {
+				// check the sdcard status
+				if(checkMemoryCard()) {
+					normalOperation();
+				}
+			}
+		}else{
+			resumeSip();
+			refreshList();
+		}
 		
 		/*
 		Intent intent = getIntent();
@@ -678,7 +805,190 @@ public class MainActivity extends AContacterActivity implements
 	    */
 		
 	}
+	private boolean checkMemoryCard() {
+		if (Constant.SDCARD_ROOT_PATH == null) {
+			showErrorSDCardView();
+			return false;
+		}
+		else {
+			String oldPath = AppConfigManager.getInstance().getRootPath();
+			
+			/* save the sdcard path when first run App */
+			if (oldPath == null) {
+				Log.d(TAG, "save sdcard path: " + Constant.SDCARD_ROOT_PATH);
+				AppConfigManager.getInstance().setRootPath(Constant.SDCARD_ROOT_PATH);
+			}
+			else {
+				if(oldPath.equals(Constant.SDCARD_ROOT_PATH)) {
+					Log.d(TAG, "sdcard path " + Constant.SDCARD_ROOT_PATH + " has been saved.");
+				}
+				else {
+					Log.d(TAG, "sdcard path " + Constant.SDCARD_ROOT_PATH + " has changed, the saved path is " + oldPath);
+					
+					/* if the sdcard path changed between now and last saving, 
+					 * judge the validation of the last saving path,
+					 * exit App if unavailable
+					 */
+					if(!FileUtil.checkPathValid(oldPath)) {
+						showSDCardChangedView(Constant.SDCARD_ROOT_PATH);
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
 	
+	private boolean checkInternet() {
+		ConnectivityManager manager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (manager == null) {
+			showErrorInternetView();
+			return false;
+		} else {
+			NetworkInfo[] info = manager.getAllNetworkInfo();
+			if (info != null) {
+				for (int i = 0; i < info.length; i++) {
+					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+						return true;
+					}
+				}
+			}
+		}
+		
+		showErrorInternetView();
+		return false;
+	}
+	
+	private void showErrorInternetView() {
+		errTxt.setText(getResources().getString(R.string.have_not_accessiable_network));
+		leftBtn.setText(getResources().getString(R.string.exit));
+		leftBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				eimApplication.exit();
+			}
+		});	
+		
+		rightBtn.setText(getResources().getString(R.string.settings));
+		rightBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+				startActivity(intent);
+				//finish();
+			}
+		});
+		
+		bottomBackgroundImg.setVisibility(View.VISIBLE);
+		errorOperLayout.setVisibility(View.VISIBLE);
+		bottomLayout.setVisibility(View.VISIBLE);
+	}
+	
+	private void showErrorSDCardView() {
+		errTxt.setText(getResources().getString(R.string.have_not_accessiable_sdcard));
+		leftBtn.setText(getResources().getString(R.string.exit));
+		leftBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				eimApplication.exit();
+			}
+		});	
+		
+		rightBtn.setText(getResources().getString(R.string.settings));
+		rightBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Settings.ACTION_SETTINGS);
+				startActivity(intent);
+				//finish();
+			}
+		});
+		
+		bottomBackgroundImg.setVisibility(View.VISIBLE);
+		errorOperLayout.setVisibility(View.VISIBLE);
+		bottomLayout.setVisibility(View.VISIBLE);
+	}
+	
+	private void showSDCardChangedView(String newPath) {
+		final String path = newPath;
+		errTxt.setText(getResources().getString(R.string.original_sdcard_not_found_and_find_other));
+		leftBtn.setText(getResources().getString(R.string.exit));
+		leftBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				eimApplication.exit();
+			}
+		});	
+		
+		rightBtn.setText(getResources().getString(R.string.use_new_sdcard));
+		rightBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AppConfigManager.getInstance().setRootPath(path);
+				Constant.SDCARD_ROOT_PATH = path;
+				normalOperation();
+			}
+		});
+		
+		bottomBackgroundImg.setVisibility(View.VISIBLE);
+		errorOperLayout.setVisibility(View.VISIBLE);
+		bottomLayout.setVisibility(View.VISIBLE);
+	}
+	
+	public void normalOperation() {
+		AppConfigManager.getInstance().saveLoginConfig();
+		//stopService();
+		startConnService();
+		
+		bottomBackgroundImg.setVisibility(View.GONE);
+		errorOperLayout.setVisibility(View.GONE);
+		normalOperLayout.setVisibility(View.VISIBLE);
+		bottomLayout.setVisibility(View.VISIBLE);
+
+		// auto login if already signup
+		if (AppConfigManager.getInstance().getUsername() != null) {
+			loginImg.setVisibility(View.VISIBLE);
+			LoginTask loginTask = new LoginTask(this, (AnimationDrawable) loginImg.getBackground());
+			loginTask.execute();
+		} else {
+			signUpBtn.setVisibility(View.VISIBLE);
+			loginBtn.setVisibility(View.VISIBLE);
+		}
+		
+	}
+
+	private void initLogcatHelper() {
+		LogcatHelper.getInstance(context).stop();
+		LogcatHelper.getInstance(context).start();
+	}
+	
+	@Override
+	public void changeLayout() {
+		// TODO Auto-generated method stub
+		super.changeLayout();
+		changeViewToShow(1);
+		// ï¿½Ã»ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Intent intent = new Intent(Constant.RECV_OFFLINE_MSG_ACTION);
+				sendBroadcast(intent);
+			}
+		}).start();	
+		initSip();
+		resumeSip();
+		refreshList();
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -696,7 +1006,7 @@ public class MainActivity extends AContacterActivity implements
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	        moveTaskToBack(true);//true¶ÔÈÎºÎActivity¶¼ÊÊÓÃ
+	        moveTaskToBack(true);//trueé”Ÿæ–¤æ‹·é”Ÿè½¿çŒ´æ‹·Activityé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	        return true;
 	    }
 	    return super.onKeyDown(keyCode, event);
@@ -714,6 +1024,7 @@ public class MainActivity extends AContacterActivity implements
 	        		ContacterManager.userMe.setGender(gender);
 	        	}
 	        	Log.d(TAG, "mod nick:" + ContacterManager.userMe);
+				updateMyUserInfo();
 
 	        	break;
 	        case Constant.REQCODE_MOD_LOCATION:
@@ -723,7 +1034,8 @@ public class MainActivity extends AContacterActivity implements
 	        	}
 	        	Log.d(TAG, "mod location:" + ContacterManager.userMe);
 
-	        	
+				updateMyUserInfo();
+
 	        	break;
 	        case Constant.REQCODE_MOD_REMARK:
 	        	String remark = data.getStringExtra(UserInfoModActivity.REMARK);
@@ -731,12 +1043,14 @@ public class MainActivity extends AContacterActivity implements
 	        		ContacterManager.userMe.setRemark(remark);
 	        	}
 	        	Log.d(TAG, "mod remark:" + ContacterManager.userMe);
+				updateMyUserInfo();
+
 	        	break;
 	        	
 	        case Constant.REQCODE_MOD_AVATAR_BY_GALLERY:
-	        	// ´ÓÏà²á·µ»ØµÄÊı¾İ  
+	        	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å²±ç¢‰æ‹·æ°é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½  
 	            if (data != null) {  
-	                // µÃµ½Í¼Æ¬µÄÈ«Â·¾¶  
+	                // é”ŸçŸ«ç¢‰æ‹·å›¾ç‰‡é”Ÿæ–¤æ‹·å…¨è·¯é”Ÿæ–¤æ‹·  
 	                Uri uri = data.getData();  
 	                crop(uri);  
 	            }  
@@ -745,19 +1059,21 @@ public class MainActivity extends AContacterActivity implements
                 crop(Uri.fromFile(mTempCaptureAvatarImgFile));  
 	            break;	
 	        case Constant.REQCODE_MOD_AVATAR_CROP:
-	        	// ´Ó¼ôÇĞÍ¼Æ¬·µ»ØµÄÊı¾İ  
+	        	// é”Ÿæ¥ç¡·æ‹·é”Ÿæ–¤æ‹·å›¾ç‰‡é”Ÿæ–¤æ‹·é”Ÿæˆªç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·  
 	            if (data != null) {  
 	                Bitmap bitmap = data.getParcelableExtra("data");  
 	                ContacterManager.userMe.setHeadImg(bitmap);  
 	                refreshMyInfoView();
 	            }  
 	            try {  
-	                // ½«ÁÙÊ±ÎÄ¼şÉ¾³ı  
+	                // é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ—¶é”Ÿä¾¥ç¡·æ‹·åˆ é”Ÿæ–¤æ‹·  
 	            	if (mTempCaptureAvatarImgFile != null) 
 	            		mTempCaptureAvatarImgFile.delete();  
 	            } catch (Exception e) {  
 	                e.printStackTrace();  
 	            }
+				updateMyUserInfo();
+
 	            break;
 	            
 	        case Constant.REQCODE_SELECT_USERS:
@@ -770,7 +1086,7 @@ public class MainActivity extends AContacterActivity implements
                 	
                 } else {
                 	/*
-                	// Éú³ÉĞÂµÄÈºÁÄ×é
+                	// ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Èºï¿½ï¿½ï¿½ï¿½
                 	GroupUser grp = ContacterManager.createGroupUserByMember(selectUsers);
                 	ContacterManager.groupUsers.remove(grp.getName());
                 	ContacterManager.groupUsers.put(grp.getName(), grp);
@@ -781,20 +1097,23 @@ public class MainActivity extends AContacterActivity implements
             		intent.putExtra(Constant.GROUP_ACTION_KEY_INFO, grp);
             		sendBroadcast(intent);
             		*/
-                	showToast("¸Ã¹¦ÄÜÏÂÒ»°æ±¾·¢²¼£¬¾´ÇëÆÚ´ı:)");
+                	showToast(getResources().getString(R.string.just_wait));
                 }
+                break;
+	        case Constant.REQCODE_LOGIN_OP:
+	        	changeLayout();
+	        	break;
 			}
-			updateMyUserInfo();
 		}
     }
 
 	
-	// ¸öÈËĞÅÏ¢·şÎñÆ÷¸üĞÂ
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	public void updateMyUserInfo() {
 		new UserInfoUpdateThread().start();
 	}
 
-	// ÓÃ»§¸öÈËĞÅÏ¢¸üĞÂÏß³Ì
+	// é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿç«­ç­¹æ‹·
 	private class UserInfoUpdateThread extends Thread {
 		
 		@Override
@@ -802,9 +1121,10 @@ public class MainActivity extends AContacterActivity implements
 			Log.d(TAG, "UserInfoUpdateThread");
 			XMPPConnection conn = XmppConnectionManager.getInstance().getConnection();
 			ContacterManager.saveUserVCard(conn, ContacterManager.userMe);
-			Presence presence = new Presence(Presence.Type.available);
-			presence.setStatus("update");
-			conn.sendPacket(presence);
+//			Presence presence = new Presence(Presence.Type.available);
+//			presence.setStatus("update");
+//			conn.sendPacket(presence);
+			XmppConnectionManager.getInstance().UpdateAvailable(false);
 
 			/*
 			Collection<RosterEntry> rosters = conn.getRoster()
@@ -818,7 +1138,7 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 	
-	// ¸öÈËĞÅÏ¢½çÃæ¸üĞÂ
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	public void refreshMyInfoView() {
 		if (ContacterManager.userMe.getNickName() == null) {
 			mMyNicknameTxt.setVisibility(View.GONE);
@@ -905,7 +1225,7 @@ public class MainActivity extends AContacterActivity implements
 		
 	}
 
-	// ÓÃ»§¸öÈËĞÅÏ¢µ¯³ö´°¿Ú
+	// é”ŸçŸ«ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	private void popupMyInfoWindow() {
 
 		if (mMyInfoPopupWindow == null) {
@@ -930,33 +1250,35 @@ public class MainActivity extends AContacterActivity implements
 	
 
 	/**
-	 * Ë¢ĞÂÕû¸ö½çÃæ
+	 * åˆ·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	@Override
 	protected void refreshList() {
 		
-		// ¸üĞÂÍøÂç×´Ì¬½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		refreshConnStatusView();
 		
-		// ¸üĞÂ±êÌâÀ¸½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿé“°æ†‹æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		refreshTitleView();
 
-		// ¸üĞÂÁÄÌì»á»°½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å³„å¸®æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 		refreshMessageListView();
 		
-		// ¸üĞÂÁªÏµÈË½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»é”Ÿå‰¿æ–¤æ‹·é”Ÿæ–¤æ‹·
 		refreshContactListView();
 		
-		// ¸üĞÂÍ¨»°¼ÇÂ¼½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é€šé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		refreshCalllogsListView();
 		
-		// ¸üĞÂ¸öÈËĞÅÏ¢½çÃæ
+		// é”Ÿæ–¤æ‹·é”Ÿé“°é©æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		refreshMyInfoView();
 
 	}
 	
-	protected void refreshConnStatusView() {
-		if (XmppConnectionManager.getInstance().getConnection().isConnected()) {
+	protected void refreshConnStatusView() {	
+
+		if (XmppConnectionManager.getInstance().getConnection() != null && 
+				XmppConnectionManager.getInstance().getConnection().isConnected()) {
 			mNetworkFailedTxt.setVisibility(View.GONE);
 		} else {
 			mNetworkFailedTxt.setVisibility(View.VISIBLE);
@@ -979,7 +1301,7 @@ public class MainActivity extends AContacterActivity implements
 			
 	}
 	
-	// Ë¢ĞÂÁÄÌì»á»°ÁĞ±í×Ó½çÃæ
+	// åˆ·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å³„å¸®æ‹·æ–œé”Ÿæ–¤æ‹·å’é”Ÿæ–¤æ‹·é”Ÿï¿½
 	protected void refreshMessageListView() {
 
 		mInviteNotices = MessageManager.getInstance()
@@ -992,7 +1314,7 @@ public class MainActivity extends AContacterActivity implements
 		mNoticeAdapter.refreshList(mInviteNotices);
 		
 		/**
-		 * ÓĞĞÂÏûÏ¢½øÀ´µÄÆøÅİÉèÖÃ
+		 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		 */
 		setMessagePaoPao();
 		
@@ -1006,7 +1328,7 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 	
-	// Ë¢ĞÂÍ¨»°¼ÇÂ¼ÁĞ±í×Ó½çÃæ
+	// åˆ·é”Ÿæ–¤æ‹·é€šé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å½•é”Ÿå«æ†‹æ‹·é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·
 	protected void refreshCalllogsListView() {
 
 		mCalllogsList = CallLogManager.getInstance().getRecentCallLogs();
@@ -1018,7 +1340,7 @@ public class MainActivity extends AContacterActivity implements
 		mCalllogsAdapter.refreshList(mCalllogsList);
 		
 		/**
-		 * ÓĞĞÂÏûÏ¢½øÀ´µÄÆøÅİÉèÖÃ
+		 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		 */
 		//setCalllogPaoPao();
 		
@@ -1032,14 +1354,14 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 	
-	// Ë¢ĞÂÁÄÌì»á»°ÁĞ±í×Ó½çÃæ
+	// åˆ·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å³„å¸®æ‹·æ–œé”Ÿæ–¤æ‹·å’é”Ÿæ–¤æ‹·é”Ÿï¿½
 	protected void refreshMessageListView(List<ChatHisBean> list) {
 
 		Collections.sort(list);
 		mNoticeAdapter.refreshList(list);
 		
 		/**
-		 * ÓĞĞÂÏûÏ¢½øÀ´µÄÆøÅİÉèÖÃ
+		 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 		 */
 		setMessagePaoPao();
 		
@@ -1053,7 +1375,7 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 	
-	// Ë¢ĞÂÁªÏµÈËÁĞ±í×Ó½çÃæ
+	// åˆ·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»é”Ÿæ–¤æ‹·é”Ÿå«æ†‹æ‹·é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·
 	protected void refreshContactListView() {
 		
 		mContacters = ContacterManager.getContacterList();
@@ -1077,7 +1399,7 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 	
-	// Ë¢ĞÂÁªÏµÈËÁĞ±í×Ó½çÃæ
+	// åˆ·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»é”Ÿæ–¤æ‹·é”Ÿå«æ†‹æ‹·é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·
 	protected void refreshContactListView(List<User> list) {
 		
 		Collections.sort(list, mPinyinComparator);
@@ -1091,7 +1413,7 @@ public class MainActivity extends AContacterActivity implements
 	}
 	
 	/**
-	 * ÓĞĞÂÏûÏ¢½øÀ´
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	@Override
 	protected void msgReceive(IMMessage msg) {
@@ -1100,7 +1422,7 @@ public class MainActivity extends AContacterActivity implements
 	}
 	
 	/**
-	 * ÁªÏµÈËµã»÷´¦Àí(ÏÔÊ¾¸ÃºÃÓÑµÄ¸öÈËĞÅÏ¢)
+	 * é”Ÿæ–¤æ‹·ç³»é”Ÿå‰¿ç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½(é”Ÿæ–¤æ‹·ç¤ºé”ŸçŸ«çŒ´æ‹·é”Ÿçª–çš„é©æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·æ¯)
 	 */
 	private OnClickListener contacterOnClickJ = new OnClickListener() {
 
@@ -1124,9 +1446,9 @@ public class MainActivity extends AContacterActivity implements
 		
 		Toast.makeText(
 				context,
-				"ÃÜÓÑ " + 
+				getResources().getString(R.string.navi_contacts) + 
 				((user.getNickName() == null) ? user.getName() : user.getNickName()) +
-				" ÒÑÌí¼Ó", Toast.LENGTH_SHORT).show();
+				getResources().getString(R.string.had_added), Toast.LENGTH_SHORT).show();
 		refreshList();
 	}
 
@@ -1137,9 +1459,9 @@ public class MainActivity extends AContacterActivity implements
 		
 		Toast.makeText(
 				context,
-				"ÃÜÓÑ " + 
+				getResources().getString(R.string.navi_contacts) + 
 				((user.getNickName() == null) ? user.getName() : user.getNickName()) +
-				" ÒÑÉ¾³ı", Toast.LENGTH_SHORT).show();
+				getResources().getString(R.string.had_deleted), Toast.LENGTH_SHORT).show();
 		refreshList();
 	}
 
@@ -1158,7 +1480,7 @@ public class MainActivity extends AContacterActivity implements
 		refreshList();
 	}
 	
-	// ×Ó½çÃæÖ®¼ä»¬¶¯»Øµ÷´¦Àí
+	// é”Ÿæ¥æ–¤æ‹·é”Ÿæ–¤æ‹·ä¹‹é”Ÿæˆ’æ»‘é”Ÿæ–¤æ‹·é”Ÿæˆªç¢‰æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	@Override
 	public void doChange(int lastIndex, int currentIndex) {
 		if (lastIndex != currentIndex) {
@@ -1204,7 +1526,7 @@ public class MainActivity extends AContacterActivity implements
 		}
 	}
 
-	// µ¼º½À¸µã»÷´¦Àí
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½
 	@Override
 	public void onClick(View v) {
 
@@ -1221,7 +1543,7 @@ public class MainActivity extends AContacterActivity implements
 	}
 
 
-	 // Í¨ÖªÆøÅİ¸üĞÂ
+	 // é€šçŸ¥é”Ÿæ–¤æ‹·é”Ÿæ·é©æ‹·é”Ÿæ–¤æ‹·
 	private void setMessagePaoPao() {
 		if (null != mInviteNotices && mInviteNotices.size() > 0) {
 			int paoCount = 0;
@@ -1250,7 +1572,7 @@ public class MainActivity extends AContacterActivity implements
 	}
 	
 	
-	// ÑÓ³ÙË¢ĞÂ½çÃæ
+	// é”Ÿæ¥ç­¹æ‹·åˆ·é”Ÿé“°æ–¤æ‹·é”Ÿæ–¤æ‹·
 	public void delayRefresh() {
 		new Thread(new Runnable() {
 
@@ -1268,7 +1590,7 @@ public class MainActivity extends AContacterActivity implements
 		});
 	}
 
-	// ÍøÂç×´Ì¬±ä»¯Í¨Öª´¦Àí
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€é”Ÿæˆ’åŒ–é€šçŸ¥é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	@Override
 	protected void handReConnect(String status) {
 		if (status.equals(XmppConnectionManager.CONNECTED) && XmppConnectionManager.getInstance().getConnection().isConnected()) {

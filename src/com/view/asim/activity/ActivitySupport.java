@@ -1,8 +1,6 @@
 package com.view.asim.activity;
 
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -11,7 +9,6 @@ import com.avos.avoscloud.AVAnalytics;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.view.asim.R;
-import com.view.asim.comm.Constant;
 import com.view.asim.dbg.LogcatHelper;
 import com.view.asim.manager.AppConfigManager;
 import com.view.asim.model.LoginConfig;
@@ -28,18 +25,13 @@ import com.yixia.camera.model.MediaObject;
 import com.yixia.camera.model.MediaObject.MediaPart;
 import com.yixia.camera.util.FileUtils;
 import com.yixia.camera.util.StringUtils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -54,7 +46,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 /**
- * Actity 工�?��?????�??
+ * 
  * 
  * @author xuweinan
  * 
@@ -66,7 +58,6 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	protected Context context = null;
 	protected AsimApplication eimApplication;
 	protected ProgressDialog pg = null;
-	protected LoginConfig mLoginCfg = null;
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
 
 	@Override
@@ -78,7 +69,6 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 		eimApplication = (AsimApplication) getApplication();
 		eimApplication.addActivity(this);
 		
-		mLoginCfg = AppConfigManager.getInstance().getLoginConfig();
 		Log.d(this.toString(), "onCreate on " + DateUtil.getCurDateStr());
 
 	}
@@ -117,7 +107,6 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.d(this.toString(), "onDestroy on " + DateUtil.getCurDateStr());
-		mLoginCfg = null;
 		pg = null;
 	}
 
@@ -157,7 +146,6 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 	
 	@Override
 	public void startConnService() {
-		// XMPP�????��?��????????
 		Intent xmpp = new Intent(context, ConnectService.class);
 		context.startService(xmpp);
 
@@ -165,19 +153,14 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	@Override
 	public void startGeneralService() {
-		// OTA??�线???级�?????
 		Intent ota = new Intent(context, OTAService.class);
 		context.startService(ota);
-		
-		// 好�?????系人??????
 		Intent server = new Intent(context, IMContactService.class);
 		context.startService(server);
 		
-		// ???天�?????
 		Intent chatServer = new Intent(context, IMChatService.class);
 		context.startService(chatServer);
 		
-		// �????��?��????��?��????????
 		Intent keyService = new Intent(context, AUKeyService.class);
 		context.startService(keyService);
 
@@ -186,7 +169,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	/**
 	 * 
-	 * ???�????????.
+	 * ???锟�???????.
 	 * 
 	 * @author xuweinan
 	 */
@@ -215,8 +198,8 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 
 	@Override
 	public void isExit() {
-		new AlertDialog.Builder(context).setTitle("�??�???????��???")
-				.setNeutralButton("�??�??", new DialogInterface.OnClickListener() {
+		new AlertDialog.Builder(context).setTitle(getResources().getString(R.string.settings_exit_btn))
+				.setNeutralButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						stopService();
@@ -224,7 +207,7 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 						eimApplication.exit();
 					}
 				})
-				.setNegativeButton("???�??", new DialogInterface.OnClickListener() {
+				.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();
@@ -433,6 +416,14 @@ public class ActivitySupport extends Activity implements IActivitySupport {
 				e.printStackTrace();
 			}
 		}
+		return false;
+	}
+	public  void changeLayout(){
+	}
+	public boolean isLoginActivity(){
+		return false;
+	}
+	public boolean isSignUpActivity(){
 		return false;
 	}
 }

@@ -247,7 +247,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 	}
 	
 	private void startBurnTimer() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (!message.getDestroy().equals(IMMessage.NEVER_BURN) && message.getDir().equals(IMMessage.RECV)) {
 			mSaveBtn.setVisibility(View.GONE);
 			mTimerBtn.setVisibility(View.VISIBLE);
 			burnThread = new BurnTimerThread(timer, new ExpiryTimerListener() {
@@ -271,7 +271,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 			        {    
 			            public void run()    
 			            {    
-			            	mTimerBtn.setText("销毁");
+			            	mTimerBtn.setText(getResources().getString(R.string.destory));
 			            	Burn();
 			            }    
 			        });				
@@ -352,7 +352,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 	
 	@Override
 	public void onBackPressed() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (message.getDestroy().equals(IMMessage.SHOULD_BURN)) {
 			if (burnThread != null) {
 				burnThread.cancel();
 			}
@@ -364,7 +364,7 @@ public class ImagePreviewActivity extends ActivitySupport{
 	
 	@Override
 	public void onStop() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (message.getDestroy().equals(IMMessage.SHOULD_BURN)) {
 			if (burnThread != null) {
 				burnThread.cancel();
 			}
@@ -375,8 +375,17 @@ public class ImagePreviewActivity extends ActivitySupport{
 	}
 	
 	private void burnMessage() {
+		if (message.getDir().equals(IMMessage.RECV)) {
+
     	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
-    	showToast("消息已销毁");
-    	MessageManager.getInstance().delChatHisById(message.getId());
+    	showToast(getResources().getString(R.string.message_had_destoried));
+	    	
+			Intent intent = new Intent();
+			intent.setAction(Constant.DESTROY_RECEIPTS_ACTION);
+			intent.putExtra(Constant.DESTROY_RECEIPTS_KEY_MESSAGE, message);
+			sendBroadcast(intent);
+			
+	    	MessageManager.getInstance().delChatHisById(message.getId());
+		}
 	}
 }

@@ -20,6 +20,7 @@ import org.jivesoftware.smack.packet.Registration;
 
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.manager.SMSVerifyManager;
 import com.view.asim.manager.XmppConnectionManager;
@@ -66,12 +67,12 @@ import com.view.asim.R;
 
 /**
  * 
- * ÓÃ»§×¢²á½çÃæ.
+ * é”ŸçŸ«ä¼™æ‹·æ³¨é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½.
  * 
  * @author allen
  */
 public class SignUpActivity extends ActivitySupport {
-	
+	private boolean showVerificationLayout = false;
 	private final static String TAG = "SignUpActivity";
 	
 	private final static int SIGNUP_CONFLICT = -1;
@@ -82,9 +83,8 @@ public class SignUpActivity extends ActivitySupport {
 	private final static int REFRESH_SMSCODE_TIMER = 4;
 	
 	private final static int SMS_CODE_RESEND_DURATION = 60;
-	// ÓÃÓÚÁ¬Ðø°´·µ»Ø¼üÍË³öµÄÅÐ¶¨Ê±¼ä
+	// é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæˆªç¡·æ‹·é”Ÿå‰¿ç­¹æ‹·é”Ÿæ–¤æ‹·é”Ÿå«è®¹æ‹·æ—¶é”Ÿæ–¤æ‹·
     private long mExitTime = 0;   
-	private String to = null;
 	private User newUser = null;
 	private ImageView loginImg = null;
 
@@ -118,11 +118,32 @@ public class SignUpActivity extends ActivitySupport {
 		
 		init();
 	}
-	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		if(showVerificationLayout){
+			notifySmsCodeSent();
+		}
+	}
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		mSmsCodeSendWorker.destroy();
+		showVerificationLayout = false;
+	}
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("showVerificationLayout", showVerificationLayout);
+	}
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onRestoreInstanceState(savedInstanceState);
+		showVerificationLayout = savedInstanceState.getBoolean("showVerificationLayout");
+		Log.i(TAG, TAG +"onRestoreInstanceState"+" showVerificationLayout: "+showVerificationLayout);
 	}
 	
 	protected void init() {
@@ -201,7 +222,7 @@ public class SignUpActivity extends ActivitySupport {
 						mUserInfoStepLayout.setVisibility(View.VISIBLE);
 					}
 					else {
-		    			showToast("ÑéÖ¤Âë´íÎó£¬ÇëÈ·ÈÏºóÖØÐÂÊäÈë");
+		    			showToast(getResources().getString(R.string.varified_password_error));
 					}
 				}
 				
@@ -219,17 +240,15 @@ public class SignUpActivity extends ActivitySupport {
 					
 					newUser = new User();
 					newUser.setName(username);
-					newUser.setJID(StringUtil.getJidByName(username, mLoginCfg.getXmppServiceName()));
+					//newUser.setJID(StringUtil.getJidByName(username, mLoginCfg.getXmppServiceName()));
 					newUser.setGender(mGender);
 					newUser.setNickName(nickname);
 					
-					// ÏÈ¼ÇÂ¼ÏÂ¸÷×é¼þµÄÄ¿Ç°×´Ì¬,µÇÂ¼³É¹¦ºó²Å±£´æ
-					mLoginCfg.setUsername(username);
-					mLoginCfg.setPassword(password);
-
+					AppConfigManager.getInstance().setUsername(username);
+					AppConfigManager.getInstance().setPassword(password);
+					
 					Log.d(TAG, "start signup task");
-					SignUpTask task = new SignUpTask(SignUpActivity.this,
-							mLoginCfg);
+					SignUpTask task = new SignUpTask(SignUpActivity.this);
 					task.initUser(newUser);
 					task.execute();
 				}
@@ -270,11 +289,10 @@ public class SignUpActivity extends ActivitySupport {
         public void handleMessage(Message msg) {
         	switch(msg.what) {
         	case SIGNUP_SUCC:
-    			showToast("×¢²á³É¹¦");
+    			showToast(getResources().getString(R.string.register_success));
 
-            	// ×¢²á³É¹¦£¬Ö±½ÓµÇÂ¼
-    			LoginTask task = new LoginTask(SignUpActivity.this,
-    					mLoginCfg, (AnimationDrawable) loginImg.getBackground());
+            	// æ³¨é”Ÿæ–¤æ‹·æ™’é”Ÿæ–¤æ‹·é”Ÿè¡—æ†‹æ‹·æ‹¥é”Ÿé“°ï¿½
+    			LoginTask task = new LoginTask(SignUpActivity.this, (AnimationDrawable) loginImg.getBackground());
     			task.initUser(newUser);
     			task.execute();
             	
@@ -282,19 +300,19 @@ public class SignUpActivity extends ActivitySupport {
         		break;
         		
         	case SIGNUP_CONFLICT:
-    			showToast("¸ÃÊÖ»úºÅÂëÒÑ×¢²áÃÜÐÅ£¬ÇëÖ±½ÓµÇÂ¼£¬»òÕß×¢²áÆäËûºÅÂë");
+    			showToast(getResources().getString(R.string.phone_number_had_register));
 				mUserInfoStepLayout.setVisibility(View.GONE);
     			mCellphoneStepLayout.setVisibility(View.VISIBLE);
         			
         		break;
         		
         	case SEND_SMSCODE_COMPLETE:
-				showToast("¶ÌÐÅÑéÖ¤Âë·¢ËÍ³É¹¦");
+				showToast(getResources().getString(R.string.sms_verification_code_send_success));
 				showVerificationLayout(mCellphoneText.getText().toString().trim());
 				break;
 				
         	case SEND_SMSCODE_FAILED:
-        		showToast("¶ÌÐÅÑéÖ¤Âë·¢ËÍÊ§°Ü£¬Çë¼ì²éÊÖ»úºÅÂë£¬ÉÔµÈÖØÊÔ");
+        		showToast(getResources().getString(R.string.sms_verification_code_send_failure));
         		break;
 				
         	case RESEND_SMSCODE_OK:
@@ -302,7 +320,7 @@ public class SignUpActivity extends ActivitySupport {
 				break;
 				
         	case REFRESH_SMSCODE_TIMER:
-            	mResendBtn.setText(msg.arg1 + "ÃëºóÖØ·¢");
+            	mResendBtn.setText(msg.arg1 + getResources().getString(R.string.x_seconds_send_again));
         	}
 
         }
@@ -316,7 +334,7 @@ public class SignUpActivity extends ActivitySupport {
 					notifySmsCodeSent();
 				}
 				else {
-					//showToast("¶ÌÐÅÑéÖ¤Âë·¢ËÍÊ§°Ü£¬ÇëÉÔµÈºóÖØÊÔ");
+					//showToast("é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·è¯é”Ÿè¯«å‘é”Ÿæ–¤æ‹·å¤±é”Ÿæ°ï½æ‹·é”Ÿæ–¤æ‹·é”Ÿçš†ç­‰çŒ´æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·");
 					notifySmsCodeSentFailed();
 				}
 			}
@@ -327,10 +345,11 @@ public class SignUpActivity extends ActivitySupport {
     }
     
     private void showVerificationLayout(String cellphone) {
+    	showVerificationLayout = true;
 		mCellphoneStepLayout.setVisibility(View.GONE);
 		mUserInfoStepLayout.setVisibility(View.GONE);
 
-		mSmsSendTipsTxt.setText("°üº¬ÑéÖ¤ÂëµÄ¶ÌÐÅÒÑ·¢ËÍÖÁ " + cellphone);
+		mSmsSendTipsTxt.setText(getResources().getString(R.string.sms_verification_code_had_send_to) + cellphone);
 		mResendBtn.setBackgroundResource(R.drawable.green_button_frame_pressed);
 		mResendBtn.setClickable(false);
 		BaseHandler timerHandler = new TimerHandler(SMS_CODE_RESEND_DURATION, new ExpiryTimerListener() {
@@ -355,7 +374,7 @@ public class SignUpActivity extends ActivitySupport {
     }
     
     private void allowResendSmsCode() {
-    	mResendBtn.setText("ÖØ·¢");
+    	mResendBtn.setText(getResources().getString(R.string.resend_btn));
 		mResendBtn.setBackgroundResource(R.drawable.green_button);
 		mResendBtn.setClickable(true);
 
@@ -387,7 +406,7 @@ public class SignUpActivity extends ActivitySupport {
     
 	/**
 	 * 
-	 * ×¢²áÐ£Ñé£¨ÊÖ»úºÅÂë£©.
+	 * æ³¨é”Ÿæ–¤æ‹·æ ¡é”Ÿä»‹ï¼ˆé”Ÿè¡—ä¼™æ‹·é”Ÿæ–¤æ‹·é”Ÿè¯«ï¼‰.
 	 * 
 	 * @return
 	 * @author xuweinan
@@ -399,18 +418,18 @@ public class SignUpActivity extends ActivitySupport {
 	
 	/**
 	 * 
-	 * ×¢²áÐ£Ñé£¨¶ÌÐÅÑéÖ¤Âë£©.
+	 * æ³¨é”Ÿæ–¤æ‹·æ ¡é”Ÿä»‹ï¼ˆé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·è¯é”Ÿè¯«ï¼‰.
 	 * 
 	 * @return
 	 * @author xuweinan
 	 */
 	private boolean checkVerificationCode() {
-		return !ValidateUtil.isEmpty(mVerifyCodeText, "ÑéÖ¤Âë");
+		return !ValidateUtil.isEmpty(mVerifyCodeText, getResources().getString(R.string.verification_code));
 	}
 	
 	/**
 	 * 
-	 * ×¢²áÐ£Ñé£¨êÇ³ÆºÍÃÜÂë£©.
+	 * æ³¨é”Ÿæ–¤æ‹·æ ¡é”Ÿä»‹ï¼ˆé”Ÿè§’ç§°çŒ´æ‹·é”Ÿæ–¤æ‹·é”Ÿè¯«ï¼‰.
 	 * 
 	 * @return
 	 * @author xuweinan
@@ -418,13 +437,13 @@ public class SignUpActivity extends ActivitySupport {
 	 */
 	private boolean checkUserInfo() {
 		boolean checked = false;
-		checked = (!ValidateUtil.isEmpty(mNickNameText, "êÇ³Æ") && !ValidateUtil
-				.isEmpty(mPasswordText, "ÃÜÂë"));
+		checked = (!ValidateUtil.isEmpty(mNickNameText,getResources().getString(R.string.nickname)) && !ValidateUtil
+				.isEmpty(mPasswordText, getResources().getString(R.string.password)));
 		return checked;
 	}
 	
 	/**
-	 * °´¼üÊÂ¼þ´¦Àí
+	 * é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé“°ç¡·æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 	 */
 	@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -436,16 +455,23 @@ public class SignUpActivity extends ActivitySupport {
     }
 
 	/**
-	 * 2ÃëÄÚÁªÏµ°´Á½´Î·µ»Ø¼üÍË³öAPP
+	 * 2é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·ç³»é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè½¿å‡¤æ‹·é”Ÿæˆªç¡·æ‹·é”Ÿå‰¿ç­¹æ‹·APP
 	 */
     public void exit() {
         if ((System.currentTimeMillis() - mExitTime) > 2000) {
-            showToast("ÔÙ°´Ò»´ÎÍË³ö³ÌÐò");
+            showToast( getResources().getString(R.string.exit_app_click_again));
             mExitTime = System.currentTimeMillis();
         } else {
-            finish();
+            /*finish();
             System.exit(0);
+            */
+        	getEimApplication().exit();
         }
     }
+	@Override
+	public boolean isSignUpActivity() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 
 }

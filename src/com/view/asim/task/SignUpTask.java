@@ -21,7 +21,7 @@ import com.view.asim.activity.ActivitySupport;
 import com.view.asim.activity.IActivitySupport;
 import com.view.asim.activity.MainActivity;
 import com.view.asim.activity.SignUpActivity;
-import com.view.asim.activity.SplashActivity;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.AppConfigManager;
@@ -40,7 +40,7 @@ import com.view.asim.R;
 
 /**
  * 
- * ×¢²áÒì²½ÈÎÎñ.
+ * ×¢ï¿½ï¿½ï¿½ì²½ï¿½ï¿½ï¿½ï¿½.
  * 
  * @author xuweinan
  */
@@ -48,13 +48,13 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 	private final static String TAG = "SignUpTask";
 	private ProgressDialog pd;
 	private ActivitySupport activity;
-	private LoginConfig loginConfig;
 	private User mUser = new User();
+	private Context context;
 
-	public SignUpTask(ActivitySupport as, LoginConfig loginConfig) {
-		this.loginConfig = loginConfig;
+	public SignUpTask(ActivitySupport as) {
 		this.pd = as.getProgressDialog();
 		this.activity = as;
+		this.context = ApplicationContext.get();
 	}
 
 	public void initUser(User u) {
@@ -63,14 +63,15 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 	
 	@Override
 	protected void onPreExecute() {
-		pd.setTitle("ÇëÉÔµÈ");
-		pd.setMessage("ÕýÔÚ×¢²á...");
+		pd.setTitle(context.getResources().getString(R.string.please_wait));
+		pd.setMessage(context.getResources().getString(R.string.in_resister));
 		pd.show();
 		super.onPreExecute();
 	}
 
 	@Override
 	protected Integer doInBackground(String... params) {
+		resolv();
 		return signUp();
 	}
 
@@ -84,31 +85,24 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 		
 		SignUpActivity signup;
 		switch (result) {
-		case Constant.SERVER_SUCCESS: // ×¢²á³É¹¦
-			AppConfigManager.getInstance().saveLoginConfig(loginConfig);// ±£´æÓÃ»§ÅäÖÃÐÅÏ¢
+		case Constant.SERVER_SUCCESS: // ×¢ï¿½ï¿½É¹ï¿½
+			AppConfigManager.getInstance().saveLoginConfig();// ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 
 			signup = (SignUpActivity)activity;
 			signup.notifySignUpSucc();
 			break;
-		case Constant.SIGNUP_ERROR_ACCOUNT_PASS:// ÕË»§»òÕßÃÜÂë´íÎó
-			/*
-			Toast.makeText(
-					activity,
-					activity.getResources().getString(
-							R.string.message_existed_username),
-					Toast.LENGTH_LONG).show();
-					*/
+		case Constant.SIGNUP_ERROR_ACCOUNT_PASS:// ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			signup = (SignUpActivity)activity;
 			signup.notifyUserIsExist();
 			break;
-		case Constant.SERVER_UNAVAILABLE:// ·þÎñÆ÷Á¬½ÓÊ§°Ü
+		case Constant.SERVER_UNAVAILABLE:// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
 							R.string.message_server_unavailable),
 					Toast.LENGTH_SHORT).show();
 			break;
-		case Constant.UNKNOWN_ERROR:// Î´ÖªÒì³£
+		case Constant.UNKNOWN_ERROR:// Î´Öªï¿½ì³£
 			Toast.makeText(
 					activity,
 					activity.getResources().getString(
@@ -118,21 +112,22 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 		}
 		super.onPostExecute(result);
 	}
+	
+	private void resolv() {
+		AppConfigManager.getInstance().resolvServer();
+	}
 
-	// ×¢²á
+	// ×¢ï¿½ï¿½
 	private Integer signUp() {
-		String username = loginConfig.getUsername();
-		String password = loginConfig.getPassword();
+		String username = AppConfigManager.getInstance().getUsername();
+		String password = AppConfigManager.getInstance().getPassword();
 		
 		try {
-			// ×¢²á
+			// ×¢ï¿½ï¿½
 			XmppConnectionManager manager = XmppConnectionManager.getInstance();
-			manager.connectOnly(loginConfig);
+			manager.connectOnly();
 			
-			//XMPPConnection connection = XmppConnectionManager.getInstance()
-					//.getConnection();
-			//connection.connect();
-			loginConfig.setOnline(true);
+			//AppConfigManager.getInstance().setOnline(true);
 			
 	        Registration reg = new Registration();  
 	        reg.setType(IQ.Type.SET);  
@@ -146,7 +141,6 @@ public class SignUpTask extends AsyncTask<String, Integer, Integer> {
 	        PacketCollector collector = manager.getConnection().createPacketCollector(filter);  
 	        manager.getConnection().sendPacket(reg);  
 	        IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());  
-	        // Stop queuing resultsÍ£Ö¹ÇëÇóresults£¨ÊÇ·ñ³É¹¦µÄ½á¹û£©  
 	        collector.cancel();  
 	        
 	        if (result == null) {  

@@ -32,7 +32,7 @@
             android:drawablePadding="10dp"
             android:drawableRight="@drawable/business_card_male_icon"
             android:gravity="center"
-            android:text="用户名"
+            android:text="@string/user_name"
             android:textColor="@color/darkgray"
             android:textSize="18sp" />
 
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="签名"
+                android:text="@string/signature"
                 android:textColor="@color/lightgray"
                 android:textSize="16sp" />
 
@@ -90,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="地区"
+                android:text="@string/region"
                 android:textColor="@color/lightgray"
                 android:textSize="16sp" />
 
@@ -125,7 +125,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="电话"
+                android:text="@string/telephone"
                 android:textColor="@color/lightgray"
                 android:textSize="16sp" />
 
@@ -167,7 +167,7 @@
             android:drawablePadding="5dp"
             android:drawableTop="@drawable/groupchat_btn"
             android:gravity="center"
-            android:text="群聊"
+            android:text="@string/group_chat"
             android:textColor="@color/gray"
             android:textSize="16sp" />
 
@@ -182,7 +182,7 @@
             android:drawablePadding="5dp"
             android:drawableTop="@drawable/videocall_btn"
             android:gravity="center"
-            android:text="语音"
+            android:text="@string/voice"
             android:textColor="@color/gray"
             android:textSize="16sp" />
 
@@ -197,7 +197,7 @@
             android:drawablePadding="5dp"
             android:drawableTop="@drawable/voicecall_btn"
             android:gravity="center"
-            android:text="录影"
+            android:text="@string/record_a_scene_video"
             android:textColor="@color/gray"
             android:textSize="16sp" />
 
@@ -212,7 +212,7 @@
             android:drawablePadding="5dp"
             android:drawableTop="@drawable/settings_btn"
             android:gravity="center"
-            android:text="设置"
+            android:text="@string/settings"
             android:textColor="@color/gray"
             android:textSize="16sp" />
     </LinearLayout>

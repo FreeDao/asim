@@ -37,7 +37,7 @@ import android.util.Log;
 
 /**
  * 
- * 重连接服务.
+ * 锟斤拷锟斤拷锟接凤拷锟斤拷.
  * 
  * @author xuweinan
  */
@@ -45,67 +45,21 @@ public class ConnectService extends Service {
 	private static final String TAG = "ConnectService";
 	private ConnectivityManager connectivityManager;
 	private NetworkInfo info;
-	protected LoginConfig mLoginCfg = null;
-	private Worker mConnWorker = null;
 	private XmppConnectionManager mXmppManager = null;
 	private SmackAndroid mSmackAndroid;
-
+	private Context context;
 	@Override
 	public void onCreate() {
 		Log.d(TAG, "service create");
-
+		context = this;
 		IntentFilter mFilter = new IntentFilter();
 		mFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 		mFilter.addAction(Constant.ACTION_RECONNECT_STATE);
 
 		registerReceiver(reConnectionBroadcastReceiver, mFilter);
-		
-		mLoginCfg = AppConfigManager.getInstance().getLoginConfig();
-		
-		mConnWorker = new Worker();
-		mConnWorker.initilize("XMPP Connection");
-
+				
 		mXmppManager = XmppConnectionManager.getInstance();
 		mSmackAndroid = SmackAndroid.init(ApplicationContext.get());
-
-		/*
-		connection = XmppConnectionManager.getInstance().getConnection();
-		if (connection.isConnected()) {
-			connection.addConnectionListener(new ConnectionListener() {
-	
-				@Override
-				public void connectionClosed() {
-					Log.d(TAG, "ConnectionListener: connectionClosed");
-					
-				}
-	
-				@Override
-				public void connectionClosedOnError(Exception arg0) {
-					Log.d(TAG, "ConnectionListener: connectionClosedOnError, exception: "  + arg0);		
-					
-					
-				}
-	
-				@Override
-				public void reconnectingIn(int arg0) {
-					Log.d(TAG, "ConnectionListener: reconnectingIn " + arg0 + " times");					
-				}
-	
-				@Override
-				public void reconnectionFailed(Exception arg0) {
-					Log.d(TAG, "ConnectionListener: reconnectionFailed, exception: "  + arg0);
-				}
-	
-				@Override
-				public void reconnectionSuccessful() {
-					Log.d(TAG, "ConnectionListener: reconnectionSuccessful");
-					//sendBroadcastToUI(Constant.RECONNECT_STATE_SUCCESS);
-					//sendReconnBroadcastToContactService();
-				}
-				
-			});
-		}
-		*/
 		super.onCreate();
 	}
 
@@ -127,6 +81,8 @@ public class ConnectService extends Service {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+//		Intent xmpp = new Intent(context, ConnectService.class);
+//		context.startService(xmpp);
 		super.onDestroy();
 	}
 
@@ -146,19 +102,10 @@ public class ConnectService extends Service {
 					Log.d(TAG, "network connection available.");
 
 					if (connection != null && !connection.isConnected()) {
-						/*
-						if (connThead == null || !connThead.isAlive()) {
-							connThead = new ConnThread(connection);
-							connThead.start();	
-						}*/
 						new ConnThread().start();
-					} else {
-						//sendBroadcastToUI(Constant.RECONNECT_STATE_SUCCESS);
 					}
 				} else {
 					Log.d(TAG, "network connection lost.");
-
-					//sendBroadcastToUI(Constant.RECONNECT_STATE_FAIL);
 				}
 			}
 			else if (action.equals(Constant.ACTION_RECONNECT_STATE)) {
@@ -171,86 +118,19 @@ public class ConnectService extends Service {
 
 	};
 
-	/*
-	private class ConnStatusDaemonThread extends Thread {
-		
-		@Override
-		public void run() {
-			Log.d(TAG, "ConnStatusDaemonThread");
-			
-			while(true) {
-				try {
-					Thread.sleep(5000);
-					XMPPConnection connection = XmppConnectionManager.getInstance()
-							.getConnection();
-					if(!connection.isConnected()) {
-						if(connThead == null || !connThead.isAlive()) {
-							connThead = new ConnThread(connection);
-							connThead.start();	
-						}
-					}
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-			}
-		}
-	}
-	*/
-
 	private class ConnThread extends Thread {
 		@Override
 		public void run() {
 			try {
 				Thread.sleep(5000);
-				mXmppManager.reconnect(mLoginCfg);
+				AppConfigManager.getInstance().resolvServer();
+				
+				mXmppManager.reconnect();
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-
-	/*
-	
-	public void reConnect(XMPPConnection connection) {
-		Log.d(TAG, "XMPP connection lost, reconn it.");
-
-		try {
-			Thread.sleep(5000);
-			//XmppConnectionManager.getInstance().init(mLoginCfg);
-			XmppConnectionManager.getInstance().getConnection().connect();
-			//XmppConnectionManager.getInstance().getConnection().login(mLoginCfg.getUsername(), mLoginCfg.getPassword());
-			
-		} catch (Exception e) {
-			Log.e(TAG, "XMPP reconnect failed!");
-			reConnect(connection);
-		}
-		
-		sendBroadcastToUI(Constant.RECONNECT_STATE_SUCCESS);
-		sendReconnBroadcastToContactService();
-	}
-	*/
-
-	/*
-	private void sendBroadcastToUI(boolean isSuccess) {
-		Log.d(TAG, "send connection state " + isSuccess + " broadcast to UI.");
-		Intent intent = new Intent();
-		SharedPreferences preference = getSharedPreferences(Constant.IM_SET_PREF,
-				0);
-		// 保存在线连接信息
-		preference.edit().putBoolean(Constant.IS_ONLINE, isSuccess).commit();
-		intent.setAction(Constant.ACTION_RECONNECT_STATE);
-		intent.putExtra(Constant.RECONNECT_STATE, isSuccess);
-		sendBroadcast(intent);
-	}
-	
-	private void sendReconnBroadcastToContactService() {
-		Log.d(TAG, "send reconnection success broadcast to Contact Service");
-		Intent intent = new Intent(Constant.RECV_OFFLINE_MSG_ACTION);
-		sendBroadcast(intent);
-	}
-	*/
 
 }

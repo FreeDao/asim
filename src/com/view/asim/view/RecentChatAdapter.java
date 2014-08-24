@@ -107,12 +107,12 @@ public class RecentChatAdapter extends BaseAdapter {
 		}		
 		holder.nameTxt.setTag(notice);
 		
-		if(notice.getDestroy().equals(IMMessage.BURN_AFTER_READ) && notice.getType().equals(ChatMessage.CHAT_TEXT)) {
+		if(notice.getDestroy().equals(IMMessage.SHOULD_BURN) && notice.getType().equals(ChatMessage.CHAT_TEXT)) {
 			if (notice.getDir().equals(IMMessage.SEND)) {
-				holder.lastMsgTxt.setText("你发了一条文字消息");
+				holder.lastMsgTxt.setText(context.getResources().getString(R.string.you_send_a_text));
 			}
 			else {
-				holder.lastMsgTxt.setText(nickname + "发来了一条文字消息");
+				holder.lastMsgTxt.setText(nickname + context.getResources().getString(R.string.get_a_text_message));
 			}
 		}
 		else {

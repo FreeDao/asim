@@ -108,7 +108,7 @@ public class BurnMsgViewActivity extends ActivitySupport {
 		
 		if (message.getType().equals(ChatMessage.CHAT_TEXT)) {
 			previewText.setVisibility(View.VISIBLE);
-			title.setText("文字消息");
+			title.setText(getResources().getString(R.string.text_message));
 			
 			SpannableString spannableString = FaceConversionUtil.getInstace().getExpressionString(context, message.getContent(), 50);
 
@@ -116,7 +116,7 @@ public class BurnMsgViewActivity extends ActivitySupport {
 		}
 		else if (message.getType().equals(ChatMessage.CHAT_AUDIO)) {
 			previewText.setVisibility(View.INVISIBLE);
-			title.setText("语音消息");
+			title.setText(getResources().getString(R.string.voice_message));
 		}
 		
 	}
@@ -145,7 +145,7 @@ public class BurnMsgViewActivity extends ActivitySupport {
 		super.onResume();
 		
 		if (!message.getType().equals(ChatMessage.CHAT_AUDIO)) {
-			if (!destroyTimerStarting) {
+			if (!destroyTimerStarting && message.getDir().equals(IMMessage.RECV)) {
 				burnThread = new BurnTimerThread(timer, new ExpiryTimerListener() {
 		
 					@Override
@@ -155,7 +155,10 @@ public class BurnMsgViewActivity extends ActivitySupport {
 				        {    
 				            public void run()    
 				            {    
-				    			title.setText("文字消息(" + t + ")");
+								title.setText(getResources().getString(
+												R.string.text_message)
+												+ "(" + t + ")");
+
 				            }    
 				    
 				        });
@@ -169,7 +172,8 @@ public class BurnMsgViewActivity extends ActivitySupport {
 				        {    
 				            public void run()    
 				            {    
-				            	title.setText("销毁");
+				            	title.setText(getResources().getString(
+												R.string.destory));
 				            	burnAnim();
 				            }    
 				        });				
@@ -284,41 +288,48 @@ public class BurnMsgViewActivity extends ActivitySupport {
 			mMediaPlayer.start();
 			mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
 				public void onCompletion(MediaPlayer mp) {
-					burnThread = new BurnTimerThread(timer / 2, new ExpiryTimerListener() {
-						
-						@Override
-						public void onTick(int sec) {
-							final int t = sec;
-							runOnUiThread(new Runnable()    
-					        {    
-					            public void run()    
-					            {    
-					    			title.setText("语音消息(" + t + ")");
-					            }    
-					    
-					        });
-						}
-			
-						@Override
-						public void onEnd() {
-							runOnUiThread(new Runnable()    
-					        {    
-					            public void run()    
-					            {    
-					            	title.setText("销毁");
-					            	burnAnim();
-					            }    
-					        });				
-						}
-
-						@Override
-						public void onCancel() {
-							// TODO Auto-generated method stub
+					
+					if (message.getDir().equals(IMMessage.RECV)) {
+						burnThread = new BurnTimerThread(timer / 2, new ExpiryTimerListener() {
 							
-						}
-						
-					});
-					burnThread.start();
+							@Override
+							public void onTick(int sec) {
+								final int t = sec;
+								runOnUiThread(new Runnable()    
+						        {    
+						            public void run()    
+						            {    
+						    			title.setText(getResources()
+													.getString(
+															R.string.voice_message)
+													+ "(" + t + ")");
+						            }    
+						    
+						        });
+							}
+				
+							@Override
+							public void onEnd() {
+								runOnUiThread(new Runnable()    
+						        {    
+						            public void run()    
+						            {    
+						            	title.setText(getResources()
+													.getString(R.string.destory));
+						            	burnAnim();
+						            }    
+						        });				
+							}
+	
+							@Override
+							public void onCancel() {
+								// TODO Auto-generated method stub
+								
+							}
+							
+						});
+						burnThread.start();
+					}
 				}
 			});
 
@@ -330,7 +341,7 @@ public class BurnMsgViewActivity extends ActivitySupport {
 	
 	@Override
 	public void onPause() {
-		if (message.getDestroy().equals(IMMessage.BURN_AFTER_READ)) {
+		if (!message.getDestroy().equals(IMMessage.NEVER_BURN)) {
 			if (burnThread == null) {
 				burnMessage();
 			}
@@ -346,9 +357,18 @@ public class BurnMsgViewActivity extends ActivitySupport {
 	}
 	
 	private void burnMessage() {
-    	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
-    	showToast("消息已销毁");
-    	MessageManager.getInstance().delChatHisById(message.getId());
+		if (message.getDir().equals(IMMessage.RECV)) {
+
+	    	Log.d(TAG, "remove message id " + message.getId() + ", " + message.getContent());
+	    	showToast(getResources().getString(R.string.content_had_destoried));
+	    	
+			Intent intent = new Intent();
+			intent.setAction(Constant.DESTROY_RECEIPTS_ACTION);
+			intent.putExtra(Constant.DESTROY_RECEIPTS_KEY_MESSAGE, message);
+			sendBroadcast(intent);
+			
+	    	MessageManager.getInstance().delChatHisById(message.getId());
+		}
 	}
 	
 }

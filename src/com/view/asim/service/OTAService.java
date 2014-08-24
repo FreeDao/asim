@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.Calendar;
 
 import com.view.asim.R;
+import com.view.asim.activity.AlertDialogNotifyActivity;
 import com.view.asim.comm.Constant;
 import com.view.asim.model.UpgradeRule;
 import com.view.asim.utils.FileUtil;
@@ -39,7 +40,7 @@ import android.widget.Toast;
 
 /**
  * 
- * ÔÚÏßÉý¼¶·þÎñ.
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
  * 
  * @author xuweinan
  */
@@ -125,7 +126,7 @@ public class OTAService extends Service {
 	}
 	
 	private void initVersion() {
-		// »ñÈ¡ App µ±Ç°°æ±¾
+		// ï¿½ï¿½È¡ App ï¿½ï¿½Ç°ï¿½æ±¾
 		PackageInfo info = null;  
         try {  
             info = context.getPackageManager().getPackageInfo(  
@@ -141,8 +142,21 @@ public class OTAService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		return START_NOT_STICKY;
-		//return super.onStartCommand(intent, flags, startId);
+		if(null!=intent){
+			String state = intent.getStringExtra("state");
+			long id = intent.getLongExtra("downloadId", 0);
+			String filename = intent.getStringExtra("filename");
+			if("downloading".equals(state)){
+				Log.i(TAG, "downloading");
+				mOTAStatus.status = OTAStatusInfo.STATUS_DOWNLOADING;
+				mOTAStatus.downloadId =id ;
+				mOTAStatus.filename = filename;
+			}else if("cancledownload".equals(state)){
+				mOTAStatus.init();
+			}
+		}
+		//return START_NOT_STICKY;
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
@@ -153,6 +167,8 @@ public class OTAService extends Service {
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(receiver);
+//		Intent ota = new Intent(context, OTAService.class);
+//		context.startService(ota);
 		super.onDestroy();
 	}
 
@@ -237,7 +253,7 @@ public class OTAService extends Service {
 				BaseHandler handler = null;
 				
 				mOTAStatus.status = OTAStatusInfo.STATUS_CHECKING;
-				// Æô¶¯ÔÚÏß¼ì²é°æ±¾¸üÐÂÇé¿öµÄ handler
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ handler
 				handler = (CheckOTAStatusHandler) new CheckOTAStatusHandler(context, mOTAStatus.version,
 						new OTACheckResultListener() {
 							@Override
@@ -253,9 +269,9 @@ public class OTAService extends Service {
 								else {
 									Log.d(TAG, "the version " + mOTAStatus.version + " is up-to-date, do not need upgrade");
 									if(mOTAStatus.trigger.equals(OTAStatusInfo.TRIGGER_MANUAL)) {
-										/* FIXME: ÐèÒª¹ã²¥·µ»Ø½á¹û¸ø´¥·¢Ä£¿é
+										/* FIXME: ï¿½ï¿½Òªï¿½ã²¥ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
 										Looper.prepare();
-										Toast.makeText(cntx, "ÒÑ¾­ÊÇ×îÐÂ°æ±¾ÁËÅ¶ :)", Toast.LENGTH_SHORT).show();
+										Toast.makeText(cntx, "ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â°æ±¾ï¿½ï¿½Å¶ :)", Toast.LENGTH_SHORT).show();
 										Looper.loop();
 										*/
 									}
@@ -299,11 +315,13 @@ public class OTAService extends Service {
 	}
 
 	private void showUpgradeNotify() {		
-        AlertDialog mDialog = null;  
+		Log.i(TAG, "showUpgradeNotify");
+        /*AlertDialog mDialog = null;  
         AlertDialog.Builder builder = new AlertDialog.Builder(context);  
         builder.setIcon(android.R.drawable.ic_dialog_info);  
-        builder.setTitle("°æ±¾¸üÐÂ");  
-        builder.setMessage("ÃÜÐÅÐÂ°æ±¾ " + mOTAStatus.upgradeRule.getTgtVer() + " ÒÑ¾­·¢²¼£¬ÊÇ·ñÁ¢¼´ÏÂÔØ£¿");  
+        builder.setTitle("ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½");  
+        builder.setMessage("ï¿½ï¿½ï¿½ï¿½ï¿½Â°æ±¾ " + mOTAStatus.upgradeRule.getTgtVer() + " ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½"); 
+        
         builder.setPositiveButton(android.R.string.ok,  
                 new DialogInterface.OnClickListener() {  
                     public void onClick(DialogInterface dialog, int which) {
@@ -311,7 +329,7 @@ public class OTAService extends Service {
                     	Uri uri = Uri.parse("http://" + Constant.OTA_STORAGE_HOST + File.separator + mOTAStatus.upgradeRule.getName());
                     	DownloadManager.Request request = new Request(uri);  
                     	request.setAllowedNetworkTypes(Request.NETWORK_WIFI);
-                    	request.setTitle("ÃÜÐÅ ÐÂ°æ±¾ " + mOTAStatus.upgradeRule.getTgtVer() + " ÏÂÔØÖÐ");
+                    	request.setTitle("ï¿½ï¿½ï¿½ï¿½ ï¿½Â°æ±¾ " + mOTAStatus.upgradeRule.getTgtVer() + " ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
                     	
                     	mOTAStatus.filename = mOTAStatus.upgradeRule.getName().replace(".apk", "") + "_" + 
                     			Calendar.getInstance().getTimeInMillis() + ".apk";
@@ -335,26 +353,33 @@ public class OTAService extends Service {
         mDialog = builder.create();  
         mDialog.getWindow().setType(  
                 WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);  
-        mDialog.show();  
+        mDialog.show();  */
+		Intent mUpgrade = new Intent();
+		mUpgrade.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mUpgrade.setClass(context, AlertDialogNotifyActivity.class);
+		Bundle bundler = new Bundle();
+		bundler.putParcelable("upgradeRule", mOTAStatus.upgradeRule);
+		mUpgrade.putExtras(bundler);
+		mUpgrade.putExtra("mNotifyFlag", 0);
+		context.startActivity(mUpgrade);
 	}
 	
 	private void showInstallNotify(Uri uri, String mimeType) {
 		final String mime = mimeType;
 		final Uri u = uri;
 		
-        AlertDialog mDialog = null;  
+        /*AlertDialog mDialog = null;  
         AlertDialog.Builder builder = new AlertDialog.Builder(context);  
         builder.setIcon(android.R.drawable.ic_dialog_info);  
-        builder.setTitle("°æ±¾°²×°");  
-        builder.setMessage("ÃÜÐÅÐÂ°æ±¾ " + mOTAStatus.upgradeRule.getTgtVer() + " ÏÂÔØÍê³É£¬ÊÇ·ñÁ¢¼´¸üÐÂ£¿");  
+        builder.setTitle("ï¿½æ±¾ï¿½ï¿½×°");  
+        builder.setMessage("ï¿½ï¿½ï¿½ï¿½ï¿½Â°æ±¾ " + mOTAStatus.upgradeRule.getTgtVer() + " ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½");  
         builder.setPositiveButton(android.R.string.ok,  
                 new DialogInterface.OnClickListener() {  
                     public void onClick(DialogInterface dialog, int which) {
 						Log.d(TAG, "the new version file " + u + " starts installing.");
 
 						Intent intent = new Intent(Intent.ACTION_VIEW);  
-					    intent.setDataAndType(u,  
-					    		mime);  
+					    intent.setDataAndType(u,mime);  
 					    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					    startActivity(intent);  
 					
@@ -369,7 +394,21 @@ public class OTAService extends Service {
         mDialog = builder.create();  
         mDialog.getWindow().setType(  
                 WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);  
-        mDialog.show();  
+        mDialog.show();  */
+		
+        
+        Intent mUpgrade = new Intent();
+		mUpgrade.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mUpgrade.setClass(context, AlertDialogNotifyActivity.class);
+		mUpgrade.putExtra("mNotifyFlag", 1);
+		mUpgrade.putExtra("mime", mime);
+		Bundle bundler = new Bundle();
+		bundler.putParcelable("u", u);
+		bundler.putParcelable("upgradeRule", mOTAStatus.upgradeRule);
+
+		mUpgrade.putExtras(bundler);
+
+		context.startActivity(mUpgrade);
 	}
 
 

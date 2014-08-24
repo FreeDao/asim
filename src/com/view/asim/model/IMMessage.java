@@ -43,8 +43,9 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	
 	// 销毁类型常
 	public static final String NEVER_BURN = "never_burn";
-	public static final String BURN_AFTER_READ = "burn_after_read";
-	
+	public static final String SHOULD_BURN = "burn_after_read";
+	public static final String BURNED = "already_burned";
+
 	public static final String SINGLE = "single";
 	public static final String GROUP = "group";
 
@@ -241,6 +242,7 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 				", chatType = " + chatType +
 				", destroy = " + destroy +
 				", security = " + security;
+
 	}
 
 	protected IMMessage(Parcel in) {  
@@ -315,4 +317,5 @@ public class IMMessage implements Parcelable, Comparable<IMMessage> {
 	
 		return 0;
 	}
+
 }

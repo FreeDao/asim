@@ -64,6 +64,7 @@
                 android:layout_weight="1.0"
                 android:paddingTop="10dp"
                 android:text="测试"
+                android:singleLine="true"
                 android:textColor="@color/gray"
                 android:textSize="16sp" />
 

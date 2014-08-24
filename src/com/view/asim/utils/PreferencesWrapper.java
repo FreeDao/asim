@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.sip.api.SipConfigManager;
 
 import org.json.JSONException;
@@ -85,7 +86,7 @@ public class PreferencesWrapper {
 		put(SipConfigManager.RTP_PORT, "4000");
 		put(SipConfigManager.OVERRIDE_NAMESERVER, "");
 		put(SipConfigManager.TIMER_MIN_SE, "90");
-		put(SipConfigManager.TIMER_SESS_EXPIRES, "1800");
+		put(SipConfigManager.TIMER_SESS_EXPIRES, "86400");
         put(SipConfigManager.TSX_T1_TIMEOUT, "-1");
         put(SipConfigManager.TSX_T2_TIMEOUT, "-1");
         put(SipConfigManager.TSX_T4_TIMEOUT, "-1");
@@ -108,7 +109,7 @@ public class PreferencesWrapper {
         put(SipConfigManager.H264_BITRATE, "0");
         put(SipConfigManager.VIDEO_CAPTURE_SIZE, "");
 		
-		put(SipConfigManager.STUN_SERVER, Constant.VOIP_STUN_SERVER);
+		put(SipConfigManager.STUN_SERVER, "");
 		put(SipConfigManager.TURN_SERVER, "");
 		put(SipConfigManager.TURN_USERNAME, "");
 		put(SipConfigManager.TURN_PASSWORD, "");
@@ -243,7 +244,6 @@ public class PreferencesWrapper {
 	public PreferencesWrapper(Context aContext) {
 		context = aContext;
 		prefs = aContext.getSharedPreferences(Constant.SIP_SET_PREF, 0);
-				//PreferenceManager.getDefaultSharedPreferences(aContext);
 		resolver = aContext.getContentResolver();
 		
 		// Check if we need an upgrade here
@@ -476,6 +476,7 @@ public class PreferencesWrapper {
 		}
 		Compatibility.setFirstRunParameters(this);
 		setPreferenceBooleanValue(PreferencesProviderWrapper.HAS_ALREADY_SETUP_SERVICE, true);
+		setPreferenceStringValue(SipConfigManager.STUN_SERVER, AppConfigManager.getInstance().getServer().getStunHost());
 	}
 	
 	

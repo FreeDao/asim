@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import org.jivesoftware.smack.packet.Message;
 
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.view.asim.R;
 import com.view.asim.comm.Constant;
 import com.view.asim.manager.AUKeyManager;
 import com.view.asim.manager.ContacterManager;
@@ -64,7 +65,7 @@ public class RecvFileMsgHandler implements BaseHandler {
 
 		String content = null;
 		
-		if (security.equals(IMMessage.ENCRYPTION)) {
+		if (security == null || (security != null && security.equals(IMMessage.ENCRYPTION))) {
 			content = AUKeyManager.getInstance().decryptData(mRawMsg.getBody());
 		} else {
 			content = mRawMsg.getBody();
@@ -125,7 +126,7 @@ public class RecvFileMsgHandler implements BaseHandler {
 		String downloadUrl = "http://" + Constant.FILE_STORAGE_HOST + "/" + att.getKey();
 		String downloadThumbUrl = "http://" + Constant.FILE_STORAGE_HOST + "/" + att.getThumbKey();
 
-		msg.setContent(mNickName + "发来了一段视频");
+		msg.setContent(mNickName + mCntx.getResources().getString(R.string.get_a_video));
 		
 //		// 通过七牛 API 分析视频的显示尺寸
 //		String avInfoUrl = downloadUrl + "?avinfo";
@@ -197,7 +198,7 @@ public class RecvFileMsgHandler implements BaseHandler {
 			return;
 		};
 		
-		msg.setContent(mNickName + "发来了一张图片");
+		msg.setContent(mNickName + mCntx.getResources().getString(R.string.get_a_picture));
 
 		// 缩略图限定长边最多200px
 		String thumbUrl = downloadUrl + "?imageView2/0/h/200";
@@ -238,12 +239,12 @@ public class RecvFileMsgHandler implements BaseHandler {
 		String fileSavePath = null;
 		
 		if (type.equals(ChatMessage.CHAT_AUDIO)) {
-			msg.setContent(mNickName + "发来了一段语音");
+			msg.setContent(mNickName + mCntx.getResources().getString(R.string.get_a_voice));
 			fileSavePath = FileUtil.getAudioPathByWith(msg.getWith());
 
 		}
 		else {
-			msg.setContent(mNickName + "发来了一个文件");
+			msg.setContent(mNickName + mCntx.getResources().getString(R.string.get_a_file));
 			fileSavePath = FileUtil.getFilePathByWith(msg.getWith());
 
 		}

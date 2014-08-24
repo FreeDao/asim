@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.view.asim.comm.ApplicationContext;
 import com.view.asim.comm.Constant;
+import com.view.asim.manager.AppConfigManager;
 import com.view.asim.manager.ContacterManager;
 import com.view.asim.model.User;
 
@@ -33,7 +34,7 @@ import android.util.Log;
 
 /**
  * 
- * ÎÄ¼þ¹¤¾ßÀà
+ * ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  * 
  * @author xuweinan
  */
@@ -41,7 +42,7 @@ public class FileUtil {
 	private static final String TAG = "FileUtil";
 
 	/**
-	 * ¿½±´ÎÄ¼þ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 	 * 
 	 * @param fromFile
 	 * @param toFile
@@ -77,7 +78,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ´´½¨ÎÄ¼þ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 	 * 
 	 * @param file
 	 * @return
@@ -105,7 +106,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ´´½¨ÎÄ¼þ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 	 * 
 	 * @param path
 	 */
@@ -115,7 +116,7 @@ public class FileUtil {
 	}// end method createText()
 
 	/**
-	 * É¾³ýÎÄ¼þ
+	 * É¾ï¿½ï¿½ï¿½Ä¼ï¿½
 	 * 
 	 * @param path
 	 */
@@ -125,7 +126,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * É¾³ýÎÄ¼þ
+	 * É¾ï¿½ï¿½ï¿½Ä¼ï¿½
 	 * 
 	 * @param file
 	 */
@@ -145,7 +146,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ÏòTextÎÄ¼þÖÐÐ´ÈëÄÚÈÝ
+	 * ï¿½ï¿½Textï¿½Ä¼ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param file
 	 * @param content
@@ -190,7 +191,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * »ñµÃÎÄ¼þÃû
+	 * ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
 	 * 
 	 * @param path
 	 * @return
@@ -206,12 +207,12 @@ public class FileUtil {
 	}
 
 	/**
-	 * ¶ÁÈ¡ÎÄ¼þÄÚÈÝ£¬´ÓµÚstartLineÐÐ¿ªÊ¼£¬¶ÁÈ¡lineCountÐÐ
+	 * ï¿½ï¿½È¡ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½Óµï¿½startLineï¿½Ð¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½È¡lineCountï¿½ï¿½
 	 * 
 	 * @param file
 	 * @param startLine
 	 * @param lineCount
-	 * @return ¶Áµ½ÎÄ×ÖµÄlist,Èç¹ûlist.size<lineCountÔòËµÃ÷¶Áµ½ÎÄ¼þÄ©Î²ÁË
+	 * @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½list,ï¿½ï¿½ï¿½list.size<lineCountï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ä©Î²ï¿½ï¿½
 	 */
 	public static List<String> readFile(File file, int startLine, int lineCount) {
 		if (file == null || startLine < 1 || lineCount < 1) {
@@ -258,7 +259,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ´´½¨ÎÄ¼þ¼Ð
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
 	 * 
 	 * @param dir
 	 * @return
@@ -276,7 +277,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ÔÚSD¿¨ÉÏ´´½¨Ä¿Â¼
+	 * ï¿½ï¿½SDï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½Ä¿Â¼
 	 * 
 	 * @param dirName
 	 */
@@ -287,7 +288,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ÅÐ¶ÏSD¿¨ÉÏµÄÎÄ¼þÊÇ·ñ´æÔÚ
+	 * ï¿½Ð¶ï¿½SDï¿½ï¿½ï¿½Ïµï¿½ï¿½Ä¼ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
 	 */
 	public static boolean isFileExist(String fileName) {
 		File file = new File(fileName);
@@ -295,7 +296,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * ½«Ò»¸öInputStreamÀïÃæµÄÊý¾ÝÐ´Èëµ½SD¿¨ÖÐ
+	 * ï¿½ï¿½Ò»ï¿½ï¿½InputStreamï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ëµ½SDï¿½ï¿½ï¿½ï¿½
 	 */
 	public static File write2SDFromInput(String path, String fileName,
 			InputStream input) {
@@ -323,7 +324,7 @@ public class FileUtil {
 		return file;
 	}
 
-	// ´ÓÎÄ¼þÖÐÒ»ÐÐÒ»ÐÐµÄ¶ÁÈ¡ÎÄ¼þ
+	// ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ò»ï¿½ÐµÄ¶ï¿½È¡ï¿½Ä¼ï¿½
 	public static String readFile(File file) {
 		Reader read = null;
 		String content = "";
@@ -369,22 +370,22 @@ public class FileUtil {
 	
 	public static String getSDCardRootDirectory() {
 		
-		/* Èç¹ûÍâÖÃ SDCard ¿ÉÓÃ£¬Ö±½Ó·µ»ØÆäÂ·¾¶ */
+		/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ SDCard ï¿½ï¿½ï¿½Ã£ï¿½Ö±ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ */
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			return Environment.getExternalStorageDirectory().getAbsolutePath();
 		}
 		
-		/* ³¢ÊÔÍ¨¹ý mount ¼ÇÂ¼²éÕÒÄÚÖÃ SDCard */
+		/* ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ mount ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ SDCard */
 		String cmd = "cat /proc/mounts";
-        Runtime run = Runtime.getRuntime();// ·µ»ØÓëµ±Ç° Java Ó¦ÓÃ³ÌÐòÏà¹ØµÄÔËÐÐÊ±¶ÔÏó
+        Runtime run = Runtime.getRuntime();// ï¿½ï¿½ï¿½ï¿½ï¿½ëµ±Ç° Java Ó¦ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
         try {
-            Process p = run.exec(cmd);// Æô¶¯ÁíÒ»¸ö½ø³ÌÀ´Ö´ÐÐÃüÁî
+            Process p = run.exec(cmd);// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             BufferedInputStream in = new BufferedInputStream(p.getInputStream());
             BufferedReader inBr = new BufferedReader(new InputStreamReader(in));
 
             String lineStr;
             while ((lineStr = inBr.readLine()) != null) {
-                // »ñµÃÃüÁîÖ´ÐÐºóÔÚ¿ØÖÆÌ¨µÄÊä³öÐÅÏ¢
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ðºï¿½ï¿½Ú¿ï¿½ï¿½ï¿½Ì¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
                 Log.d(TAG, lineStr);
                 if (lineStr.contains("sdcard")) {
                     String[] strArray = lineStr.split(" ");
@@ -393,9 +394,9 @@ public class FileUtil {
                         return result;
                     }
                 }
-                // ¼ì²éÃüÁîÊÇ·ñÖ´ÐÐÊ§°Ü¡£
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Ö´ï¿½ï¿½Ê§ï¿½Ü¡ï¿½
                 if (p.waitFor() != 0 && p.exitValue() == 1) {
-                    // p.exitValue()==0±íÊ¾Õý³£½áÊø£¬1£º·ÇÕý³£½áÊø
+                    // p.exitValue()==0ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                     Log.e(TAG, "check mount info failed");
                     return null;
                 }
@@ -491,7 +492,7 @@ public class FileUtil {
 	
 	
 	public static String getUserRootPath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null ||  AppConfigManager.getInstance().getUsername()== null) {
 			return null;
 		}
 
@@ -500,7 +501,7 @@ public class FileUtil {
 	}
 	
 	public static String getUserDBPath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null) {
 			return null;
 		}
 
@@ -508,7 +509,7 @@ public class FileUtil {
 	}
 	
 	public static String getUserTempPath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null) {
 			return null;
 		}
 
@@ -516,7 +517,7 @@ public class FileUtil {
 	}
 	
 	public static String getUserImagePath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null) {
 			return null;
 		}
 
@@ -524,7 +525,7 @@ public class FileUtil {
 	}
 	
 	public static String getUserAudioPath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null) {
 			return null;
 		}
 
@@ -532,7 +533,7 @@ public class FileUtil {
 	}
 	
 	public static String getUserVideoPath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null) {
 			return null;
 		}
 
@@ -540,7 +541,7 @@ public class FileUtil {
 	}
 	
 	public static String getUserFilePath() {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null) {
 			return null;
 		}
 
@@ -548,7 +549,7 @@ public class FileUtil {
 	}
 		
 	public static String getImagePathByWith(String with) {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null || with == null) {
 			return null;
 		}
 
@@ -556,7 +557,7 @@ public class FileUtil {
 	}
 	
 	public static String getAudioPathByWith(String with) {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null || with == null) {
 			return null;
 		}
 
@@ -564,7 +565,7 @@ public class FileUtil {
 	}
 	
 	public static String getVideoPathByWith(String with) {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null || with == null) {
 			return null;
 		}
 
@@ -572,7 +573,7 @@ public class FileUtil {
 	}
 	
 	public static String getFilePathByWith(String with) {
-		if (Constant.SDCARD_ROOT_PATH == null || ContacterManager.userMe == null || with == null) {
+		if (Constant.SDCARD_ROOT_PATH == null || AppConfigManager.getInstance().getUsername() == null || with == null) {
 			return null;
 		}
 
@@ -580,20 +581,20 @@ public class FileUtil {
 	}
 	
 	/**
-	 * ×ÊÔ´ÎÄ¼þÃüÃû¹æ·¶£º
-	 *   ÆÕÍ¨ÈÕÖ¾ÎÄ¼þ£ºnormal-Ê±¼ä´Á.log
-	 *   ±ÀÀ£ÈÕÖ¾ÎÄ¼þ£ºcrash-Ê±¼ä´Á.log£¨ÉÏ´«µ½·þÎñÆ÷Ê±¼ÓÉÏ»úÐÍºÍ°æ±¾ÐÅÏ¢×÷ÎªÇ°×º£¬»úÐÍ-°æ±¾-(ÓÃ»§Ãû)-crash-Ê±¼ä´Á.log£©
-	 *   ·¢ËÍ±¾µØÏà²áµÄÒÑÓÐÎÄ¼þ£ºÎÄ¼þÔ­Ãû
-	 *   ÔÚÃÜÐÅÖÐÅÄÕÕ·¢ËÍµÄÕÕÆ¬£º×ÔÉíÓÃ»§Ãû-¶Ô·½ÓÃ»§Ãû-image-Ê±¼ä´Á.src
-	 *   ÔÚÃÜÐÅÖÐÂ¼Ó°·¢ËÍµÄÊÓÆµ£º×ÔÉíÓÃ»§Ãû-¶Ô·½ÓÃ»§Ãû-video-Ê±¼ä´Á.src
-	 *   ÔÚÃÜÐÅÖÐÂ¼Ó°·¢ËÍµÄÊÓÆµËõÂÔÍ¼£º×ÔÉíÓÃ»§Ãû-¶Ô·½ÓÃ»§Ãû-video-Ê±¼ä´Á.thumb
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÕÕÆ¬£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-image-Ê±¼ä´Á.src
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÕÕÆ¬ËõÂÔÍ¼£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-image-Ê±¼ä´Á.thumb
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÊÓÆµ£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-video-Ê±¼ä´Á.src
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÊÓÆµËõÂÔÍ¼£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-video-Ê±¼ä´Á.thumb
-	 *   ÔÚÃÜÐÅÖÐÂ¼Òô·¢ËÍµÄÓïÒô£º×ÔÉíÓÃ»§Ãû-¶Ô·½ÓÃ»§Ãû-audio-Ê±¼ä´Á.src
-	 *   ½ÓÊÕµ½ºÃÓÑ·¢À´µÄÓïÒô£º¶Ô·½ÓÃ»§Ãû-×ÔÉíÓÃ»§Ãû-audio-Ê±¼ä´Á.src
-	 *   ·¢ËÍºÍ½ÓÊÕµÄÆÕÍ¨ÎÄ¼þ£ºÎÄ¼þÔ­Ãû 
+	 * ï¿½ï¿½Ô´ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ·¶ï¿½ï¿½
+	 *   ï¿½ï¿½Í¨ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ï¿½ï¿½normal-Ê±ï¿½ï¿½ï¿½.log
+	 *   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ï¿½ï¿½crash-Ê±ï¿½ï¿½ï¿½.logï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ï»ï¿½ï¿½ÍºÍ°æ±¾ï¿½ï¿½Ï¢ï¿½ï¿½ÎªÇ°×ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½æ±¾-(ï¿½Ã»ï¿½ï¿½ï¿½)-crash-Ê±ï¿½ï¿½ï¿½.logï¿½ï¿½
+	 *   ï¿½ï¿½ï¿½Í±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ô­ï¿½ï¿½
+	 *   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ·ï¿½ï¿½Íµï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-image-Ê±ï¿½ï¿½ï¿½.src
+	 *   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼Ó°ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-video-Ê±ï¿½ï¿½ï¿½.src
+	 *   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼Ó°ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-video-Ê±ï¿½ï¿½ï¿½.thumb
+	 *   ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-image-Ê±ï¿½ï¿½ï¿½.src
+	 *   ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-image-Ê±ï¿½ï¿½ï¿½.thumb
+	 *   ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-video-Ê±ï¿½ï¿½ï¿½.src
+	 *   ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-video-Ê±ï¿½ï¿½ï¿½.thumb
+	 *   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-audio-Ê±ï¿½ï¿½ï¿½.src
+	 *   ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô·ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½-audio-Ê±ï¿½ï¿½ï¿½.src
+	 *   ï¿½ï¿½ï¿½ÍºÍ½ï¿½ï¿½Õµï¿½ï¿½ï¿½Í¨ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ô­ï¿½ï¿½ 
 	 *   
 	 */
 	public static String genSipLogFileName() {

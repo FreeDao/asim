@@ -50,7 +50,7 @@
                     android:layout_weight="1.0"
                     android:background="@null"
                     android:gravity="center_vertical"
-                    android:hint="你好..."
+                    android:hint="@string/hello"
                     android:inputType="textWebEditText"
                     android:lines="3"
                     android:text=""
@@ -171,7 +171,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="图片" />
+                        android:text="@string/picture" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -191,7 +191,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="拍照" />
+                        android:text="@string/shooting" />
                 </LinearLayout>
                 
                 <LinearLayout
@@ -211,7 +211,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="录影" />
+                        android:text="@string/record_a_scene_video" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -240,7 +240,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="语音通话" />
+                        android:text="@string/voice_call" />
                 </LinearLayout>
 
                 
@@ -261,7 +261,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="发送名片" />
+                        android:text="@string/send_contact" />
                 </LinearLayout>
                 
                 <LinearLayout
@@ -281,7 +281,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="发送文件" />
+                        android:text="@string/send_file" />
                 </LinearLayout>
 
             </LinearLayout>

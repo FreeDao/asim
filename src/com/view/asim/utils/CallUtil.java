@@ -9,8 +9,11 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.view.asim.R;
+import com.view.asim.comm.ApplicationContext;
 import com.view.asim.sip.api.SipCallSession.StatusCode;
 
+import android.content.Context;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,39 +26,40 @@ import android.widget.TextView;
 public class CallUtil {
     
     public static String getStringByStatusCode(int code) {
+    	Context context = ApplicationContext.get();
     	String statusTxt = null;
     	switch(code) {
     	case StatusCode.OK:
-    		statusTxt = "正常通话";
+    		statusTxt = context.getResources().getString(R.string.normal_call);
     		break;
 
     	case StatusCode.NOT_FOUND:
     	case StatusCode.SEND_FAILED:
-    		statusTxt = "对方不在线";
+    		statusTxt = context.getResources().getString(R.string.opposite_side_off_line);
     		break;
     		
     	case StatusCode.NO_REPSONSE:
-    		statusTxt = "无应答";
+    		statusTxt = context.getResources().getString(R.string.no_response);
     		break;
     		
     	case StatusCode.REQUEST_TERMINATED:
-    		statusTxt = "主动取消";
+    		statusTxt = context.getResources().getString(R.string.initiative_cancel);
     		break;
     		
     	case StatusCode.BUSY_HERE:
-    		statusTxt = "对方正在通话";
+    		statusTxt = context.getResources().getString(R.string.opposite_in_call);
     		break;
     		
     	case StatusCode.DECLINE:
-    		statusTxt = "拒绝";
+    		statusTxt = context.getResources().getString(R.string.refuse);
     		break;	
     	
     	case StatusCode.ASIM_SECURITY_STATE_CHANGED:
-    		statusTxt = "密盾状态变化";
+    		statusTxt = context.getResources().getString(R.string.secret_state_changed);
     		break;	
     		
     	default:
-    		statusTxt = "线路异常";
+    		statusTxt = context.getResources().getString(R.string.line_error);
     		break;
     		
     	}
